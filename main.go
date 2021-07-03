@@ -1,34 +1,34 @@
 package main
 
 import (
-	"flag"
-	"log"
-	"os"
-	"fmt"
 	"embed"
+	"flag"
+	"fmt"
 	"io/fs"
+	"log"
 	"net/http"
+	"os"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
 
-	"github.com/fullstack-lang/ladybugsim/go/controllers"
-	"github.com/fullstack-lang/ladybugsim/go/orm"
+	ladybugsim_controllers "github.com/fullstack-lang/ladybugsim/go/controllers"
+	ladybugsim_models "github.com/fullstack-lang/ladybugsim/go/models"
+	ladybugsim_orm "github.com/fullstack-lang/ladybugsim/go/orm"
 )
 
 var (
-	logDBFlag = flag.Bool("logDB", false, "log mode for db")
+	logDBFlag  = flag.Bool("logDB", false, "log mode for db")
 	logGINFlag = flag.Bool("logGIN", false, "log mode for gin")
-	apiFlag   = flag.Bool("api", false, "it true, use api controllers instead of default controllers")
+	apiFlag    = flag.Bool("api", false, "it true, use api controllers instead of default controllers")
 )
 
 func main() {
 
-	
 	log.SetPrefix("ladybugsim: ")
 	log.SetFlags(0)
-	
+
 	// parse program arguments
 	flag.Parse()
 
@@ -41,7 +41,7 @@ func main() {
 	r.Use(cors.Default())
 
 	// setup GORM
-	db := orm.SetupModels(*logDBFlag, "./test.db")
+	db := ladybugsim_orm.SetupModels(*logDBFlag, ":memory:")
 	dbDB, err := db.DB()
 
 	// since gongsim is a multi threaded application. It is important to set up
@@ -50,11 +50,15 @@ func main() {
 		panic("cannot access DB of db" + err.Error())
 	}
 	dbDB.SetMaxOpenConns(1)
+	ladybugsim_orm.BackRepo.Init(db)
+	// stage the simulation and the ladybugs
+	for _, ladybug := range ladybugsim_models.LadybugSimulationSingloton.Ladybugs {
+		ladybug.Stage().Commit()
+	}
+	ladybugsim_models.LadybugSimulationSingloton.Stage().Commit()
+	ladybugsim_models.Stage.Commit()
 
-
-	orm.BackRepo.Init(db)
-
-	controllers.RegisterControllers(r)
+	ladybugsim_controllers.RegisterControllers(r)
 
 	// provide the static route for the angular pages
 	r.Use(static.Serve("/", EmbedFolder(ng, "ng/dist/ng")))

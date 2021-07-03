@@ -61,6 +61,24 @@ func init() {
 	// initial positions of ladybugs cannot be close to each others than the radius
 	initialXPosition := make(map[float64]*Ladybug)
 
+	sortedInitialXPositions := make([]float64, LadybugSimulationSingloton.NbLadybugs)
+	for ladybugId := 0; ladybugId < LadybugSimulationSingloton.NbLadybugs; ladybugId = ladybugId + 1 {
+		// set up position
+		positionX := rand.Float64()
+
+		// adjust it on a multiple of the ladybug diameter
+		positionX = math.Round(positionX*1.0/LadybugSimulationSingloton.LadybugRadius) * LadybugSimulationSingloton.LadybugRadius
+
+		sortedInitialXPositions[ladybugId] = positionX
+		if initialXPosition[positionX] != nil {
+			log.Panic("same initial position")
+		}
+	}
+
+	sort.Slice(sortedInitialXPositions[:], func(i, j int) bool {
+		return sortedInitialXPositions[i] < sortedInitialXPositions[j]
+	})
+
 	// append a ladybug agent to feed the discrete event engine
 	for ladybugId := 0; ladybugId < LadybugSimulationSingloton.NbLadybugs; ladybugId = ladybugId + 1 {
 		ladyBug := new(Ladybug)
@@ -70,16 +88,7 @@ func init() {
 		LadybugSimulationSingloton.Ladybugs =
 			append(LadybugSimulationSingloton.Ladybugs, ladyBug)
 
-		// set up position
-		positionX := rand.Float64()
-
-		// adjust it on a multiple of the ladybug diameter
-		positionX = math.Round(positionX*1.0/LadybugSimulationSingloton.LadybugRadius) * LadybugSimulationSingloton.LadybugRadius
-
-		ladyBug.Position = positionX
-		if initialXPosition[positionX] != nil {
-			log.Panic("same initial position")
-		}
+		ladyBug.Position = sortedInitialXPositions[ladybugId]
 
 		// decide orientaiton of the speed
 		if rand.Float64() > 0.5 {
@@ -95,9 +104,4 @@ func init() {
 		step.Name = "update of laybug motion"
 		ladyBug.QueueEvent(&step)
 	}
-
-	sort.Slice(LadybugSimulationSingloton.Ladybugs[:], func(i, j int) bool {
-		return LadybugSimulationSingloton.Ladybugs[i].Position < LadybugSimulationSingloton.Ladybugs[j].Position
-	})
-
 }
