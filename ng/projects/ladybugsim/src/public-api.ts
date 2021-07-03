@@ -28,3 +28,4 @@ export * from './lib/ladybugsimulation-api'
 export * from './lib/ladybugsimulation.service'
 
 
+export * from './lib/LadybugStatus'

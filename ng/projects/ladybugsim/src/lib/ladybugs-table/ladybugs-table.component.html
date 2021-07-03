@@ -54,6 +54,13 @@
             </td>
         </ng-container>
         <!-- -->
+        <ng-container matColumnDef="LadybugStatus">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> LadybugStatus </th>
+            <td mat-cell *matCellDef="let Ladybug">
+                {{Ladybug.LadybugStatus}}
+            </td>
+        </ng-container>
+        <!-- -->
         <ng-container matColumnDef="Ladybugs">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> <-- (LadybugSimulation) Ladybugs </th>
             <td mat-cell *matCellDef="let ladybug">

@@ -5,4 +5,5 @@ export class LadybugAPI {
 	Id?: number
 	Position?: number
 	Speed?: number
+	LadybugStatus?: string
 }

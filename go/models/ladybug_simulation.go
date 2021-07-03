@@ -81,27 +81,28 @@ func init() {
 
 	// append a ladybug agent to feed the discrete event engine
 	for ladybugId := 0; ladybugId < LadybugSimulationSingloton.NbLadybugs; ladybugId = ladybugId + 1 {
-		ladyBug := new(Ladybug)
-		ladyBug.Name = fmt.Sprintf("Ladybug #%2d", ladybugId)
-		ladyBug.Id = ladybugId
+		ladybug := new(Ladybug)
+		ladybug.Name = fmt.Sprintf("Ladybug #%2d", ladybugId)
+		ladybug.Id = ladybugId
 
 		LadybugSimulationSingloton.Ladybugs =
-			append(LadybugSimulationSingloton.Ladybugs, ladyBug)
+			append(LadybugSimulationSingloton.Ladybugs, ladybug)
 
-		ladyBug.Position = sortedInitialXPositions[ladybugId]
+		ladybug.Position = sortedInitialXPositions[ladybugId]
+		ladybug.LadybugStatus = ON_THE_FENCE
 
 		// decide orientaiton of the speed
 		if rand.Float64() > 0.5 {
-			ladyBug.Speed = LadybugSimulationSingloton.AbsoluteSpeed
+			ladybug.Speed = LadybugSimulationSingloton.AbsoluteSpeed
 		} else {
-			ladyBug.Speed = -LadybugSimulationSingloton.AbsoluteSpeed
+			ladybug.Speed = -LadybugSimulationSingloton.AbsoluteSpeed
 		}
 
-		gongsim_models.EngineSingloton.AppendAgent(ladyBug)
+		gongsim_models.EngineSingloton.AppendAgent(ladybug)
 		var step gongsim_models.UpdateState
 		step.SetFireTime(gongsim_models.EngineSingloton.GetStartTime())
 		step.Period = LadybugSimulationSingloton.SimulationStep //
 		step.Name = "update of laybug motion"
-		ladyBug.QueueEvent(&step)
+		ladybug.QueueEvent(&step)
 	}
 }

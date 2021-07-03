@@ -10,6 +10,7 @@ import { MapOfComponents } from '../map-components'
 import { MapOfSortingComponents } from '../map-components'
 
 // insertion point for imports
+import { LadybugStatusSelect, LadybugStatusList } from '../LadybugStatus'
 
 import { Router, RouterState, ActivatedRoute } from '@angular/router';
 
@@ -34,6 +35,7 @@ enum LadybugDetailComponentState {
 export class LadybugDetailComponent implements OnInit {
 
 	// insertion point for declarations
+	LadybugStatusList: LadybugStatusSelect[]
 
 	// the LadybugDB of interest
 	ladybug: LadybugDB;
@@ -104,6 +106,7 @@ export class LadybugDetailComponent implements OnInit {
 		)
 
 		// insertion point for initialisation of enums list
+		this.LadybugStatusList = LadybugStatusList
 	}
 
 	getLadybug(): void {

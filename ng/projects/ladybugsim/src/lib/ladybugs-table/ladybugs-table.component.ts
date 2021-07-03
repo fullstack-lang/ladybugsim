@@ -75,6 +75,9 @@ export class LadybugsTableComponent implements OnInit {
         case 'Speed':
           return ladybugDB.Speed;
 
+        case 'LadybugStatus':
+          return ladybugDB.LadybugStatus;
+
         case 'Ladybugs':
           return this.frontRepo.LadybugSimulations.get(ladybugDB.LadybugSimulation_LadybugsDBID.Int64)?.Name;
 
@@ -96,6 +99,7 @@ export class LadybugsTableComponent implements OnInit {
       mergedContent += ladybugDB.Id.toString()
       mergedContent += ladybugDB.Position.toString()
       mergedContent += ladybugDB.Speed.toString()
+      mergedContent += ladybugDB.LadybugStatus.toLowerCase()
       if (ladybugDB.LadybugSimulation_LadybugsDBID.Int64 != 0) {
         mergedContent += this.frontRepo.LadybugSimulations.get(ladybugDB.LadybugSimulation_LadybugsDBID.Int64)?.Name.toLowerCase()
       }
@@ -155,6 +159,7 @@ export class LadybugsTableComponent implements OnInit {
         "Id",
         "Position",
         "Speed",
+        "LadybugStatus",
         "Ladybugs",
       ]
     } else {
@@ -164,6 +169,7 @@ export class LadybugsTableComponent implements OnInit {
         "Id",
         "Position",
         "Speed",
+        "LadybugStatus",
         "Ladybugs",
       ]
       this.selection = new SelectionModel<LadybugDB>(allowMultiSelect, this.initialSelection);

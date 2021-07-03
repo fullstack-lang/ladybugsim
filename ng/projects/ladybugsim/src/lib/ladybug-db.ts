@@ -15,6 +15,7 @@ export class LadybugDB {
 	Id?: number
 	Position?: number
 	Speed?: number
+	LadybugStatus?: string
 
 	// insertion point for other declarations
 	LadybugSimulation_LadybugsDBID?: NullInt64

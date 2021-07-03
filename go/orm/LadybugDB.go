@@ -77,6 +77,9 @@ type LadybugDB struct {
 	// Declation for basic field ladybugDB.Speed {{BasicKind}} (to be completed)
 	Speed_Data sql.NullFloat64
 
+	// Declation for basic field ladybugDB.LadybugStatus {{BasicKind}} (to be completed)
+	LadybugStatus_Data sql.NullString
+
 	// encoding of pointers
 	LadybugPointersEnconding
 }
@@ -107,6 +110,8 @@ type LadybugWOP struct {
 	Position float64
 
 	Speed float64
+
+	LadybugStatus models.LadybugStatus
 	// insertion for WOP pointer fields
 }
 
@@ -118,6 +123,7 @@ var Ladybug_Fields = []string{
 	"Id",
 	"Position",
 	"Speed",
+	"LadybugStatus",
 }
 
 type BackRepoLadybugStruct struct {
@@ -413,6 +419,9 @@ func (ladybugDB *LadybugDB) CopyBasicFieldsFromLadybug(ladybug *models.Ladybug) 
 	ladybugDB.Speed_Data.Float64 = ladybug.Speed
 	ladybugDB.Speed_Data.Valid = true
 
+	ladybugDB.LadybugStatus_Data.String = string(ladybug.LadybugStatus)
+	ladybugDB.LadybugStatus_Data.Valid = true
+
 }
 
 // CopyBasicFieldsFromLadybugWOP
@@ -433,6 +442,9 @@ func (ladybugDB *LadybugDB) CopyBasicFieldsFromLadybugWOP(ladybug *LadybugWOP) {
 	ladybugDB.Speed_Data.Float64 = ladybug.Speed
 	ladybugDB.Speed_Data.Valid = true
 
+	ladybugDB.LadybugStatus_Data.String = string(ladybug.LadybugStatus)
+	ladybugDB.LadybugStatus_Data.Valid = true
+
 }
 
 // CopyBasicFieldsToLadybug
@@ -443,6 +455,7 @@ func (ladybugDB *LadybugDB) CopyBasicFieldsToLadybug(ladybug *models.Ladybug) {
 	ladybug.Id = int(ladybugDB.Id_Data.Int64)
 	ladybug.Position = ladybugDB.Position_Data.Float64
 	ladybug.Speed = ladybugDB.Speed_Data.Float64
+	ladybug.LadybugStatus = models.LadybugStatus(ladybugDB.LadybugStatus_Data.String)
 }
 
 // CopyBasicFieldsToLadybugWOP
@@ -454,6 +467,7 @@ func (ladybugDB *LadybugDB) CopyBasicFieldsToLadybugWOP(ladybug *LadybugWOP) {
 	ladybug.Id = int(ladybugDB.Id_Data.Int64)
 	ladybug.Position = ladybugDB.Position_Data.Float64
 	ladybug.Speed = ladybugDB.Speed_Data.Float64
+	ladybug.LadybugStatus = models.LadybugStatus(ladybugDB.LadybugStatus_Data.String)
 }
 
 // Backup generates a json file from a slice of all LadybugDB instances in the backrepo
