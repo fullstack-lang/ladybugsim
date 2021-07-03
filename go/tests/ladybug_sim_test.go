@@ -30,7 +30,6 @@ func TestLadybugSim(t *testing.T) {
 	gongsim_models.EngineSingloton.Speed = 1.0 // realtime
 	// log.Printf("Sim start \t\t\t%s\n", gongsim_models.EngineSingloton.GetStartTime())
 
-	// Three years
 	gongsim_models.EngineSingloton.SetEndTime(time.Date(2021, time.July, 1, 0, 30, 0, 0, time.UTC))
 	// log.Printf("Sim end  \t\t\t%s\n", gongsim_models.EngineSingloton.GetEndTime())
 

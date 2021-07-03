@@ -22,20 +22,6 @@ var SimulationStep = time.Microsecond * time.Duration(MaxDistanceInOneStep*10000
 
 var AbsoluteSpeed = 1.0 / 60.0 // a ladybug is 1m par minute
 
-type LadybugSimulation struct {
-}
-
-var NbOfCollision = 0
-
-func (specificEngine *LadybugSimulation) EventFired(engine *gongsim_models.Engine) {}
-func (specificEngine *LadybugSimulation) HasAnyStateChanged(engine *gongsim_models.Engine) bool {
-	return true
-}
-func (specificEngine *LadybugSimulation) Reset(engine *gongsim_models.Engine)          {}
-func (specificEngine *LadybugSimulation) CommitAgents(engine *gongsim_models.Engine)   {}
-func (specificEngine *LadybugSimulation) CheckoutAgents(engine *gongsim_models.Engine) {}
-func (specificEngine *LadybugSimulation) GetLastCommitNb() uint                        { return 0 }
-
 type Ladybug struct {
 	gongsim_models.Agent
 
