@@ -27,10 +27,21 @@ func (specificEngine *LadybugSimulation) EventFired(engine *gongsim_models.Engin
 func (specificEngine *LadybugSimulation) HasAnyStateChanged(engine *gongsim_models.Engine) bool {
 	return true
 }
-func (specificEngine *LadybugSimulation) Reset(engine *gongsim_models.Engine)          {}
-func (specificEngine *LadybugSimulation) CommitAgents(engine *gongsim_models.Engine)   {}
+func (specificEngine *LadybugSimulation) Reset(engine *gongsim_models.Engine) {
+
+}
+func (specificEngine *LadybugSimulation) CommitAgents(engine *gongsim_models.Engine) {
+	// commit the simulation agent states
+	Stage.Commit()
+}
 func (specificEngine *LadybugSimulation) CheckoutAgents(engine *gongsim_models.Engine) {}
-func (specificEngine *LadybugSimulation) GetLastCommitNb() uint                        { return 0 }
+func (specificEngine *LadybugSimulation) GetLastCommitNb() (commitNb uint) {
+	if Stage.BackRepo != nil {
+		commitNb = Stage.BackRepo.GetLastCommitNb()
+	}
+
+	return
+}
 
 var LadybugSimulationSingloton *LadybugSimulation
 
@@ -45,7 +56,6 @@ func init() {
 
 	LadybugSimulationSingloton.NbLadybugs = 32
 
-	// seven days of simulation
 	gongsim_models.EngineSingloton.SetStartTime(time.Date(2021, time.July, 1, 0, 0, 0, 0, time.UTC))
 	gongsim_models.EngineSingloton.SetCurrentTime(gongsim_models.EngineSingloton.GetStartTime())
 	gongsim_models.EngineSingloton.State = gongsim_models.PAUSED

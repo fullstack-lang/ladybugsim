@@ -8,12 +8,28 @@
     "declaration": false,
     "downlevelIteration": true,
     "paths": {
+      // 
+      // https://angular.io/guide/creating-libraries#use-typescript-path-mapping-for-peer-dependencies
+      //
+      // Angular libraries should list any @angular/* 
+      // dependencies the library depends on as peer dependencies. This ensures that when modules ask for Angular, 
+      // they all get the exact same module. If a library lists @angular/core in dependencies instead of peerDependencies, 
+      // it might get a different Angular module instead, which would cause your application to break.
+      "@angular/*": [
+        "./node_modules/@angular/*"
+      ],
+      //
       "ladybugsim": [
         "projects/ladybugsim/src/public-api.ts",
-        "dist/ladybugsim/ladybugsim",
-        "dist/ladybugsim"
-      ]
+      ],
+      "gongsimcontrol": [
+        "../../gongsim/ng/projects/gongsimcontrol/src/public-api.ts"
+      ],
+      "gongsim": [
+        "../../gongsim/ng/projects/gongsim/src/public-api.ts"
+      ],
     },
+    "preserveSymlinks": true,
     "experimentalDecorators": true,
     "moduleResolution": "node",
     "importHelpers": true,
