@@ -1,1 +1,8 @@
-<app-ladybugsim-splitter></app-ladybugsim-splitter>
+<as-split direction="vertical">
+    <as-split-area size="10">
+        <lib-engine-control simulationTitle="Laundry time !" [engineUpdatedCallbackFunction]="engineUpdatedCallbackFunction"></lib-engine-control>
+    </as-split-area>
+    <as-split-area size="90">
+        <app-ladybugsim-splitter></app-ladybugsim-splitter>
+    </as-split-area>
+</as-split>
