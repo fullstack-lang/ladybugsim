@@ -43,11 +43,11 @@ func TestLadybugSim(t *testing.T) {
 	// time for the left relay to get out
 	leftRelayDistanceToExit := 1.0 - leftRelayInitialPosX
 	log.Printf("left distance to exit %1.4f", leftRelayDistanceToExit)
-	log.Printf("left time to exit %1.4f", leftRelayDistanceToExit*60.0)
+	log.Printf("left time to exit %1.4f", leftRelayDistanceToExit/ladybugsim_models.LadybugSim.AbsoluteSpeed)
 
 	rightRelayDistanceToExit := rightRelayInitialPosX
 	log.Printf("right distance to exit %1.4f", rightRelayDistanceToExit)
-	log.Printf("right time to exit %1.4f", rightRelayDistanceToExit*60.0)
+	log.Printf("right time to exit %1.4f", rightRelayDistanceToExit/ladybugsim_models.LadybugSim.AbsoluteSpeed)
 
 	maxRelayDistanceFromBorder := math.Max(leftRelayInitialPosX, 1.0-rightRelayInitialPosX)
 	log.Printf("max distance relay to border %1.4f", maxRelayDistanceFromBorder)
