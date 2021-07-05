@@ -60,6 +60,8 @@ func init() {
 
 	seed := time.Now().UnixNano()
 	log.Printf("seed %d ", seed)
+
+	seed = 1625472777467
 	rand.Seed(seed)
 
 	// Simulation step must

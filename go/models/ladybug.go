@@ -61,9 +61,9 @@ func (ladybug *Ladybug) FireNextEvent() {
 			if math.Abs(deltaX) < 2*sim.LadybugRadius {
 
 				// if ladybug.Id == 0 {
-				log.Printf("Event %10d Time : %s Pos %10f dist %10f ladybug %2d / %2d",
-					sim.EventNb, eventTime.Format("15:04:05.000000"),
-					otherLadybug.Position, deltaX, ladybug.Id, otherLadybug.Id)
+				// log.Printf("Event %10d Time : %s Pos %10f dist %10f ladybug %2d / %2d",
+				// 	sim.EventNb, eventTime.Format("15:04:05.000000"),
+				// 	otherLadybug.Position, deltaX, ladybug.Id, otherLadybug.Id)
 				// }
 
 				if deltaX > 0 && ladybug.Speed > 0 {
@@ -99,6 +99,7 @@ func (ladybug *Ladybug) FireNextEvent() {
 				sim.EventNb, eventTime.Format("15:04:05.000000"), sim.NbOfCollision/2)
 
 			gongsim_models.EngineSingloton.State = gongsim_models.OVER
+			gongsim_models.Stage.Commit()
 
 			return
 		}

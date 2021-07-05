@@ -40,15 +40,12 @@ func TestLadybugSim(t *testing.T) {
 		}
 	}
 
-	middleBetweenRelayX := (leftRelayInitialPosX + rightRelayInitialPosX) / 2.0
-	log.Printf("middle between relays %1.4f", middleBetweenRelayX)
-
 	// time for the left relay to get out
-	leftRelayDistanceToExit := (middleBetweenRelayX - leftRelayInitialPosX) + middleBetweenRelayX
+	leftRelayDistanceToExit := 1.0 - leftRelayInitialPosX
 	log.Printf("left distance to exit %1.4f", leftRelayDistanceToExit)
 	log.Printf("left time to exit %1.4f", leftRelayDistanceToExit*60.0)
 
-	rightRelayDistanceToExit := (rightRelayInitialPosX - middleBetweenRelayX) + (1.0 - middleBetweenRelayX)
+	rightRelayDistanceToExit := rightRelayInitialPosX
 	log.Printf("right distance to exit %1.4f", rightRelayDistanceToExit)
 	log.Printf("right time to exit %1.4f", rightRelayDistanceToExit*60.0)
 
