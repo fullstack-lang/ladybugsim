@@ -21,7 +21,7 @@ func TestLadybugSim(t *testing.T) {
 
 	// compute left & right relay positions
 	leftRelayInitialPosX := 0.0
-	for _, ladybug := range ladybugsim_models.LadybugSimulationSingloton.Ladybugs {
+	for _, ladybug := range ladybugsim_models.LadybugSim.Ladybugs {
 		if ladybug.Speed > 0 {
 			leftRelayInitialPosX = ladybug.Position
 			log.Printf("Left relay %1.4f", leftRelayInitialPosX)
@@ -30,9 +30,9 @@ func TestLadybugSim(t *testing.T) {
 	}
 
 	rightRelayInitialPosX := 0.0
-	for i := len(ladybugsim_models.LadybugSimulationSingloton.Ladybugs) - 1; i >= 0; i-- {
+	for i := len(ladybugsim_models.LadybugSim.Ladybugs) - 1; i >= 0; i-- {
 
-		ladybug := ladybugsim_models.LadybugSimulationSingloton.Ladybugs[i]
+		ladybug := ladybugsim_models.LadybugSim.Ladybugs[i]
 		if ladybug.Speed > 0 {
 			rightRelayInitialPosX = ladybug.Position
 			log.Printf("right relay %1.4f", rightRelayInitialPosX)

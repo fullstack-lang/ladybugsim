@@ -43,18 +43,58 @@ func (specificEngine *LadybugSimulation) GetLastCommitNb() (commitNb uint) {
 	return
 }
 
-var LadybugSimulationSingloton *LadybugSimulation
+var LadybugSim *LadybugSimulation
+
+const numericalSimuationAdjustment = 0.9999
 
 func init() {
-	LadybugSimulationSingloton = new(LadybugSimulation)
-	LadybugSimulationSingloton.Name = "Simulation of ladybugs"
-	LadybugSimulationSingloton.EventNb = 0
-	LadybugSimulationSingloton.LadybugRadius = 0.00005    // a ladybug is 1mm wide
-	LadybugSimulationSingloton.AbsoluteSpeed = 1.0 / 60.0 // a ladybug is 1m par minute
-	LadybugSimulationSingloton.MaxDistanceInOneStep = float64(0.99 * (LadybugSimulationSingloton.LadybugRadius / 4.0) * 60.0)
-	LadybugSimulationSingloton.SimulationStep = time.Microsecond * time.Duration(LadybugSimulationSingloton.MaxDistanceInOneStep*1000000.0)
+	LadybugSim = new(LadybugSimulation)
+	LadybugSim.Name = "Simulation of ladybugs"
+	LadybugSim.EventNb = 0
+	LadybugSim.LadybugRadius = 0.002 / numericalSimuationAdjustment //
+	LadybugSim.AbsoluteSpeed = 1.0 / 60.0                           // a ladybug is 1m par minute
 
-	LadybugSimulationSingloton.NbLadybugs = 32
+	// Simulation step must
+	//
+	// This is an event based simulation that is implemented as fixed step simulation
+	// the simulation
+	// - be the biggest possible to have the biggest simulation step
+	// - have 2 ladybug that are running towards each other detect that they are in a collision
+	//
+	//         |----*----| ->     <- |----*----|
+	//            |----*----|      |----*----|
+	//              |----*----|  |----*----|
+	//                |----*--|--|--*----|         !!! collision !!!
+	//
+	//         |----*----| ->   <- |----*----|
+	//            |----*----|    |----*----|
+	//              |----*----||----*----|       At the step before collision, both ladybugs are almost touching
+	//                |----*|----|*----|         !!! collision !!!
+	//
+	//
+	// at each step, a lady walks distance  -- This must be less than half the radius of the ladybug
+	//
+	//
+	// note : the 0.999 is for being robust to numerical inacura
+	LadybugSim.MaxDistanceInOneStep = (LadybugSim.LadybugRadius / 2.0) * numericalSimuationAdjustment
+
+	//
+	// distance = time * speed
+	//
+	// =>
+	//
+	// time = distance / speed
+	//
+	simStep := LadybugSim.MaxDistanceInOneStep / LadybugSim.AbsoluteSpeed
+
+	// from golang time
+	// A Duration represents the elapsed time between two instants as an int64 nanosecond count.
+	// The representation limits the largest representable duration to approximately 290 years.
+	LadybugSim.SimulationStep = time.Duration(
+		simStep *
+			1000.0 * 1000.0 * 1000.0)
+
+	LadybugSim.NbLadybugs = 10
 
 	gongsim_models.EngineSingloton.SetStartTime(time.Date(2021, time.July, 1, 0, 0, 0, 0, time.UTC))
 	gongsim_models.EngineSingloton.SetCurrentTime(gongsim_models.EngineSingloton.GetStartTime())
@@ -66,18 +106,18 @@ func init() {
 	// log.Printf("Sim end  \t\t\t%s\n", gongsim_models.EngineSingloton.GetEndTime())
 
 	// PLUMBING n°1: callback for treating model specific action. In this case, see specific engine
-	gongsim_models.EngineSingloton.Simulation = LadybugSimulationSingloton
+	gongsim_models.EngineSingloton.Simulation = LadybugSim
 
 	// initial positions of ladybugs cannot be close to each others than the radius
 	initialXPosition := make(map[float64]*Ladybug)
 
-	sortedInitialXPositions := make([]float64, LadybugSimulationSingloton.NbLadybugs)
-	for ladybugId := 0; ladybugId < LadybugSimulationSingloton.NbLadybugs; ladybugId = ladybugId + 1 {
+	sortedInitialXPositions := make([]float64, LadybugSim.NbLadybugs)
+	for ladybugId := 0; ladybugId < LadybugSim.NbLadybugs; ladybugId = ladybugId + 1 {
 		// set up position
 		positionX := rand.Float64()
 
 		// adjust it on a multiple of the ladybug diameter
-		positionX = math.Round(positionX*1.0/LadybugSimulationSingloton.LadybugRadius) * LadybugSimulationSingloton.LadybugRadius
+		positionX = math.Round(positionX*1.0/LadybugSim.LadybugRadius) * LadybugSim.LadybugRadius
 
 		sortedInitialXPositions[ladybugId] = positionX
 		if initialXPosition[positionX] != nil {
@@ -90,28 +130,28 @@ func init() {
 	})
 
 	// append a ladybug agent to feed the discrete event engine
-	for ladybugId := 0; ladybugId < LadybugSimulationSingloton.NbLadybugs; ladybugId = ladybugId + 1 {
+	for ladybugId := 0; ladybugId < LadybugSim.NbLadybugs; ladybugId = ladybugId + 1 {
 		ladybug := new(Ladybug)
 		ladybug.Name = fmt.Sprintf("Ladybug #%2d", ladybugId)
 		ladybug.Id = ladybugId
 
-		LadybugSimulationSingloton.Ladybugs =
-			append(LadybugSimulationSingloton.Ladybugs, ladybug)
+		LadybugSim.Ladybugs =
+			append(LadybugSim.Ladybugs, ladybug)
 
 		ladybug.Position = sortedInitialXPositions[ladybugId]
 		ladybug.LadybugStatus = ON_THE_FENCE
 
 		// decide orientaiton of the speed
 		if rand.Float64() > 0.5 {
-			ladybug.Speed = LadybugSimulationSingloton.AbsoluteSpeed
+			ladybug.Speed = LadybugSim.AbsoluteSpeed
 		} else {
-			ladybug.Speed = -LadybugSimulationSingloton.AbsoluteSpeed
+			ladybug.Speed = -LadybugSim.AbsoluteSpeed
 		}
 
 		gongsim_models.EngineSingloton.AppendAgent(ladybug)
 		var step gongsim_models.UpdateState
 		step.SetFireTime(gongsim_models.EngineSingloton.GetStartTime())
-		step.Period = LadybugSimulationSingloton.SimulationStep //
+		step.Period = LadybugSim.SimulationStep //
 		step.Name = "update of laybug motion"
 		ladybug.QueueEvent(&step)
 	}

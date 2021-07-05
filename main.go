@@ -64,10 +64,10 @@ func main() {
 	gongsim_orm.BackRepo.Init(db)
 
 	// stage the simulation and the ladybugs
-	for _, ladybug := range ladybugsim_models.LadybugSimulationSingloton.Ladybugs {
+	for _, ladybug := range ladybugsim_models.LadybugSim.Ladybugs {
 		ladybug.Stage().Commit()
 	}
-	ladybugsim_models.LadybugSimulationSingloton.Stage().Commit()
+	ladybugsim_models.LadybugSim.Stage().Commit()
 
 	// Gongsim (if autonomous, sim will run at the start)
 	if *clientControlFlag {

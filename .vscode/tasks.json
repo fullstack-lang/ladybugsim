@@ -55,5 +55,16 @@
             ],
             "group": "build"
         },
+        {
+            "label": "00 - update gongsim dependency",
+            "type": "shell",
+            "command": "go",
+            "args": [
+                "get",
+                "-d",
+                "github.com/fullstack-lang/gongsim@HEAD",
+            ],
+            "group": "build"
+        },
     ]
 }

@@ -5,6 +5,10 @@ github.com/frankban/quicktest v1.5.0 h1:Tb4jWdSpdjKzTUicPnY61PZxKbDoGa7ABbrReT3g
 github.com/frankban/quicktest v1.5.0/go.mod h1:jaStnuzAqU1AJdCO0l53JDCJrVDKcS03DbaAcR7Ks/o=
 github.com/fullstack-lang/gongsim v0.0.0-20210701130807-f54643d71b65 h1:GB0BxJOppNGWw2157zrIZNGkmaF5aKll4CgnPKphFSg=
 github.com/fullstack-lang/gongsim v0.0.0-20210701130807-f54643d71b65/go.mod h1:/6STHeLvy4wTtL6lIOlaMWtatrkIGeiHLGfenhuflXs=
+github.com/fullstack-lang/gongsim v0.0.0-20210705020926-7df92d9a082b h1:k1VC8B8uajmpiuqN3K9u2zr4FAJ1+hjuTozfdL2lSwQ=
+github.com/fullstack-lang/gongsim v0.0.0-20210705020926-7df92d9a082b/go.mod h1:/6STHeLvy4wTtL6lIOlaMWtatrkIGeiHLGfenhuflXs=
+github.com/fullstack-lang/gongsim v0.0.0-20210705021612-bc835c030446 h1:J7jFjtAkTOLLBMH+v+UPXGAlPyaSVTAJ26GFrN7KHWI=
+github.com/fullstack-lang/gongsim v0.0.0-20210705021612-bc835c030446/go.mod h1:/6STHeLvy4wTtL6lIOlaMWtatrkIGeiHLGfenhuflXs=
 github.com/gin-contrib/cors v1.3.1 h1:doAsuITavI4IOcd0Y19U4B+O0dNWihRyX//nn4sEmgA=
 github.com/gin-contrib/cors v1.3.1/go.mod h1:jjEJ4268OPZUcU7k9Pm653S7lXUGcqMADzFA61xsmDk=
 github.com/gin-contrib/sse v0.1.0 h1:Y/yl/+YNO8GZSjAhjMsSuLt29uWRFHdHYUb5lYOV9qE=
