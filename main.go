@@ -17,9 +17,15 @@ import (
 	ladybugsim_models "github.com/fullstack-lang/ladybugsim/go/models"
 	ladybugsim_orm "github.com/fullstack-lang/ladybugsim/go/orm"
 
+	ladybugsim2svg "github.com/fullstack-lang/ladybugsim/go/ladybugsim2svg"
+
 	gongsim_controllers "github.com/fullstack-lang/gongsim/go/controllers"
 	gongsim_models "github.com/fullstack-lang/gongsim/go/models"
 	gongsim_orm "github.com/fullstack-lang/gongsim/go/orm"
+
+	gongsvg_controllers "github.com/fullstack-lang/gongsvg/go/controllers"
+	gongsvg_models "github.com/fullstack-lang/gongsvg/go/models"
+	gongsvg_orm "github.com/fullstack-lang/gongsvg/go/orm"
 )
 
 var (
@@ -46,11 +52,12 @@ func main() {
 	r.Use(cors.Default())
 
 	// setup GORM
-	db := ladybugsim_orm.SetupModels(*logDBFlag, ":memory:")
+	db_ladybug := ladybugsim_orm.SetupModels(*logDBFlag, ":memory:")
 	// add gongsim database
-	gongsim_orm.AutoMigrate(db)
+	gongsim_orm.AutoMigrate(db_ladybug)
+	gongsvg_orm.AutoMigrate(db_ladybug)
 
-	dbDB, err := db.DB()
+	dbDB, err := db_ladybug.DB()
 
 	// since gongsim is a multi threaded application. It is important to set up
 	// only one open connexion at a time
@@ -60,8 +67,9 @@ func main() {
 	dbDB.SetMaxOpenConns(1)
 
 	// init back repos
-	ladybugsim_orm.BackRepo.Init(db)
-	gongsim_orm.BackRepo.Init(db)
+	ladybugsim_orm.BackRepo.Init(db_ladybug)
+	gongsim_orm.BackRepo.Init(db_ladybug)
+	gongsvg_orm.BackRepo.Init(db_ladybug)
 
 	// stage the simulation and the ladybugs
 	for _, ladybug := range ladybugsim_models.LadybugSim.Ladybugs {
@@ -76,11 +84,16 @@ func main() {
 		gongsim_models.EngineSingloton.ControlMode = gongsim_models.AUTONOMOUS
 	}
 
+	// plug the svg generator on the OnInitCommit callback
+	ladybugsim_models.Stage.OnInitCommitCallback = &ladybugsim2svg.LadybugsimToSVGTranformerSingloton
+
 	ladybugsim_models.Stage.Commit()
 	gongsim_models.Stage.Commit()
+	gongsvg_models.Stage.Commit()
 
 	ladybugsim_controllers.RegisterControllers(r)
 	gongsim_controllers.RegisterControllers(r)
+	gongsvg_controllers.RegisterControllers(r)
 
 	// provide the static route for the angular pages
 	r.Use(static.Serve("/", EmbedFolder(ng, "ng/dist/ng")))

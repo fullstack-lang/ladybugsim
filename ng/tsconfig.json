@@ -28,6 +28,12 @@
       "gongsim": [
         "../../gongsim/ng/projects/gongsim/src/public-api.ts"
       ],
+      "gongsvg": [
+        "../../gongsvg/ng/projects/gongsvg/src/public-api.ts"
+      ],
+      "gongsvgspecific": [
+        "../../gongsvg/ng/projects/gongsvgspecific/src/public-api.ts"
+      ],
     },
     "preserveSymlinks": true,
     "experimentalDecorators": true,

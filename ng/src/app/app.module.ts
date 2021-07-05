@@ -13,6 +13,9 @@ import { AngularSplitModule } from 'angular-split';
 import { GongsimcontrolModule } from 'gongsimcontrol'
 import { GongsimModule } from 'gongsim'
 
+import { GongsvgspecificModule } from 'gongsvgspecific'
+import { GongsvgModule } from 'gongsvg'
+
 // mandatory
 import { HttpClientModule } from '@angular/common/http';
 
@@ -27,6 +30,10 @@ import { HttpClientModule } from '@angular/common/http';
     // gongsim stack
     GongsimcontrolModule,
     GongsimModule,
+
+    // gongsvg stack
+    GongsvgspecificModule,
+    GongsvgModule,
 
     // angulat split
     AngularSplitModule,

@@ -1,8 +1,14 @@
 <as-split direction="vertical">
-    <as-split-area size="10">
+    <as-split-area size="5">
         <lib-engine-control simulationTitle="Laundry time !" [engineUpdatedCallbackFunction]="engineUpdatedCallbackFunction"></lib-engine-control>
     </as-split-area>
-    <as-split-area size="90">
+    <as-split-area size="30">
+        <lib-svg></lib-svg>
+    </as-split-area>
+    <as-split-area size="20">
+        <app-gongsvg-splitter></app-gongsvg-splitter>
+    </as-split-area>
+    <as-split-area size="45">
         <app-ladybugsim-splitter></app-ladybugsim-splitter>
     </as-split-area>
 </as-split>
