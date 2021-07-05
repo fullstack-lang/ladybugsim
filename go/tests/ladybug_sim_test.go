@@ -57,7 +57,12 @@ func TestLadybugSim(t *testing.T) {
 
 	_, nextSimTime, _ := gongsim_models.EngineSingloton.GetNextEvent()
 	for nextSimTime.Before(gongsim_models.EngineSingloton.GetEndTime()) {
-		_, nextSimTime, _ = gongsim_models.EngineSingloton.FireNextEvent()
+		var agent gongsim_models.AgentInterface
+		agent, nextSimTime, _ = gongsim_models.EngineSingloton.FireNextEvent()
+		if agent == nil {
+			log.Printf("Ladybug sim over")
+			return
+		}
 	}
 
 	log.Printf("Ladybug sim over")

@@ -208,6 +208,9 @@ definitions:
       NbLadybugs:
         format: int64
         type: integer
+      NbLadybugsOnTheGround:
+        format: int64
+        type: integer
       NbOfCollision:
         format: int64
         type: integer
@@ -244,6 +247,8 @@ definitions:
       Name_Data:
         $ref: '#/definitions/NullString'
       NbLadybugs_Data:
+        $ref: '#/definitions/NullInt64'
+      NbLadybugsOnTheGround_Data:
         $ref: '#/definitions/NullInt64'
       NbOfCollision_Data:
         $ref: '#/definitions/NullInt64'
@@ -531,6 +536,9 @@ responses:
       NbLadybugs_Data:
         description: Declation for basic field ladybugsimulationDB.NbLadybugs {{BasicKind}}
           (to be completed)
+      NbLadybugsOnTheGround_Data:
+        description: Declation for basic field ladybugsimulationDB.NbLadybugsOnTheGround
+          {{BasicKind}} (to be completed)
       NbOfCollision_Data:
         description: Declation for basic field ladybugsimulationDB.NbOfCollision {{BasicKind}}
           (to be completed)

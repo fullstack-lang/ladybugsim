@@ -30,20 +30,6 @@ func (ladybug *Ladybug) FireNextEvent() {
 		return
 	}
 
-	// stop simu if all ladybugs are on the ground
-	allLadybugsOnTheGround := true
-	for _, _ladybug := range sim.Ladybugs {
-		if _ladybug.LadybugStatus == ON_THE_FENCE {
-			allLadybugsOnTheGround = false
-		}
-	}
-	if allLadybugsOnTheGround {
-		log.Printf("Event %10d Time : %s, nbOfCollisions %d simulation over",
-			sim.EventNb, eventTime.Format("15:04:05.000000"), sim.NbOfCollision/2)
-
-		gongsim_models.EngineSingloton.State = gongsim_models.OVER
-	}
-
 	switch event.(type) {
 	case *gongsim_models.UpdateState:
 		checkStateEvent := event.(*gongsim_models.UpdateState)
@@ -74,11 +60,11 @@ func (ladybug *Ladybug) FireNextEvent() {
 			// there is a collision if both are within a Ladybug diameter
 			if math.Abs(deltaX) < 2*sim.LadybugRadius {
 
-				if ladybug.Id == 0 {
-					log.Printf("Event %10d Time : %s Pos %10f dist %10f ladybug %2d / %2d",
-						sim.EventNb, eventTime.Format("15:04:05.000000"),
-						otherLadybug.Position, deltaX, ladybug.Id, otherLadybug.Id)
-				}
+				// if ladybug.Id == 0 {
+				log.Printf("Event %10d Time : %s Pos %10f dist %10f ladybug %2d / %2d",
+					sim.EventNb, eventTime.Format("15:04:05.000000"),
+					otherLadybug.Position, deltaX, ladybug.Id, otherLadybug.Id)
+				// }
 
 				if deltaX > 0 && ladybug.Speed > 0 {
 					// return
@@ -95,6 +81,26 @@ func (ladybug *Ladybug) FireNextEvent() {
 
 		if ladybug.Position < 0 || ladybug.Position > 1.0 {
 			ladybug.LadybugStatus = ON_THE_GROUND
+		}
+
+		// stop simu if all ladybugs are on the ground
+		allLadybugsOnTheGround := true
+		nbLadybugsOnTheGround := 0
+		for _, _ladybug := range sim.Ladybugs {
+			if _ladybug.LadybugStatus == ON_THE_FENCE {
+				allLadybugsOnTheGround = false
+			} else {
+				nbLadybugsOnTheGround = nbLadybugsOnTheGround + 1
+			}
+		}
+		sim.NbLadybugsOnTheGround = nbLadybugsOnTheGround
+		if allLadybugsOnTheGround {
+			log.Printf("Event %10d Time : %s, nbOfCollisions %d simulation over",
+				sim.EventNb, eventTime.Format("15:04:05.000000"), sim.NbOfCollision/2)
+
+			gongsim_models.EngineSingloton.State = gongsim_models.OVER
+
+			return
 		}
 
 		// post next event

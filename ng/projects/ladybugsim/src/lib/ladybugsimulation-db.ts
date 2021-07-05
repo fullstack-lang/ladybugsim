@@ -18,6 +18,7 @@ export class LadybugSimulationDB {
 	SimulationStep?: number
 	MaxDistanceInOneStep?: number
 	NbLadybugs?: number
+	NbLadybugsOnTheGround?: number
 
 	// insertion point for other declarations
 	SimulationStep_string?: string

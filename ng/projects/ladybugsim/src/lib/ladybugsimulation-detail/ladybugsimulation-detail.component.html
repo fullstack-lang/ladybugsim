@@ -79,6 +79,12 @@
         <input type="number" [ngModelOptions]="{standalone: true}" matInput [(ngModel)]="ladybugsimulation.NbLadybugs" [ngModelOptions]="{standalone: true}">
     </mat-form-field>
 
+    <!-- -->
+    <mat-form-field class="detail-full-width">
+        <mat-label>NbLadybugsOnTheGround</mat-label>
+        <input type="number" [ngModelOptions]="{standalone: true}" matInput [(ngModel)]="ladybugsimulation.NbLadybugsOnTheGround" [ngModelOptions]="{standalone: true}">
+    </mat-form-field>
+
     <mat-grid-list cols="5" rowHeight="2:1">
         <mat-grid-tile [colspan]="3">
             <button mat-raised-button (click)="openReverseSelection('Ladybug', 'LadybugSimulation_LadybugsDBID', 'ONE_MANY_ASSOCIATION_MODE', '', '', '')">Ladybugs</button>

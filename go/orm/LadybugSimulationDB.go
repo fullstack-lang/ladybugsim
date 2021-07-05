@@ -81,6 +81,9 @@ type LadybugSimulationDB struct {
 	// Declation for basic field ladybugsimulationDB.NbLadybugs {{BasicKind}} (to be completed)
 	NbLadybugs_Data sql.NullInt64
 
+	// Declation for basic field ladybugsimulationDB.NbLadybugsOnTheGround {{BasicKind}} (to be completed)
+	NbLadybugsOnTheGround_Data sql.NullInt64
+
 	// encoding of pointers
 	LadybugSimulationPointersEnconding
 }
@@ -117,6 +120,8 @@ type LadybugSimulationWOP struct {
 	MaxDistanceInOneStep float64
 
 	NbLadybugs int
+
+	NbLadybugsOnTheGround int
 	// insertion for WOP pointer fields
 }
 
@@ -131,6 +136,7 @@ var LadybugSimulation_Fields = []string{
 	"SimulationStep",
 	"MaxDistanceInOneStep",
 	"NbLadybugs",
+	"NbLadybugsOnTheGround",
 }
 
 type BackRepoLadybugSimulationStruct struct {
@@ -481,6 +487,9 @@ func (ladybugsimulationDB *LadybugSimulationDB) CopyBasicFieldsFromLadybugSimula
 	ladybugsimulationDB.NbLadybugs_Data.Int64 = int64(ladybugsimulation.NbLadybugs)
 	ladybugsimulationDB.NbLadybugs_Data.Valid = true
 
+	ladybugsimulationDB.NbLadybugsOnTheGround_Data.Int64 = int64(ladybugsimulation.NbLadybugsOnTheGround)
+	ladybugsimulationDB.NbLadybugsOnTheGround_Data.Valid = true
+
 }
 
 // CopyBasicFieldsFromLadybugSimulationWOP
@@ -510,6 +519,9 @@ func (ladybugsimulationDB *LadybugSimulationDB) CopyBasicFieldsFromLadybugSimula
 	ladybugsimulationDB.NbLadybugs_Data.Int64 = int64(ladybugsimulation.NbLadybugs)
 	ladybugsimulationDB.NbLadybugs_Data.Valid = true
 
+	ladybugsimulationDB.NbLadybugsOnTheGround_Data.Int64 = int64(ladybugsimulation.NbLadybugsOnTheGround)
+	ladybugsimulationDB.NbLadybugsOnTheGround_Data.Valid = true
+
 }
 
 // CopyBasicFieldsToLadybugSimulation
@@ -523,6 +535,7 @@ func (ladybugsimulationDB *LadybugSimulationDB) CopyBasicFieldsToLadybugSimulati
 	ladybugsimulation.SimulationStep = time.Duration(ladybugsimulationDB.SimulationStep_Data.Int64)
 	ladybugsimulation.MaxDistanceInOneStep = ladybugsimulationDB.MaxDistanceInOneStep_Data.Float64
 	ladybugsimulation.NbLadybugs = int(ladybugsimulationDB.NbLadybugs_Data.Int64)
+	ladybugsimulation.NbLadybugsOnTheGround = int(ladybugsimulationDB.NbLadybugsOnTheGround_Data.Int64)
 }
 
 // CopyBasicFieldsToLadybugSimulationWOP
@@ -537,6 +550,7 @@ func (ladybugsimulationDB *LadybugSimulationDB) CopyBasicFieldsToLadybugSimulati
 	ladybugsimulation.SimulationStep = time.Duration(ladybugsimulationDB.SimulationStep_Data.Int64)
 	ladybugsimulation.MaxDistanceInOneStep = ladybugsimulationDB.MaxDistanceInOneStep_Data.Float64
 	ladybugsimulation.NbLadybugs = int(ladybugsimulationDB.NbLadybugs_Data.Int64)
+	ladybugsimulation.NbLadybugsOnTheGround = int(ladybugsimulationDB.NbLadybugsOnTheGround_Data.Int64)
 }
 
 // Backup generates a json file from a slice of all LadybugSimulationDB instances in the backrepo

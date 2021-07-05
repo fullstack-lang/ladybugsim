@@ -12,15 +12,17 @@ import (
 )
 
 type LadybugSimulation struct {
-	Name                 string
-	EventNb              int
-	NbOfCollision        int
-	LadybugRadius        float64
-	AbsoluteSpeed        float64
-	SimulationStep       time.Duration
-	MaxDistanceInOneStep float64
-	NbLadybugs           int
-	Ladybugs             []*Ladybug
+	Name                  string
+	EventNb               int
+	NbOfCollision         int
+	LadybugRadius         float64
+	AbsoluteSpeed         float64
+	SimulationStep        time.Duration
+	MaxDistanceInOneStep  float64
+	NbLadybugs            int
+	NbLadybugsOnTheGround int
+
+	Ladybugs []*Ladybug
 }
 
 func (specificEngine *LadybugSimulation) EventFired(engine *gongsim_models.Engine) {}
@@ -49,10 +51,16 @@ const numericalSimuationAdjustment = 0.9999
 
 func init() {
 	LadybugSim = new(LadybugSimulation)
+
+	LadybugSim.NbLadybugs = 32
 	LadybugSim.Name = "Simulation of ladybugs"
 	LadybugSim.EventNb = 0
 	LadybugSim.LadybugRadius = 0.002 / numericalSimuationAdjustment //
 	LadybugSim.AbsoluteSpeed = 1.0 / 60.0                           // a ladybug is 1m par minute
+
+	seed := time.Now().UnixNano()
+	log.Printf("seed %d ", seed)
+	rand.Seed(seed)
 
 	// Simulation step must
 	//
@@ -93,8 +101,6 @@ func init() {
 	LadybugSim.SimulationStep = time.Duration(
 		simStep *
 			1000.0 * 1000.0 * 1000.0)
-
-	LadybugSim.NbLadybugs = 10
 
 	gongsim_models.EngineSingloton.SetStartTime(time.Date(2021, time.July, 1, 0, 0, 0, 0, time.UTC))
 	gongsim_models.EngineSingloton.SetCurrentTime(gongsim_models.EngineSingloton.GetStartTime())

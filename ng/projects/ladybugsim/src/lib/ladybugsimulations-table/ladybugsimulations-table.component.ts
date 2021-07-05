@@ -84,6 +84,9 @@ export class LadybugSimulationsTableComponent implements OnInit {
         case 'NbLadybugs':
           return ladybugsimulationDB.NbLadybugs;
 
+        case 'NbLadybugsOnTheGround':
+          return ladybugsimulationDB.NbLadybugsOnTheGround;
+
         default:
           return LadybugSimulationDB[property];
       }
@@ -104,6 +107,7 @@ export class LadybugSimulationsTableComponent implements OnInit {
       mergedContent += ladybugsimulationDB.AbsoluteSpeed.toString()
       mergedContent += ladybugsimulationDB.MaxDistanceInOneStep.toString()
       mergedContent += ladybugsimulationDB.NbLadybugs.toString()
+      mergedContent += ladybugsimulationDB.NbLadybugsOnTheGround.toString()
 
       let isSelected = mergedContent.includes(filter.toLowerCase())
       return isSelected
@@ -162,6 +166,7 @@ export class LadybugSimulationsTableComponent implements OnInit {
         "SimulationStep",
         "MaxDistanceInOneStep",
         "NbLadybugs",
+        "NbLadybugsOnTheGround",
       ]
     } else {
       this.displayedColumns = ['select', 'ID', // insertion point for columns to display
@@ -173,6 +178,7 @@ export class LadybugSimulationsTableComponent implements OnInit {
         "SimulationStep",
         "MaxDistanceInOneStep",
         "NbLadybugs",
+        "NbLadybugsOnTheGround",
       ]
       this.selection = new SelectionModel<LadybugSimulationDB>(allowMultiSelect, this.initialSelection);
     }

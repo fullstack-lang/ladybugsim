@@ -8,4 +8,5 @@ export class LadybugSimulationAPI {
 	SimulationStep?: number
 	MaxDistanceInOneStep?: number
 	NbLadybugs?: number
+	NbLadybugsOnTheGround?: number
 }

@@ -11,7 +11,8 @@ export class AppComponent {
   title = 'ng';
 
   constructor(
-    private ladybugService: ladybugsim.LadybugService) {
+    private ladybugService: ladybugsim.LadybugService,
+    private ladybugSimulationService: ladybugsim.LadybugSimulationService) {
   }
 
   // callbak function that is attached to the generic engine
@@ -19,5 +20,6 @@ export class AppComponent {
 
     // refresh the ladybug splitter
     this.ladybugService.LadybugServiceChanged.next("update")
+    this.ladybugSimulationService.LadybugSimulationServiceChanged.next("update")
   }
 }
