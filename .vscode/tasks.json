@@ -75,5 +75,16 @@
             ],
             "group": "build"
         },
+        {
+            "label": "00 - update gongsvg dependency",
+            "type": "shell",
+            "command": "go",
+            "args": [
+                "get",
+                "-d",
+                "github.com/fullstack-lang/gongsvg@HEAD",
+            ],
+            "group": "build"
+        },
     ]
 }

@@ -56,7 +56,7 @@ func init() {
 	LadybugSim.Name = "Simulation of ladybugs"
 	LadybugSim.EventNb = 0
 	LadybugSim.LadybugRadius = 0.002 / numericalSimuationAdjustment //
-	LadybugSim.AbsoluteSpeed = 1.0 / 60.0                           // a ladybug is 1m par minute
+	LadybugSim.AbsoluteSpeed = 1.0 / 240.0                          // a ladybug is 1m par minute
 
 	seed := time.Now().UnixNano()
 	log.Printf("seed %d ", seed)
