@@ -22,6 +22,10 @@ type LadybugSimulation struct {
 	NbLadybugs            int
 	NbLadybugsOnTheGround int
 
+	// an hint on the theorem
+	LeftRelayInitialPosX  float64
+	RightRelayInitialPosX float64
+
 	Ladybugs []*Ladybug
 }
 
@@ -162,5 +166,24 @@ func init() {
 		step.Period = LadybugSim.SimulationStep //
 		step.Name = "update of laybug motion"
 		ladybug.QueueEvent(&step)
+	}
+
+	// compute left & right relay positions
+	LadybugSim.LeftRelayInitialPosX = 0.0
+	for _, ladybug := range LadybugSim.Ladybugs {
+		if ladybug.Speed > 0 && ladybug.LadybugStatus == ON_THE_FENCE {
+			LadybugSim.LeftRelayInitialPosX = ladybug.Position
+			break
+		}
+	}
+
+	LadybugSim.RightRelayInitialPosX = 0.0
+	for i := len(LadybugSim.Ladybugs) - 1; i >= 0; i-- {
+
+		ladybug := LadybugSim.Ladybugs[i]
+		if ladybug.Speed < 0 && ladybug.LadybugStatus == ON_THE_FENCE {
+			LadybugSim.RightRelayInitialPosX = ladybug.Position
+			break
+		}
 	}
 }

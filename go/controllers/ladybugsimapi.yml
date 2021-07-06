@@ -200,6 +200,10 @@ definitions:
         items:
           $ref: '#/definitions/Ladybug'
         type: array
+      LeftRelayInitialPosX:
+        description: an hint on the theorem
+        format: double
+        type: number
       MaxDistanceInOneStep:
         format: double
         type: number
@@ -214,6 +218,9 @@ definitions:
       NbOfCollision:
         format: int64
         type: integer
+      RightRelayInitialPosX:
+        format: double
+        type: number
       SimulationStep:
         $ref: '#/definitions/Duration'
       UpdatedAt:
@@ -242,6 +249,8 @@ definitions:
         type: integer
       LadybugRadius_Data:
         $ref: '#/definitions/NullFloat64'
+      LeftRelayInitialPosX_Data:
+        $ref: '#/definitions/NullFloat64'
       MaxDistanceInOneStep_Data:
         $ref: '#/definitions/NullFloat64'
       Name_Data:
@@ -252,6 +261,8 @@ definitions:
         $ref: '#/definitions/NullInt64'
       NbOfCollision_Data:
         $ref: '#/definitions/NullInt64'
+      RightRelayInitialPosX_Data:
+        $ref: '#/definitions/NullFloat64'
       SimulationStep_Data:
         $ref: '#/definitions/NullInt64'
       UpdatedAt:
@@ -519,6 +530,8 @@ responses:
         type: integer
       LadybugRadius_Data:
         description: Declation for basic field ladybugsimulationDB.LadybugRadius {{BasicKind}} (to be completed)
+      LeftRelayInitialPosX_Data:
+        description: Declation for basic field ladybugsimulationDB.LeftRelayInitialPosX {{BasicKind}} (to be completed)
       MaxDistanceInOneStep_Data:
         description: Declation for basic field ladybugsimulationDB.MaxDistanceInOneStep {{BasicKind}} (to be completed)
       Name_Data:
@@ -531,13 +544,15 @@ responses:
         description: Declation for basic field ladybugsimulationDB.NbLadybugsOnTheGround {{BasicKind}} (to be completed)
       NbOfCollision_Data:
         description: Declation for basic field ladybugsimulationDB.NbOfCollision {{BasicKind}} (to be completed)
+      RightRelayInitialPosX_Data:
+        description: Declation for basic field ladybugsimulationDB.RightRelayInitialPosX {{BasicKind}} (to be completed)
       SimulationStep_Data:
         description: Declation for basic field ladybugsimulationDB.SimulationStep {{BasicKind}} (to be completed)
       UpdatedAt:
         format: date-time
         type: string
     schema:
-      $ref: '#/definitions/NullInt64'
+      $ref: '#/definitions/NullFloat64'
   ladybugsimulationDBsResponse:
     description: LadybugSimulationDBs arrays ladybugsimulationDBs
     schema:

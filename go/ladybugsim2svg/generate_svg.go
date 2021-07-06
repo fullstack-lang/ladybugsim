@@ -45,12 +45,12 @@ func (ladybugsimToSVGTranformer *ladybugsimToSVGTranformer) BeforeCommit(stage *
 	fence.Stroke = "blue"
 	fence.StrokeWidth = 0.5
 
-	var ladybugSimulation *ladybugsim_models.LadybugSimulation
+	var sim *ladybugsim_models.LadybugSimulation
 	for _ladybugsim := range stage.LadybugSimulations {
-		ladybugSimulation = _ladybugsim
+		sim = _ladybugsim
 	}
 
-	for idx, ladybug := range ladybugSimulation.Ladybugs {
+	for idx, ladybug := range sim.Ladybugs {
 		circle := new(gongsvg_models.Circle).Stage()
 		circle.Name = ladybug.Name
 		svg.Circles = append(svg.Circles, circle)
@@ -82,6 +82,54 @@ func (ladybugsimToSVGTranformer *ladybugsimToSVGTranformer) BeforeCommit(stage *
 		animate.Dur = "1s"
 		animate.RepeatCount = "undefinite"
 
+	}
+
+	{
+		circle := new(gongsvg_models.Circle).Stage()
+		circle.Name = "laft relay"
+		svg.Circles = append(svg.Circles, circle)
+
+		circle.Color = "black"
+		circle.Stroke = "black"
+
+		circle.FillOpacity = 0.8
+		circle.StrokeWidth = 0.5
+		circle.CX = fence.X + sim.LeftRelayInitialPosX*fence.Width
+		circle.CY = fence.Y
+		circle.Radius = 5
+
+		// add animation
+		animate := new(gongsvg_models.Animate).Stage()
+		animate.Name = circle.Name
+		circle.Animations = append(circle.Animations, animate)
+		animate.AttributeName = "cx"
+		animate.Values = fmt.Sprintf("%d;%d", int64(circle.CX), int64(circle.CX+sim.AbsoluteSpeed*fence.Width))
+		animate.Dur = "1s"
+		animate.RepeatCount = "undefinite"
+	}
+
+	{
+		circle := new(gongsvg_models.Circle).Stage()
+		circle.Name = "laft relay"
+		svg.Circles = append(svg.Circles, circle)
+
+		circle.Color = "black"
+		circle.Stroke = "black"
+
+		circle.FillOpacity = 0.8
+		circle.StrokeWidth = 0.5
+		circle.CX = fence.X + sim.RightRelayInitialPosX*fence.Width
+		circle.CY = fence.Y
+		circle.Radius = 5
+
+		// add animation
+		animate := new(gongsvg_models.Animate).Stage()
+		animate.Name = circle.Name
+		circle.Animations = append(circle.Animations, animate)
+		animate.AttributeName = "cx"
+		animate.Values = fmt.Sprintf("%d;%d", int64(circle.CX), int64(circle.CX-sim.AbsoluteSpeed*fence.Width))
+		animate.Dur = "1s"
+		animate.RepeatCount = "undefinite"
 	}
 
 	gongsvg_models.Stage.Commit()

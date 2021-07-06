@@ -33,7 +33,7 @@ func TestLadybugSim(t *testing.T) {
 	for i := len(ladybugsim_models.LadybugSim.Ladybugs) - 1; i >= 0; i-- {
 
 		ladybug := ladybugsim_models.LadybugSim.Ladybugs[i]
-		if ladybug.Speed > 0 {
+		if ladybug.Speed < 0 {
 			rightRelayInitialPosX = ladybug.Position
 			log.Printf("right relay %1.4f", rightRelayInitialPosX)
 			break

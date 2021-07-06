@@ -84,6 +84,12 @@ type LadybugSimulationDB struct {
 	// Declation for basic field ladybugsimulationDB.NbLadybugsOnTheGround {{BasicKind}} (to be completed)
 	NbLadybugsOnTheGround_Data sql.NullInt64
 
+	// Declation for basic field ladybugsimulationDB.LeftRelayInitialPosX {{BasicKind}} (to be completed)
+	LeftRelayInitialPosX_Data sql.NullFloat64
+
+	// Declation for basic field ladybugsimulationDB.RightRelayInitialPosX {{BasicKind}} (to be completed)
+	RightRelayInitialPosX_Data sql.NullFloat64
+
 	// encoding of pointers
 	LadybugSimulationPointersEnconding
 }
@@ -122,6 +128,10 @@ type LadybugSimulationWOP struct {
 	NbLadybugs int
 
 	NbLadybugsOnTheGround int
+
+	LeftRelayInitialPosX float64
+
+	RightRelayInitialPosX float64
 	// insertion for WOP pointer fields
 }
 
@@ -137,6 +147,8 @@ var LadybugSimulation_Fields = []string{
 	"MaxDistanceInOneStep",
 	"NbLadybugs",
 	"NbLadybugsOnTheGround",
+	"LeftRelayInitialPosX",
+	"RightRelayInitialPosX",
 }
 
 type BackRepoLadybugSimulationStruct struct {
@@ -490,6 +502,12 @@ func (ladybugsimulationDB *LadybugSimulationDB) CopyBasicFieldsFromLadybugSimula
 	ladybugsimulationDB.NbLadybugsOnTheGround_Data.Int64 = int64(ladybugsimulation.NbLadybugsOnTheGround)
 	ladybugsimulationDB.NbLadybugsOnTheGround_Data.Valid = true
 
+	ladybugsimulationDB.LeftRelayInitialPosX_Data.Float64 = ladybugsimulation.LeftRelayInitialPosX
+	ladybugsimulationDB.LeftRelayInitialPosX_Data.Valid = true
+
+	ladybugsimulationDB.RightRelayInitialPosX_Data.Float64 = ladybugsimulation.RightRelayInitialPosX
+	ladybugsimulationDB.RightRelayInitialPosX_Data.Valid = true
+
 }
 
 // CopyBasicFieldsFromLadybugSimulationWOP
@@ -522,6 +540,12 @@ func (ladybugsimulationDB *LadybugSimulationDB) CopyBasicFieldsFromLadybugSimula
 	ladybugsimulationDB.NbLadybugsOnTheGround_Data.Int64 = int64(ladybugsimulation.NbLadybugsOnTheGround)
 	ladybugsimulationDB.NbLadybugsOnTheGround_Data.Valid = true
 
+	ladybugsimulationDB.LeftRelayInitialPosX_Data.Float64 = ladybugsimulation.LeftRelayInitialPosX
+	ladybugsimulationDB.LeftRelayInitialPosX_Data.Valid = true
+
+	ladybugsimulationDB.RightRelayInitialPosX_Data.Float64 = ladybugsimulation.RightRelayInitialPosX
+	ladybugsimulationDB.RightRelayInitialPosX_Data.Valid = true
+
 }
 
 // CopyBasicFieldsToLadybugSimulation
@@ -536,6 +560,8 @@ func (ladybugsimulationDB *LadybugSimulationDB) CopyBasicFieldsToLadybugSimulati
 	ladybugsimulation.MaxDistanceInOneStep = ladybugsimulationDB.MaxDistanceInOneStep_Data.Float64
 	ladybugsimulation.NbLadybugs = int(ladybugsimulationDB.NbLadybugs_Data.Int64)
 	ladybugsimulation.NbLadybugsOnTheGround = int(ladybugsimulationDB.NbLadybugsOnTheGround_Data.Int64)
+	ladybugsimulation.LeftRelayInitialPosX = ladybugsimulationDB.LeftRelayInitialPosX_Data.Float64
+	ladybugsimulation.RightRelayInitialPosX = ladybugsimulationDB.RightRelayInitialPosX_Data.Float64
 }
 
 // CopyBasicFieldsToLadybugSimulationWOP
@@ -551,6 +577,8 @@ func (ladybugsimulationDB *LadybugSimulationDB) CopyBasicFieldsToLadybugSimulati
 	ladybugsimulation.MaxDistanceInOneStep = ladybugsimulationDB.MaxDistanceInOneStep_Data.Float64
 	ladybugsimulation.NbLadybugs = int(ladybugsimulationDB.NbLadybugs_Data.Int64)
 	ladybugsimulation.NbLadybugsOnTheGround = int(ladybugsimulationDB.NbLadybugsOnTheGround_Data.Int64)
+	ladybugsimulation.LeftRelayInitialPosX = ladybugsimulationDB.LeftRelayInitialPosX_Data.Float64
+	ladybugsimulation.RightRelayInitialPosX = ladybugsimulationDB.RightRelayInitialPosX_Data.Float64
 }
 
 // Backup generates a json file from a slice of all LadybugSimulationDB instances in the backrepo

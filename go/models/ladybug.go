@@ -104,6 +104,25 @@ func (ladybug *Ladybug) FireNextEvent() {
 			return
 		}
 
+		// compute left & right relay positions
+		sim.LeftRelayInitialPosX = 0.0
+		for _, ladybug := range sim.Ladybugs {
+			if ladybug.Speed > 0 && ladybug.LadybugStatus == ON_THE_FENCE {
+				sim.LeftRelayInitialPosX = ladybug.Position
+				break
+			}
+		}
+
+		sim.RightRelayInitialPosX = 0.0
+		for i := len(sim.Ladybugs) - 1; i >= 0; i-- {
+
+			ladybug := sim.Ladybugs[i]
+			if ladybug.Speed < 0 && ladybug.LadybugStatus == ON_THE_FENCE {
+				sim.RightRelayInitialPosX = ladybug.Position
+				break
+			}
+		}
+
 		// post next event
 		checkStateEvent.SetFireTime(checkStateEvent.GetFireTime().Add(checkStateEvent.Period))
 		ladybug.QueueEvent(checkStateEvent)

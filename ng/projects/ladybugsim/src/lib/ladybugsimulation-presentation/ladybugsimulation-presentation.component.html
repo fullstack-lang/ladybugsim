@@ -44,6 +44,14 @@
         <td class="mat-cell">NbLadybugsOnTheGround</td>
         <td class="mat-cell">{{ladybugsimulation.NbLadybugsOnTheGround}}</td>
     </tr>
+    <tr class="mat-row">
+        <td class="mat-cell">LeftRelayInitialPosX</td>
+        <td class="mat-cell">{{ladybugsimulation.LeftRelayInitialPosX}}</td>
+    </tr>
+    <tr class="mat-row">
+        <td class="mat-cell">RightRelayInitialPosX</td>
+        <td class="mat-cell">{{ladybugsimulation.RightRelayInitialPosX}}</td>
+    </tr>
 </table>
 <!-- hack to force loading of mat table style an error is generated but it is a know angular issue https://github.com/angular/components/issues/10941 -->
 <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">

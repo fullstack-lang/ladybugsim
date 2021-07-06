@@ -9,4 +9,6 @@ export class LadybugSimulationAPI {
 	MaxDistanceInOneStep?: number
 	NbLadybugs?: number
 	NbLadybugsOnTheGround?: number
+	LeftRelayInitialPosX?: number
+	RightRelayInitialPosX?: number
 }

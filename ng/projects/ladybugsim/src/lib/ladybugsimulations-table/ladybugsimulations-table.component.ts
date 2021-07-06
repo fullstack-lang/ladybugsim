@@ -87,6 +87,12 @@ export class LadybugSimulationsTableComponent implements OnInit {
         case 'NbLadybugsOnTheGround':
           return ladybugsimulationDB.NbLadybugsOnTheGround;
 
+        case 'LeftRelayInitialPosX':
+          return ladybugsimulationDB.LeftRelayInitialPosX;
+
+        case 'RightRelayInitialPosX':
+          return ladybugsimulationDB.RightRelayInitialPosX;
+
         default:
           return LadybugSimulationDB[property];
       }
@@ -108,6 +114,8 @@ export class LadybugSimulationsTableComponent implements OnInit {
       mergedContent += ladybugsimulationDB.MaxDistanceInOneStep.toString()
       mergedContent += ladybugsimulationDB.NbLadybugs.toString()
       mergedContent += ladybugsimulationDB.NbLadybugsOnTheGround.toString()
+      mergedContent += ladybugsimulationDB.LeftRelayInitialPosX.toString()
+      mergedContent += ladybugsimulationDB.RightRelayInitialPosX.toString()
 
       let isSelected = mergedContent.includes(filter.toLowerCase())
       return isSelected
@@ -167,6 +175,8 @@ export class LadybugSimulationsTableComponent implements OnInit {
         "MaxDistanceInOneStep",
         "NbLadybugs",
         "NbLadybugsOnTheGround",
+        "LeftRelayInitialPosX",
+        "RightRelayInitialPosX",
       ]
     } else {
       this.displayedColumns = ['select', 'ID', // insertion point for columns to display
@@ -179,6 +189,8 @@ export class LadybugSimulationsTableComponent implements OnInit {
         "MaxDistanceInOneStep",
         "NbLadybugs",
         "NbLadybugsOnTheGround",
+        "LeftRelayInitialPosX",
+        "RightRelayInitialPosX",
       ]
       this.selection = new SelectionModel<LadybugSimulationDB>(allowMultiSelect, this.initialSelection);
     }

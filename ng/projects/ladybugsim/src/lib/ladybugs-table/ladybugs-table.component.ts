@@ -78,7 +78,7 @@ export class LadybugsTableComponent implements OnInit {
         case 'LadybugStatus':
           return ladybugDB.LadybugStatus;
 
-        case 'Ladybugs':
+        case 'LadybugSimulation_Ladybugs':
           return this.frontRepo.LadybugSimulations.get(ladybugDB.LadybugSimulation_LadybugsDBID.Int64)?.Name;
 
         default:
@@ -160,7 +160,7 @@ export class LadybugsTableComponent implements OnInit {
         "Position",
         "Speed",
         "LadybugStatus",
-        "Ladybugs",
+        "LadybugSimulation_Ladybugs",
       ]
     } else {
       this.displayedColumns = ['select', 'ID', // insertion point for columns to display
@@ -170,7 +170,7 @@ export class LadybugsTableComponent implements OnInit {
         "Position",
         "Speed",
         "LadybugStatus",
-        "Ladybugs",
+        "LadybugSimulation_Ladybugs",
       ]
       this.selection = new SelectionModel<LadybugDB>(allowMultiSelect, this.initialSelection);
     }
