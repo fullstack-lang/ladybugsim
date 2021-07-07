@@ -5,6 +5,7 @@ import (
 
 	ladybugsim_models "github.com/fullstack-lang/ladybugsim/go/models"
 
+	gongsim_models "github.com/fullstack-lang/gongsim/go/models"
 	gongsvg_models "github.com/fullstack-lang/gongsvg/go/models"
 )
 
@@ -45,6 +46,8 @@ func (ladybugsimToSVGTranformer *ladybugsimToSVGTranformer) BeforeCommit(stage *
 	fence.Stroke = "blue"
 	fence.StrokeWidth = 0.5
 
+	simSpeed := gongsim_models.EngineSingloton.Speed
+
 	var sim *ladybugsim_models.LadybugSimulation
 	for _ladybugsim := range stage.LadybugSimulations {
 		sim = _ladybugsim
@@ -78,7 +81,13 @@ func (ladybugsimToSVGTranformer *ladybugsimToSVGTranformer) BeforeCommit(stage *
 		animate.Name = ladybug.Name
 		circle.Animations = append(circle.Animations, animate)
 		animate.AttributeName = "cx"
-		animate.Values = fmt.Sprintf("%d;%d", int64(circle.CX), int64(circle.CX+ladybug.Speed*fence.Width))
+
+		animate.Values = fmt.Sprintf("%d;%d",
+			int64(circle.CX),
+			int64(circle.CX+
+				simSpeed*
+					ladybug.Speed*
+					fence.Width))
 		animate.Dur = "1s"
 		animate.RepeatCount = "undefinite"
 
@@ -103,7 +112,8 @@ func (ladybugsimToSVGTranformer *ladybugsimToSVGTranformer) BeforeCommit(stage *
 		animate.Name = circle.Name
 		circle.Animations = append(circle.Animations, animate)
 		animate.AttributeName = "cx"
-		animate.Values = fmt.Sprintf("%d;%d", int64(circle.CX), int64(circle.CX+sim.AbsoluteSpeed*fence.Width))
+		animate.Values = fmt.Sprintf("%d;%d", int64(circle.CX),
+			int64(circle.CX+simSpeed*sim.AbsoluteSpeed*fence.Width))
 		animate.Dur = "1s"
 		animate.RepeatCount = "undefinite"
 	}
@@ -127,7 +137,7 @@ func (ladybugsimToSVGTranformer *ladybugsimToSVGTranformer) BeforeCommit(stage *
 		animate.Name = circle.Name
 		circle.Animations = append(circle.Animations, animate)
 		animate.AttributeName = "cx"
-		animate.Values = fmt.Sprintf("%d;%d", int64(circle.CX), int64(circle.CX-sim.AbsoluteSpeed*fence.Width))
+		animate.Values = fmt.Sprintf("%d;%d", int64(circle.CX), int64(circle.CX-simSpeed*sim.AbsoluteSpeed*fence.Width))
 		animate.Dur = "1s"
 		animate.RepeatCount = "undefinite"
 	}
