@@ -53,16 +53,15 @@ func (ladybugsimToSVGTranformer *ladybugsimToSVGTranformer) BeforeCommit(stage *
 		sim = _ladybugsim
 	}
 
-	for idx, ladybug := range sim.Ladybugs {
+	for _, ladybug := range sim.Ladybugs {
 		circle := new(gongsvg_models.Circle).Stage()
 		circle.Name = ladybug.Name
 		svg.Circles = append(svg.Circles, circle)
 
-		if idx%2 == 0 {
+		if ladybug.Speed > 0 {
 			circle.Color = "red"
 			circle.Stroke = "red"
-		}
-		if idx%2 == 1 {
+		} else {
 			circle.Color = "green"
 			circle.Stroke = "green"
 		}
@@ -76,20 +75,22 @@ func (ladybugsimToSVGTranformer *ladybugsimToSVGTranformer) BeforeCommit(stage *
 			circle.CY = fence.Y + fence.Height
 		}
 
-		// add animation
-		animate := new(gongsvg_models.Animate).Stage()
-		animate.Name = ladybug.Name
-		circle.Animations = append(circle.Animations, animate)
-		animate.AttributeName = "cx"
+		if ladybug.LadybugStatus == ladybugsim_models.ON_THE_FENCE {
+			// add animation
+			animate := new(gongsvg_models.Animate).Stage()
+			animate.Name = ladybug.Name
+			circle.Animations = append(circle.Animations, animate)
+			animate.AttributeName = "cx"
 
-		animate.Values = fmt.Sprintf("%d;%d",
-			int64(circle.CX),
-			int64(circle.CX+
-				simSpeed*
-					ladybug.Speed*
-					fence.Width))
-		animate.Dur = "1s"
-		animate.RepeatCount = "undefinite"
+			animate.Values = fmt.Sprintf("%d;%d",
+				int64(circle.CX),
+				int64(circle.CX+
+					simSpeed*
+						ladybug.Speed*
+						fence.Width))
+			animate.Dur = "1s"
+			animate.RepeatCount = "undefinite"
+		}
 
 	}
 
