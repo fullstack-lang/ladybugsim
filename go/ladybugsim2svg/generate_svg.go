@@ -101,11 +101,11 @@ func (ladybugsimToSVGTranformer *ladybugsimToSVGTranformer) BeforeCommit(stage *
 		circle.Color = "black"
 		circle.Stroke = "black"
 
-		circle.FillOpacity = 0.8
+		circle.FillOpacity = 0.1
 		circle.StrokeWidth = 0.5
 		circle.CX = fence.X + sim.LeftRelayInitialPosX*fence.Width
 		circle.CY = fence.Y
-		circle.Radius = 5
+		circle.Radius = 10
 
 		// add animation
 		animate := new(gongsvg_models.Animate).Stage()
@@ -126,11 +126,11 @@ func (ladybugsimToSVGTranformer *ladybugsimToSVGTranformer) BeforeCommit(stage *
 		circle.Color = "black"
 		circle.Stroke = "black"
 
-		circle.FillOpacity = 0.8
+		circle.FillOpacity = 0.1
 		circle.StrokeWidth = 0.5
 		circle.CX = fence.X + sim.RightRelayInitialPosX*fence.Width
 		circle.CY = fence.Y
-		circle.Radius = 5
+		circle.Radius = 10
 
 		// add animation
 		animate := new(gongsvg_models.Animate).Stage()
