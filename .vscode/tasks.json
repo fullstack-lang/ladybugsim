@@ -33,6 +33,17 @@
             "group": "build"
         },
         {
+            "label": "02 - ladybugsim.exe",
+            "type": "shell",
+            "options": {
+                "cwd": "."
+            },
+            "command": "./ladybugsim",
+            "args": [
+            ],
+            "group": "build"
+        },
+        {
             "label": "01 - gongc",
             "type": "shell",
             "options": {
