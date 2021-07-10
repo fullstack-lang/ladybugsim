@@ -59,7 +59,7 @@ func init() {
 	LadybugSim.NbLadybugs = 32
 	LadybugSim.Name = "Simulation of ladybugs"
 	LadybugSim.EventNb = 0
-	LadybugSim.LadybugRadius = 0.002 / numericalSimuationAdjustment //
+	LadybugSim.LadybugRadius = 0.005 / numericalSimuationAdjustment //
 	LadybugSim.AbsoluteSpeed = 1.0 / 60.0                           // a ladybug is 1m par minute
 
 	seed := time.Now().UnixNano()
@@ -111,7 +111,7 @@ func init() {
 	gongsim_models.EngineSingloton.SetStartTime(time.Date(2021, time.July, 1, 0, 0, 0, 0, time.UTC))
 	gongsim_models.EngineSingloton.SetCurrentTime(gongsim_models.EngineSingloton.GetStartTime())
 	gongsim_models.EngineSingloton.State = gongsim_models.PAUSED
-	gongsim_models.EngineSingloton.Speed = 1.0 // realtime
+	gongsim_models.EngineSingloton.Speed = 0.5 // realtime
 	// log.Printf("Sim start \t\t\t%s\n", gongsim_models.EngineSingloton.GetStartTime())
 
 	gongsim_models.EngineSingloton.SetEndTime(time.Date(2021, time.July, 1, 0, 30, 0, 0, time.UTC))
