@@ -7,6 +7,20 @@ import (
 	gongsim_models "github.com/fullstack-lang/gongsim/go/models"
 )
 
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
 type Ladybug struct {
 	gongsim_models.Agent
 
@@ -21,6 +35,10 @@ type Ladybug struct {
 	LadybugStatus LadybugStatus
 }
 
+// A ladybug process 2 kinds of events:
+// - update position
+// - update speed (change speed direction if there is a collision)
+//
 func (ladybug *Ladybug) FireNextEvent() {
 	event, eventTime := ladybug.GetNextEventAndRemoveIt()
 
@@ -31,18 +49,17 @@ func (ladybug *Ladybug) FireNextEvent() {
 	}
 
 	switch event.(type) {
-	case *gongsim_models.UpdateState:
-		checkStateEvent := event.(*gongsim_models.UpdateState)
+	case *UpdateSpeedEvent:
+		updateSpeedEvent := event.(*UpdateSpeedEvent)
+		_ = updateSpeedEvent
 
-		sim.EventNb = sim.EventNb + 1
+		// check for colisions with ladybug on the left
+		if ladybug.Id > 0 {
 
-		//
-		// update ladybug position
-		//
-		ladybug.Position = ladybug.Position + sim.SimulationStep.Seconds()*ladybug.Speed
-
-		// check for colisions (and compute)
-		for _, otherLadybug := range sim.Ladybugs {
+		}
+		ladybugOnTheLeftId := max(0, ladybug.Id-1)
+		ladybugOnTheRigthId := min(len(sim.Ladybugs)-1, ladybug.Id+1)
+		for _, otherLadybug := range sim.Ladybugs[ladybugOnTheLeftId : ladybugOnTheRigthId+1] {
 
 			// do not compute collision of a ladybug with itslef
 			if otherLadybug.Id == ladybug.Id {
@@ -55,29 +72,45 @@ func (ladybug *Ladybug) FireNextEvent() {
 			}
 
 			// get the delta between X positions
-			deltaX := otherLadybug.Position - ladybug.Position
+			vectorToOtherLadybug := otherLadybug.Position - ladybug.Position
 
 			// there is a collision if both are within a Ladybug diameter
-			if math.Abs(deltaX) < 2*sim.LadybugRadius {
+			if math.Abs(vectorToOtherLadybug) < 2*sim.LadybugRadius {
 
 				// if ladybug.Id == 0 {
 				// log.Printf("Event %10d Time : %s Pos %10f dist %10f ladybug %2d / %2d",
 				// 	sim.EventNb, eventTime.Format("15:04:05.000000"),
-				// 	otherLadybug.Position, deltaX, ladybug.Id, otherLadybug.Id)
+				// 	otherLadybug.Position, vectorToOtherLadybug, ladybug.Id, otherLadybug.Id)
 				// }
 
-				if deltaX > 0 && ladybug.Speed > 0 {
-					// return
-					ladybug.Speed = -ladybug.Speed
+				// check for strange situation
+				// collision with a ladybug on the rigth with a speed to the left
+				if vectorToOtherLadybug > 0 && ladybug.Speed < 0 {
+					log.Panic("In collision while going away")
 				}
-				if deltaX < 0 && ladybug.Speed < 0 {
-					// return
-					ladybug.Speed = -ladybug.Speed
+				if vectorToOtherLadybug < 0 && ladybug.Speed > 0 {
+					log.Panic("In collision while going away")
 				}
+
+				ladybug.Speed = -ladybug.Speed
 
 				sim.NbOfCollision = sim.NbOfCollision + 1
 			}
 		}
+
+		updatePositionEvent := new(UpdatePositionEvent)
+		updatePositionEvent.SetFireTime(updateSpeedEvent.GetFireTime().Add(sim.SimulationStep / 2.0))
+		ladybug.QueueEvent(updatePositionEvent)
+
+	case *UpdatePositionEvent:
+		updatePositionEvent := event.(*UpdatePositionEvent)
+
+		sim.EventNb = sim.EventNb + 1
+
+		//
+		// update ladybug position
+		//
+		ladybug.Position = ladybug.Position + sim.SimulationStep.Seconds()*ladybug.Speed
 
 		if ladybug.Position < 0 || ladybug.Position > 1.0 {
 			ladybug.LadybugStatus = ON_THE_GROUND
@@ -105,26 +138,27 @@ func (ladybug *Ladybug) FireNextEvent() {
 		}
 
 		// compute left & right relay positions
-		sim.LeftRelayInitialPosX = 0.0
-		for _, ladybug := range sim.Ladybugs {
-			if ladybug.Speed > 0 && ladybug.LadybugStatus == ON_THE_FENCE {
-				sim.LeftRelayInitialPosX = ladybug.Position
-				break
-			}
-		}
+		// sim.LeftRelayInitialPosX = 0.0
+		// for _, ladybug := range sim.Ladybugs {
+		// 	if ladybug.Speed > 0 && ladybug.LadybugStatus == ON_THE_FENCE {
+		// 		sim.LeftRelayInitialPosX = ladybug.Position
+		// 		break
+		// 	}
+		// }
 
-		sim.RightRelayInitialPosX = 0.0
-		for i := len(sim.Ladybugs) - 1; i >= 0; i-- {
+		// sim.RightRelayInitialPosX = 0.0
+		// for i := len(sim.Ladybugs) - 1; i >= 0; i-- {
 
-			ladybug := sim.Ladybugs[i]
-			if ladybug.Speed < 0 && ladybug.LadybugStatus == ON_THE_FENCE {
-				sim.RightRelayInitialPosX = ladybug.Position
-				break
-			}
-		}
+		// 	ladybug := sim.Ladybugs[i]
+		// 	if ladybug.Speed < 0 && ladybug.LadybugStatus == ON_THE_FENCE {
+		// 		sim.RightRelayInitialPosX = ladybug.Position
+		// 		break
+		// 	}
+		// }
 
-		// post next event
-		checkStateEvent.SetFireTime(checkStateEvent.GetFireTime().Add(checkStateEvent.Period))
-		ladybug.QueueEvent(checkStateEvent)
+		// post next event which is a update speed event
+		updateSpeedEvent := new(UpdateSpeedEvent)
+		updateSpeedEvent.SetFireTime(updatePositionEvent.GetFireTime().Add(sim.SimulationStep / 2.0))
+		ladybug.QueueEvent(updateSpeedEvent)
 	}
 }
