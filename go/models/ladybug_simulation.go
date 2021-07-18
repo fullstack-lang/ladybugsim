@@ -128,13 +128,22 @@ func init() {
 		// set up position
 		positionX := rand.Float64()
 
-		// adjust it on a multiple of the ladybug diameter
-		positionX = math.Round(positionX*1.0/LadybugSim.LadybugRadius) * LadybugSim.LadybugRadius
+		minNbOfRadiusBetweenInitialLadybugs := 3.0
 
-		sortedInitialXPositions[ladybugId] = positionX
-		if initialXPosition[positionX] != nil {
-			log.Panic("same initial position")
+		// adjust it on a multiple of the ladybug diameter
+		positionX = math.Round(positionX*1.0/
+			(minNbOfRadiusBetweenInitialLadybugs*LadybugSim.LadybugRadius)) * (minNbOfRadiusBetweenInitialLadybugs * LadybugSim.LadybugRadius)
+
+		for initialXPosition[positionX] != nil {
+			// log.Panic("same initial position")
+			positionX = rand.Float64()
+
+			// adjust it on a multiple of the ladybug diameter
+			positionX = math.Round(positionX*1.0/
+				(minNbOfRadiusBetweenInitialLadybugs*LadybugSim.LadybugRadius)) * (minNbOfRadiusBetweenInitialLadybugs * LadybugSim.LadybugRadius)
 		}
+		initialXPosition[positionX] = &Ladybug{}
+		sortedInitialXPositions[ladybugId] = positionX
 	}
 
 	sort.Slice(sortedInitialXPositions[:], func(i, j int) bool {
@@ -161,11 +170,9 @@ func init() {
 		}
 
 		gongsim_models.EngineSingloton.AppendAgent(ladybug)
-		var step gongsim_models.UpdateState
-		step.SetFireTime(gongsim_models.EngineSingloton.GetStartTime())
-		step.Period = LadybugSim.SimulationStep //
-		step.Name = "update of laybug motion"
-		ladybug.QueueEvent(&step)
+		var updatePositionEvent UpdatePositionEvent
+		updatePositionEvent.SetFireTime(gongsim_models.EngineSingloton.GetStartTime())
+		ladybug.QueueEvent(&updatePositionEvent)
 	}
 
 	// compute left & right relay positions
