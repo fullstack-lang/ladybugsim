@@ -57,6 +57,20 @@ func RegisterControllers(r *gin.Engine) {
 		v1.PUT("/v1/ladybugsimulations/:id", UpdateLadybugSimulation)
 		v1.DELETE("/v1/ladybugsimulations/:id", DeleteLadybugSimulation)
 
+		v1.GET("/v1/updatepositionevents", GetUpdatePositionEvents)
+		v1.GET("/v1/updatepositionevents/:id", GetUpdatePositionEvent)
+		v1.POST("/v1/updatepositionevents", PostUpdatePositionEvent)
+		v1.PATCH("/v1/updatepositionevents/:id", UpdateUpdatePositionEvent)
+		v1.PUT("/v1/updatepositionevents/:id", UpdateUpdatePositionEvent)
+		v1.DELETE("/v1/updatepositionevents/:id", DeleteUpdatePositionEvent)
+
+		v1.GET("/v1/updatespeedevents", GetUpdateSpeedEvents)
+		v1.GET("/v1/updatespeedevents/:id", GetUpdateSpeedEvent)
+		v1.POST("/v1/updatespeedevents", PostUpdateSpeedEvent)
+		v1.PATCH("/v1/updatespeedevents/:id", UpdateUpdateSpeedEvent)
+		v1.PUT("/v1/updatespeedevents/:id", UpdateUpdateSpeedEvent)
+		v1.DELETE("/v1/updatespeedevents/:id", DeleteUpdateSpeedEvent)
+
 		v1.GET("/commitnb", GetLastCommitNb)
 		v1.GET("/pushfromfrontnb", GetLastPushFromFrontNb)
 	}

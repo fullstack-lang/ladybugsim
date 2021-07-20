@@ -10,6 +10,12 @@ import { LadybugService } from './ladybug.service'
 import { LadybugSimulationDB } from './ladybugsimulation-db'
 import { LadybugSimulationService } from './ladybugsimulation.service'
 
+import { UpdatePositionEventDB } from './updatepositionevent-db'
+import { UpdatePositionEventService } from './updatepositionevent.service'
+
+import { UpdateSpeedEventDB } from './updatespeedevent-db'
+import { UpdateSpeedEventService } from './updatespeedevent.service'
+
 
 // FrontRepo stores all instances in a front repository (design pattern repository)
 export class FrontRepo { // insertion point sub template 
@@ -19,6 +25,12 @@ export class FrontRepo { // insertion point sub template
   LadybugSimulations_array = new Array<LadybugSimulationDB>(); // array of repo instances
   LadybugSimulations = new Map<number, LadybugSimulationDB>(); // map of repo instances
   LadybugSimulations_batch = new Map<number, LadybugSimulationDB>(); // same but only in last GET (for finding repo instances to delete)
+  UpdatePositionEvents_array = new Array<UpdatePositionEventDB>(); // array of repo instances
+  UpdatePositionEvents = new Map<number, UpdatePositionEventDB>(); // map of repo instances
+  UpdatePositionEvents_batch = new Map<number, UpdatePositionEventDB>(); // same but only in last GET (for finding repo instances to delete)
+  UpdateSpeedEvents_array = new Array<UpdateSpeedEventDB>(); // array of repo instances
+  UpdateSpeedEvents = new Map<number, UpdateSpeedEventDB>(); // map of repo instances
+  UpdateSpeedEvents_batch = new Map<number, UpdateSpeedEventDB>(); // same but only in last GET (for finding repo instances to delete)
 }
 
 //
@@ -85,6 +97,8 @@ export class FrontRepoService {
     private http: HttpClient, // insertion point sub template 
     private ladybugService: LadybugService,
     private ladybugsimulationService: LadybugSimulationService,
+    private updatepositioneventService: UpdatePositionEventService,
+    private updatespeedeventService: UpdateSpeedEventService,
   ) { }
 
   // postService provides a post function for each struct name
@@ -111,9 +125,13 @@ export class FrontRepoService {
   observableFrontRepo: [ // insertion point sub template 
     Observable<LadybugDB[]>,
     Observable<LadybugSimulationDB[]>,
+    Observable<UpdatePositionEventDB[]>,
+    Observable<UpdateSpeedEventDB[]>,
   ] = [ // insertion point sub template 
       this.ladybugService.getLadybugs(),
       this.ladybugsimulationService.getLadybugSimulations(),
+      this.updatepositioneventService.getUpdatePositionEvents(),
+      this.updatespeedeventService.getUpdateSpeedEvents(),
     ];
 
   //
@@ -131,6 +149,8 @@ export class FrontRepoService {
           ([ // insertion point sub template for declarations 
             ladybugs_,
             ladybugsimulations_,
+            updatepositionevents_,
+            updatespeedevents_,
           ]) => {
             // Typing can be messy with many items. Therefore, type casting is necessary here
             // insertion point sub template for type casting 
@@ -138,6 +158,10 @@ export class FrontRepoService {
             ladybugs = ladybugs_
             var ladybugsimulations: LadybugSimulationDB[]
             ladybugsimulations = ladybugsimulations_
+            var updatepositionevents: UpdatePositionEventDB[]
+            updatepositionevents = updatepositionevents_
+            var updatespeedevents: UpdateSpeedEventDB[]
+            updatespeedevents = updatespeedevents_
 
             // 
             // First Step: init map of instances
@@ -208,6 +232,72 @@ export class FrontRepoService {
               return 0;
             });
 
+            // init the array
+            FrontRepoSingloton.UpdatePositionEvents_array = updatepositionevents
+
+            // clear the map that counts UpdatePositionEvent in the GET
+            FrontRepoSingloton.UpdatePositionEvents_batch.clear()
+
+            updatepositionevents.forEach(
+              updatepositionevent => {
+                FrontRepoSingloton.UpdatePositionEvents.set(updatepositionevent.ID, updatepositionevent)
+                FrontRepoSingloton.UpdatePositionEvents_batch.set(updatepositionevent.ID, updatepositionevent)
+              }
+            )
+
+            // clear updatepositionevents that are absent from the batch
+            FrontRepoSingloton.UpdatePositionEvents.forEach(
+              updatepositionevent => {
+                if (FrontRepoSingloton.UpdatePositionEvents_batch.get(updatepositionevent.ID) == undefined) {
+                  FrontRepoSingloton.UpdatePositionEvents.delete(updatepositionevent.ID)
+                }
+              }
+            )
+
+            // sort UpdatePositionEvents_array array
+            FrontRepoSingloton.UpdatePositionEvents_array.sort((t1, t2) => {
+              if (t1.Name > t2.Name) {
+                return 1;
+              }
+              if (t1.Name < t2.Name) {
+                return -1;
+              }
+              return 0;
+            });
+
+            // init the array
+            FrontRepoSingloton.UpdateSpeedEvents_array = updatespeedevents
+
+            // clear the map that counts UpdateSpeedEvent in the GET
+            FrontRepoSingloton.UpdateSpeedEvents_batch.clear()
+
+            updatespeedevents.forEach(
+              updatespeedevent => {
+                FrontRepoSingloton.UpdateSpeedEvents.set(updatespeedevent.ID, updatespeedevent)
+                FrontRepoSingloton.UpdateSpeedEvents_batch.set(updatespeedevent.ID, updatespeedevent)
+              }
+            )
+
+            // clear updatespeedevents that are absent from the batch
+            FrontRepoSingloton.UpdateSpeedEvents.forEach(
+              updatespeedevent => {
+                if (FrontRepoSingloton.UpdateSpeedEvents_batch.get(updatespeedevent.ID) == undefined) {
+                  FrontRepoSingloton.UpdateSpeedEvents.delete(updatespeedevent.ID)
+                }
+              }
+            )
+
+            // sort UpdateSpeedEvents_array array
+            FrontRepoSingloton.UpdateSpeedEvents_array.sort((t1, t2) => {
+              if (t1.Name > t2.Name) {
+                return 1;
+              }
+              if (t1.Name < t2.Name) {
+                return -1;
+              }
+              return 0;
+            });
+
 
             // 
             // Second Step: redeem pointers between instances (thanks to maps in the First Step)
@@ -234,6 +324,20 @@ export class FrontRepoService {
             )
             ladybugsimulations.forEach(
               ladybugsimulation => {
+                // insertion point sub sub template for ONE-/ZERO-ONE associations pointers redeeming
+
+                // insertion point for redeeming ONE-MANY associations
+              }
+            )
+            updatepositionevents.forEach(
+              updatepositionevent => {
+                // insertion point sub sub template for ONE-/ZERO-ONE associations pointers redeeming
+
+                // insertion point for redeeming ONE-MANY associations
+              }
+            )
+            updatespeedevents.forEach(
+              updatespeedevent => {
                 // insertion point sub sub template for ONE-/ZERO-ONE associations pointers redeeming
 
                 // insertion point for redeeming ONE-MANY associations
@@ -364,6 +468,108 @@ export class FrontRepoService {
       }
     )
   }
+
+  // UpdatePositionEventPull performs a GET on UpdatePositionEvent of the stack and redeem association pointers 
+  UpdatePositionEventPull(): Observable<FrontRepo> {
+    return new Observable<FrontRepo>(
+      (observer) => {
+        combineLatest([
+          this.updatepositioneventService.getUpdatePositionEvents()
+        ]).subscribe(
+          ([ // insertion point sub template 
+            updatepositionevents,
+          ]) => {
+            // init the array
+            FrontRepoSingloton.UpdatePositionEvents_array = updatepositionevents
+
+            // clear the map that counts UpdatePositionEvent in the GET
+            FrontRepoSingloton.UpdatePositionEvents_batch.clear()
+
+            // 
+            // First Step: init map of instances
+            // insertion point sub template 
+            updatepositionevents.forEach(
+              updatepositionevent => {
+                FrontRepoSingloton.UpdatePositionEvents.set(updatepositionevent.ID, updatepositionevent)
+                FrontRepoSingloton.UpdatePositionEvents_batch.set(updatepositionevent.ID, updatepositionevent)
+
+                // insertion point for redeeming ONE/ZERO-ONE associations
+
+                // insertion point for redeeming ONE-MANY associations
+              }
+            )
+
+            // clear updatepositionevents that are absent from the GET
+            FrontRepoSingloton.UpdatePositionEvents.forEach(
+              updatepositionevent => {
+                if (FrontRepoSingloton.UpdatePositionEvents_batch.get(updatepositionevent.ID) == undefined) {
+                  FrontRepoSingloton.UpdatePositionEvents.delete(updatepositionevent.ID)
+                }
+              }
+            )
+
+            // 
+            // Second Step: redeem pointers between instances (thanks to maps in the First Step)
+            // insertion point sub template 
+
+            // hand over control flow to observer
+            observer.next(FrontRepoSingloton)
+          }
+        )
+      }
+    )
+  }
+
+  // UpdateSpeedEventPull performs a GET on UpdateSpeedEvent of the stack and redeem association pointers 
+  UpdateSpeedEventPull(): Observable<FrontRepo> {
+    return new Observable<FrontRepo>(
+      (observer) => {
+        combineLatest([
+          this.updatespeedeventService.getUpdateSpeedEvents()
+        ]).subscribe(
+          ([ // insertion point sub template 
+            updatespeedevents,
+          ]) => {
+            // init the array
+            FrontRepoSingloton.UpdateSpeedEvents_array = updatespeedevents
+
+            // clear the map that counts UpdateSpeedEvent in the GET
+            FrontRepoSingloton.UpdateSpeedEvents_batch.clear()
+
+            // 
+            // First Step: init map of instances
+            // insertion point sub template 
+            updatespeedevents.forEach(
+              updatespeedevent => {
+                FrontRepoSingloton.UpdateSpeedEvents.set(updatespeedevent.ID, updatespeedevent)
+                FrontRepoSingloton.UpdateSpeedEvents_batch.set(updatespeedevent.ID, updatespeedevent)
+
+                // insertion point for redeeming ONE/ZERO-ONE associations
+
+                // insertion point for redeeming ONE-MANY associations
+              }
+            )
+
+            // clear updatespeedevents that are absent from the GET
+            FrontRepoSingloton.UpdateSpeedEvents.forEach(
+              updatespeedevent => {
+                if (FrontRepoSingloton.UpdateSpeedEvents_batch.get(updatespeedevent.ID) == undefined) {
+                  FrontRepoSingloton.UpdateSpeedEvents.delete(updatespeedevent.ID)
+                }
+              }
+            )
+
+            // 
+            // Second Step: redeem pointers between instances (thanks to maps in the First Step)
+            // insertion point sub template 
+
+            // hand over control flow to observer
+            observer.next(FrontRepoSingloton)
+          }
+        )
+      }
+    )
+  }
 }
 
 // insertion point for get unique ID per struct 
@@ -372,4 +578,10 @@ export function getLadybugUniqueID(id: number): number {
 }
 export function getLadybugSimulationUniqueID(id: number): number {
   return 37 * id
+}
+export function getUpdatePositionEventUniqueID(id: number): number {
+  return 41 * id
+}
+export function getUpdateSpeedEventUniqueID(id: number): number {
+  return 43 * id
 }

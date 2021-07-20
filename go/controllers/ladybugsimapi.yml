@@ -272,6 +272,104 @@ definitions:
     type: object
     x-go-name: LadybugSimulationDB
     x-go-package: github.com/fullstack-lang/ladybugsim/go/orm
+  updatepositioneventAPI:
+    description: |-
+      for POST, API, one needs the fields of the model as well as the fields
+      from associations ("Has One" and "Has Many") that are generated to
+      fullfill the ORM requirements for associations
+    properties:
+      CreatedAt:
+        format: date-time
+        type: string
+      DeletedAt:
+        $ref: '#/definitions/DeletedAt'
+      Duration:
+        $ref: '#/definitions/Duration'
+      ID:
+        format: uint64
+        type: integer
+      Name:
+        type: string
+      UpdatedAt:
+        format: date-time
+        type: string
+    title: UpdatePositionEventAPI is the input in POST API
+    type: object
+    x-go-name: UpdatePositionEventAPI
+    x-go-package: github.com/fullstack-lang/ladybugsim/go/orm
+  updatepositioneventDB:
+    description: |-
+      It incorporates the GORM ID, basic fields from the model (because they can be serialized),
+      the encoded version of pointers
+    properties:
+      CreatedAt:
+        format: date-time
+        type: string
+      DeletedAt:
+        $ref: '#/definitions/DeletedAt'
+      Duration_Data:
+        $ref: '#/definitions/NullInt64'
+      ID:
+        format: uint64
+        type: integer
+      Name_Data:
+        $ref: '#/definitions/NullString'
+      UpdatedAt:
+        format: date-time
+        type: string
+    title: UpdatePositionEventDB describes a updatepositionevent in the database
+    type: object
+    x-go-name: UpdatePositionEventDB
+    x-go-package: github.com/fullstack-lang/ladybugsim/go/orm
+  updatespeedeventAPI:
+    description: |-
+      for POST, API, one needs the fields of the model as well as the fields
+      from associations ("Has One" and "Has Many") that are generated to
+      fullfill the ORM requirements for associations
+    properties:
+      CreatedAt:
+        format: date-time
+        type: string
+      DeletedAt:
+        $ref: '#/definitions/DeletedAt'
+      Duration:
+        $ref: '#/definitions/Duration'
+      ID:
+        format: uint64
+        type: integer
+      Name:
+        type: string
+      UpdatedAt:
+        format: date-time
+        type: string
+    title: UpdateSpeedEventAPI is the input in POST API
+    type: object
+    x-go-name: UpdateSpeedEventAPI
+    x-go-package: github.com/fullstack-lang/ladybugsim/go/orm
+  updatespeedeventDB:
+    description: |-
+      It incorporates the GORM ID, basic fields from the model (because they can be serialized),
+      the encoded version of pointers
+    properties:
+      CreatedAt:
+        format: date-time
+        type: string
+      DeletedAt:
+        $ref: '#/definitions/DeletedAt'
+      Duration_Data:
+        $ref: '#/definitions/NullInt64'
+      ID:
+        format: uint64
+        type: integer
+      Name_Data:
+        $ref: '#/definitions/NullString'
+      UpdatedAt:
+        format: date-time
+        type: string
+    title: UpdateSpeedEventDB describes a updatespeedevent in the database
+    type: object
+    x-go-name: UpdateSpeedEventDB
+    x-go-package: github.com/fullstack-lang/ladybugsim/go/orm
 host: localhost:8080
 info:
   description: ladybugsim exposes types of a package.
@@ -456,6 +554,174 @@ paths:
       operationId: GetLastPushFromFrontNb
       tags:
       - backrepo
+  /updatepositionevents:
+    get:
+      description: Get all updatepositionevents
+      operationId: getUpdatePositionEvents
+      responses:
+        "200":
+          $ref: '#/responses/updatepositioneventDBsResponse'
+        default:
+          $ref: '#/responses/genericError'
+      tags:
+      - updatepositionevents
+    post:
+      consumes:
+      - application/json
+      description: Creates a updatepositionevent
+      operationId: postUpdatePositionEvent
+      parameters:
+      - description: The UpdatePositionEvent to submit or modify
+        in: body
+        name: UpdatePositionEvent
+        schema:
+          $ref: '#/definitions/updatepositioneventAPI'
+      produces:
+      - application/json
+      responses:
+        "200":
+          $ref: '#/responses/updatepositioneventDBResponse'
+      tags:
+      - updatepositionevents
+  /updatepositionevents/{ID}:
+    delete:
+      description: Delete a updatepositionevent
+      operationId: deleteUpdatePositionEvent
+      parameters:
+      - description: The ID of the order
+        format: int64
+        in: path
+        name: ID
+        required: true
+        type: integer
+      responses:
+        default:
+          $ref: '#/responses/genericError'
+      tags:
+      - updatepositionevents
+    get:
+      operationId: getUpdatePositionEvent
+      parameters:
+      - description: The ID of the order
+        format: int64
+        in: path
+        name: ID
+        required: true
+        type: integer
+      responses:
+        "200":
+          $ref: '#/responses/updatepositioneventDBResponse'
+        default:
+          $ref: '#/responses/genericError'
+      summary: Gets the details for a updatepositionevent.
+      tags:
+      - updatepositionevents
+    patch:
+      description: Update a updatepositionevent
+      operationId: updateUpdatePositionEvent
+      parameters:
+      - description: The ID of the order
+        format: int64
+        in: path
+        name: ID
+        required: true
+        type: integer
+      - description: The UpdatePositionEvent to submit or modify
+        in: body
+        name: UpdatePositionEvent
+        schema:
+          $ref: '#/definitions/updatepositioneventAPI'
+      responses:
+        "200":
+          $ref: '#/responses/updatepositioneventDBResponse'
+        default:
+          $ref: '#/responses/genericError'
+      tags:
+      - updatepositionevents
+  /updatespeedevents:
+    get:
+      description: Get all updatespeedevents
+      operationId: getUpdateSpeedEvents
+      responses:
+        "200":
+          $ref: '#/responses/updatespeedeventDBsResponse'
+        default:
+          $ref: '#/responses/genericError'
+      tags:
+      - updatespeedevents
+    post:
+      consumes:
+      - application/json
+      description: Creates a updatespeedevent
+      operationId: postUpdateSpeedEvent
+      parameters:
+      - description: The UpdateSpeedEvent to submit or modify
+        in: body
+        name: UpdateSpeedEvent
+        schema:
+          $ref: '#/definitions/updatespeedeventAPI'
+      produces:
+      - application/json
+      responses:
+        "200":
+          $ref: '#/responses/updatespeedeventDBResponse'
+      tags:
+      - updatespeedevents
+  /updatespeedevents/{ID}:
+    delete:
+      description: Delete a updatespeedevent
+      operationId: deleteUpdateSpeedEvent
+      parameters:
+      - description: The ID of the order
+        format: int64
+        in: path
+        name: ID
+        required: true
+        type: integer
+      responses:
+        default:
+          $ref: '#/responses/genericError'
+      tags:
+      - updatespeedevents
+    get:
+      operationId: getUpdateSpeedEvent
+      parameters:
+      - description: The ID of the order
+        format: int64
+        in: path
+        name: ID
+        required: true
+        type: integer
+      responses:
+        "200":
+          $ref: '#/responses/updatespeedeventDBResponse'
+        default:
+          $ref: '#/responses/genericError'
+      summary: Gets the details for a updatespeedevent.
+      tags:
+      - updatespeedevents
+    patch:
+      description: Update a updatespeedevent
+      operationId: updateUpdateSpeedEvent
+      parameters:
+      - description: The ID of the order
+        format: int64
+        in: path
+        name: ID
+        required: true
+        type: integer
+      - description: The UpdateSpeedEvent to submit or modify
+        in: body
+        name: UpdateSpeedEvent
+        schema:
+          $ref: '#/definitions/updatespeedeventAPI'
+      responses:
+        "200":
+          $ref: '#/responses/updatespeedeventDBResponse'
+        default:
+          $ref: '#/responses/genericError'
+      tags:
+      - updatespeedevents
 produces:
 - application/json
 responses:
@@ -572,6 +838,62 @@ responses:
     schema:
       items:
         $ref: '#/definitions/ladybugsimulationDB'
+      type: array
+  updatepositioneventDBResponse:
+    description: UpdatePositionEventDBResponse provides response
+    headers:
+      CreatedAt:
+        format: date-time
+        type: string
+      DeletedAt: {}
+      Duration_Data:
+        description: Declation for basic field updatepositioneventDB.Duration {{BasicKind}}
+          (to be completed)
+      ID:
+        format: uint64
+        type: integer
+      Name_Data:
+        description: |-
+          insertion for basic fields declaration
+          Declation for basic field updatepositioneventDB.Name {{BasicKind}} (to be completed)
+      UpdatedAt:
+        format: date-time
+        type: string
+    schema:
+      $ref: '#/definitions/NullInt64'
+  updatepositioneventDBsResponse:
+    description: UpdatePositionEventDBs arrays updatepositioneventDBs
+    schema:
+      items:
+        $ref: '#/definitions/updatepositioneventDB'
+      type: array
+  updatespeedeventDBResponse:
+    description: UpdateSpeedEventDBResponse provides response
+    headers:
+      CreatedAt:
+        format: date-time
+        type: string
+      DeletedAt: {}
+      Duration_Data:
+        description: Declation for basic field updatespeedeventDB.Duration {{BasicKind}}
+          (to be completed)
+      ID:
+        format: uint64
+        type: integer
+      Name_Data:
+        description: |-
+          insertion for basic fields declaration
+          Declation for basic field updatespeedeventDB.Name {{BasicKind}} (to be completed)
+      UpdatedAt:
+        format: date-time
+        type: string
+    schema:
+      $ref: '#/definitions/NullInt64'
+  updatespeedeventDBsResponse:
+    description: UpdateSpeedEventDBs arrays updatespeedeventDBs
+    schema:
+      items:
+        $ref: '#/definitions/updatespeedeventDB'
       type: array
   validationError:
     description: |-

@@ -18,6 +18,12 @@ type StageStruct struct { // insertion point for definition of arrays registerin
 	LadybugSimulations           map[*LadybugSimulation]struct{}
 	LadybugSimulations_mapString map[string]*LadybugSimulation
 
+	UpdatePositionEvents           map[*UpdatePositionEvent]struct{}
+	UpdatePositionEvents_mapString map[string]*UpdatePositionEvent
+
+	UpdateSpeedEvents           map[*UpdateSpeedEvent]struct{}
+	UpdateSpeedEvents_mapString map[string]*UpdateSpeedEvent
+
 	AllModelsStructCreateCallback AllModelsStructCreateInterface
 
 	AllModelsStructDeleteCallback AllModelsStructDeleteInterface
@@ -44,6 +50,10 @@ type BackRepoInterface interface {
 	CheckoutLadybug(ladybug *Ladybug)
 	CommitLadybugSimulation(ladybugsimulation *LadybugSimulation)
 	CheckoutLadybugSimulation(ladybugsimulation *LadybugSimulation)
+	CommitUpdatePositionEvent(updatepositionevent *UpdatePositionEvent)
+	CheckoutUpdatePositionEvent(updatepositionevent *UpdatePositionEvent)
+	CommitUpdateSpeedEvent(updatespeedevent *UpdateSpeedEvent)
+	CheckoutUpdateSpeedEvent(updatespeedevent *UpdateSpeedEvent)
 	GetLastCommitNb() uint
 	GetLastPushFromFrontNb() uint
 }
@@ -55,6 +65,12 @@ var Stage StageStruct = StageStruct{ // insertion point for array initiatialisat
 
 	LadybugSimulations:           make(map[*LadybugSimulation]struct{}, 0),
 	LadybugSimulations_mapString: make(map[string]*LadybugSimulation, 0),
+
+	UpdatePositionEvents:           make(map[*UpdatePositionEvent]struct{}, 0),
+	UpdatePositionEvents_mapString: make(map[string]*UpdatePositionEvent, 0),
+
+	UpdateSpeedEvents:           make(map[*UpdateSpeedEvent]struct{}, 0),
+	UpdateSpeedEvents_mapString: make(map[string]*UpdateSpeedEvent, 0),
 
 	// end of insertion point
 }
@@ -304,15 +320,223 @@ func DeleteORMLadybugSimulation(ladybugsimulation *LadybugSimulation) {
 	}
 }
 
+func (stage *StageStruct) getUpdatePositionEventOrderedStructWithNameField() []*UpdatePositionEvent {
+	// have alphabetical order generation
+	updatepositioneventOrdered := []*UpdatePositionEvent{}
+	for updatepositionevent := range stage.UpdatePositionEvents {
+		updatepositioneventOrdered = append(updatepositioneventOrdered, updatepositionevent)
+	}
+	sort.Slice(updatepositioneventOrdered[:], func(i, j int) bool {
+		return updatepositioneventOrdered[i].Name < updatepositioneventOrdered[j].Name
+	})
+	return updatepositioneventOrdered
+}
+
+// Stage puts updatepositionevent to the model stage
+func (updatepositionevent *UpdatePositionEvent) Stage() *UpdatePositionEvent {
+	Stage.UpdatePositionEvents[updatepositionevent] = __member
+	Stage.UpdatePositionEvents_mapString[updatepositionevent.Name] = updatepositionevent
+
+	return updatepositionevent
+}
+
+// Unstage removes updatepositionevent off the model stage
+func (updatepositionevent *UpdatePositionEvent) Unstage() *UpdatePositionEvent {
+	delete(Stage.UpdatePositionEvents, updatepositionevent)
+	delete(Stage.UpdatePositionEvents_mapString, updatepositionevent.Name)
+	return updatepositionevent
+}
+
+// commit updatepositionevent to the back repo (if it is already staged)
+func (updatepositionevent *UpdatePositionEvent) Commit() *UpdatePositionEvent {
+	if _, ok := Stage.UpdatePositionEvents[updatepositionevent]; ok {
+		if Stage.BackRepo != nil {
+			Stage.BackRepo.CommitUpdatePositionEvent(updatepositionevent)
+		}
+	}
+	return updatepositionevent
+}
+
+// Checkout updatepositionevent to the back repo (if it is already staged)
+func (updatepositionevent *UpdatePositionEvent) Checkout() *UpdatePositionEvent {
+	if _, ok := Stage.UpdatePositionEvents[updatepositionevent]; ok {
+		if Stage.BackRepo != nil {
+			Stage.BackRepo.CheckoutUpdatePositionEvent(updatepositionevent)
+		}
+	}
+	return updatepositionevent
+}
+
+//
+// Legacy, to be deleted
+//
+
+// StageCopy appends a copy of updatepositionevent to the model stage
+func (updatepositionevent *UpdatePositionEvent) StageCopy() *UpdatePositionEvent {
+	_updatepositionevent := new(UpdatePositionEvent)
+	*_updatepositionevent = *updatepositionevent
+	_updatepositionevent.Stage()
+	return _updatepositionevent
+}
+
+// StageAndCommit appends updatepositionevent to the model stage and commit to the orm repo
+func (updatepositionevent *UpdatePositionEvent) StageAndCommit() *UpdatePositionEvent {
+	updatepositionevent.Stage()
+	if Stage.AllModelsStructCreateCallback != nil {
+		Stage.AllModelsStructCreateCallback.CreateORMUpdatePositionEvent(updatepositionevent)
+	}
+	return updatepositionevent
+}
+
+// DeleteStageAndCommit appends updatepositionevent to the model stage and commit to the orm repo
+func (updatepositionevent *UpdatePositionEvent) DeleteStageAndCommit() *UpdatePositionEvent {
+	updatepositionevent.Unstage()
+	DeleteORMUpdatePositionEvent(updatepositionevent)
+	return updatepositionevent
+}
+
+// StageCopyAndCommit appends a copy of updatepositionevent to the model stage and commit to the orm repo
+func (updatepositionevent *UpdatePositionEvent) StageCopyAndCommit() *UpdatePositionEvent {
+	_updatepositionevent := new(UpdatePositionEvent)
+	*_updatepositionevent = *updatepositionevent
+	_updatepositionevent.Stage()
+	if Stage.AllModelsStructCreateCallback != nil {
+		Stage.AllModelsStructCreateCallback.CreateORMUpdatePositionEvent(updatepositionevent)
+	}
+	return _updatepositionevent
+}
+
+// CreateORMUpdatePositionEvent enables dynamic staging of a UpdatePositionEvent instance
+func CreateORMUpdatePositionEvent(updatepositionevent *UpdatePositionEvent) {
+	updatepositionevent.Stage()
+	if Stage.AllModelsStructCreateCallback != nil {
+		Stage.AllModelsStructCreateCallback.CreateORMUpdatePositionEvent(updatepositionevent)
+	}
+}
+
+// DeleteORMUpdatePositionEvent enables dynamic staging of a UpdatePositionEvent instance
+func DeleteORMUpdatePositionEvent(updatepositionevent *UpdatePositionEvent) {
+	updatepositionevent.Unstage()
+	if Stage.AllModelsStructDeleteCallback != nil {
+		Stage.AllModelsStructDeleteCallback.DeleteORMUpdatePositionEvent(updatepositionevent)
+	}
+}
+
+func (stage *StageStruct) getUpdateSpeedEventOrderedStructWithNameField() []*UpdateSpeedEvent {
+	// have alphabetical order generation
+	updatespeedeventOrdered := []*UpdateSpeedEvent{}
+	for updatespeedevent := range stage.UpdateSpeedEvents {
+		updatespeedeventOrdered = append(updatespeedeventOrdered, updatespeedevent)
+	}
+	sort.Slice(updatespeedeventOrdered[:], func(i, j int) bool {
+		return updatespeedeventOrdered[i].Name < updatespeedeventOrdered[j].Name
+	})
+	return updatespeedeventOrdered
+}
+
+// Stage puts updatespeedevent to the model stage
+func (updatespeedevent *UpdateSpeedEvent) Stage() *UpdateSpeedEvent {
+	Stage.UpdateSpeedEvents[updatespeedevent] = __member
+	Stage.UpdateSpeedEvents_mapString[updatespeedevent.Name] = updatespeedevent
+
+	return updatespeedevent
+}
+
+// Unstage removes updatespeedevent off the model stage
+func (updatespeedevent *UpdateSpeedEvent) Unstage() *UpdateSpeedEvent {
+	delete(Stage.UpdateSpeedEvents, updatespeedevent)
+	delete(Stage.UpdateSpeedEvents_mapString, updatespeedevent.Name)
+	return updatespeedevent
+}
+
+// commit updatespeedevent to the back repo (if it is already staged)
+func (updatespeedevent *UpdateSpeedEvent) Commit() *UpdateSpeedEvent {
+	if _, ok := Stage.UpdateSpeedEvents[updatespeedevent]; ok {
+		if Stage.BackRepo != nil {
+			Stage.BackRepo.CommitUpdateSpeedEvent(updatespeedevent)
+		}
+	}
+	return updatespeedevent
+}
+
+// Checkout updatespeedevent to the back repo (if it is already staged)
+func (updatespeedevent *UpdateSpeedEvent) Checkout() *UpdateSpeedEvent {
+	if _, ok := Stage.UpdateSpeedEvents[updatespeedevent]; ok {
+		if Stage.BackRepo != nil {
+			Stage.BackRepo.CheckoutUpdateSpeedEvent(updatespeedevent)
+		}
+	}
+	return updatespeedevent
+}
+
+//
+// Legacy, to be deleted
+//
+
+// StageCopy appends a copy of updatespeedevent to the model stage
+func (updatespeedevent *UpdateSpeedEvent) StageCopy() *UpdateSpeedEvent {
+	_updatespeedevent := new(UpdateSpeedEvent)
+	*_updatespeedevent = *updatespeedevent
+	_updatespeedevent.Stage()
+	return _updatespeedevent
+}
+
+// StageAndCommit appends updatespeedevent to the model stage and commit to the orm repo
+func (updatespeedevent *UpdateSpeedEvent) StageAndCommit() *UpdateSpeedEvent {
+	updatespeedevent.Stage()
+	if Stage.AllModelsStructCreateCallback != nil {
+		Stage.AllModelsStructCreateCallback.CreateORMUpdateSpeedEvent(updatespeedevent)
+	}
+	return updatespeedevent
+}
+
+// DeleteStageAndCommit appends updatespeedevent to the model stage and commit to the orm repo
+func (updatespeedevent *UpdateSpeedEvent) DeleteStageAndCommit() *UpdateSpeedEvent {
+	updatespeedevent.Unstage()
+	DeleteORMUpdateSpeedEvent(updatespeedevent)
+	return updatespeedevent
+}
+
+// StageCopyAndCommit appends a copy of updatespeedevent to the model stage and commit to the orm repo
+func (updatespeedevent *UpdateSpeedEvent) StageCopyAndCommit() *UpdateSpeedEvent {
+	_updatespeedevent := new(UpdateSpeedEvent)
+	*_updatespeedevent = *updatespeedevent
+	_updatespeedevent.Stage()
+	if Stage.AllModelsStructCreateCallback != nil {
+		Stage.AllModelsStructCreateCallback.CreateORMUpdateSpeedEvent(updatespeedevent)
+	}
+	return _updatespeedevent
+}
+
+// CreateORMUpdateSpeedEvent enables dynamic staging of a UpdateSpeedEvent instance
+func CreateORMUpdateSpeedEvent(updatespeedevent *UpdateSpeedEvent) {
+	updatespeedevent.Stage()
+	if Stage.AllModelsStructCreateCallback != nil {
+		Stage.AllModelsStructCreateCallback.CreateORMUpdateSpeedEvent(updatespeedevent)
+	}
+}
+
+// DeleteORMUpdateSpeedEvent enables dynamic staging of a UpdateSpeedEvent instance
+func DeleteORMUpdateSpeedEvent(updatespeedevent *UpdateSpeedEvent) {
+	updatespeedevent.Unstage()
+	if Stage.AllModelsStructDeleteCallback != nil {
+		Stage.AllModelsStructDeleteCallback.DeleteORMUpdateSpeedEvent(updatespeedevent)
+	}
+}
+
 // swagger:ignore
 type AllModelsStructCreateInterface interface { // insertion point for Callbacks on creation
 	CreateORMLadybug(Ladybug *Ladybug)
 	CreateORMLadybugSimulation(LadybugSimulation *LadybugSimulation)
+	CreateORMUpdatePositionEvent(UpdatePositionEvent *UpdatePositionEvent)
+	CreateORMUpdateSpeedEvent(UpdateSpeedEvent *UpdateSpeedEvent)
 }
 
 type AllModelsStructDeleteInterface interface { // insertion point for Callbacks on deletion
 	DeleteORMLadybug(Ladybug *Ladybug)
 	DeleteORMLadybugSimulation(LadybugSimulation *LadybugSimulation)
+	DeleteORMUpdatePositionEvent(UpdatePositionEvent *UpdatePositionEvent)
+	DeleteORMUpdateSpeedEvent(UpdateSpeedEvent *UpdateSpeedEvent)
 }
 
 func (stage *StageStruct) Reset() { // insertion point for array reset
@@ -322,6 +546,12 @@ func (stage *StageStruct) Reset() { // insertion point for array reset
 	stage.LadybugSimulations = make(map[*LadybugSimulation]struct{}, 0)
 	stage.LadybugSimulations_mapString = make(map[string]*LadybugSimulation, 0)
 
+	stage.UpdatePositionEvents = make(map[*UpdatePositionEvent]struct{}, 0)
+	stage.UpdatePositionEvents_mapString = make(map[string]*UpdatePositionEvent, 0)
+
+	stage.UpdateSpeedEvents = make(map[*UpdateSpeedEvent]struct{}, 0)
+	stage.UpdateSpeedEvents_mapString = make(map[string]*UpdateSpeedEvent, 0)
+
 }
 
 func (stage *StageStruct) Nil() { // insertion point for array nil
@@ -330,5 +560,11 @@ func (stage *StageStruct) Nil() { // insertion point for array nil
 
 	stage.LadybugSimulations = nil
 	stage.LadybugSimulations_mapString = nil
+
+	stage.UpdatePositionEvents = nil
+	stage.UpdatePositionEvents_mapString = nil
+
+	stage.UpdateSpeedEvents = nil
+	stage.UpdateSpeedEvents_mapString = nil
 
 }

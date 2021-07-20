@@ -12,6 +12,10 @@ import { LadybugService } from '../ladybug.service'
 import { getLadybugUniqueID } from '../front-repo.service'
 import { LadybugSimulationService } from '../ladybugsimulation.service'
 import { getLadybugSimulationUniqueID } from '../front-repo.service'
+import { UpdatePositionEventService } from '../updatepositionevent.service'
+import { getUpdatePositionEventUniqueID } from '../front-repo.service'
+import { UpdateSpeedEventService } from '../updatespeedevent.service'
+import { getUpdateSpeedEventUniqueID } from '../front-repo.service'
 
 /**
  * Types of a GongNode / GongFlatNode
@@ -149,6 +153,8 @@ export class SidebarComponent implements OnInit {
     // insertion point for per struct service declaration
     private ladybugService: LadybugService,
     private ladybugsimulationService: LadybugSimulationService,
+    private updatepositioneventService: UpdatePositionEventService,
+    private updatespeedeventService: UpdateSpeedEventService,
   ) { }
 
   ngOnInit(): void {
@@ -165,6 +171,22 @@ export class SidebarComponent implements OnInit {
     )
     // observable for changes in structs
     this.ladybugsimulationService.LadybugSimulationServiceChanged.subscribe(
+      message => {
+        if (message == "post" || message == "update" || message == "delete") {
+          this.refresh()
+        }
+      }
+    )
+    // observable for changes in structs
+    this.updatepositioneventService.UpdatePositionEventServiceChanged.subscribe(
+      message => {
+        if (message == "post" || message == "update" || message == "delete") {
+          this.refresh()
+        }
+      }
+    )
+    // observable for changes in structs
+    this.updatespeedeventService.UpdateSpeedEventServiceChanged.subscribe(
       message => {
         if (message == "post" || message == "update" || message == "delete") {
           this.refresh()
@@ -313,6 +335,94 @@ export class SidebarComponent implements OnInit {
             LadybugsGongNodeAssociation.children.push(ladybugNode)
           })
 
+        }
+      )
+
+      /**
+      * fill up the UpdatePositionEvent part of the mat tree
+      */
+      let updatepositioneventGongNodeStruct: GongNode = {
+        name: "UpdatePositionEvent",
+        type: GongNodeType.STRUCT,
+        id: 0,
+        uniqueIdPerStack: 13 * nonInstanceNodeId,
+        structName: "UpdatePositionEvent",
+        associationField: "",
+        associatedStructName: "",
+        children: new Array<GongNode>()
+      }
+      nonInstanceNodeId = nonInstanceNodeId + 1
+      this.gongNodeTree.push(updatepositioneventGongNodeStruct)
+
+      this.frontRepo.UpdatePositionEvents_array.sort((t1, t2) => {
+        if (t1.Name > t2.Name) {
+          return 1;
+        }
+        if (t1.Name < t2.Name) {
+          return -1;
+        }
+        return 0;
+      });
+
+      this.frontRepo.UpdatePositionEvents_array.forEach(
+        updatepositioneventDB => {
+          let updatepositioneventGongNodeInstance: GongNode = {
+            name: updatepositioneventDB.Name,
+            type: GongNodeType.INSTANCE,
+            id: updatepositioneventDB.ID,
+            uniqueIdPerStack: getUpdatePositionEventUniqueID(updatepositioneventDB.ID),
+            structName: "UpdatePositionEvent",
+            associationField: "",
+            associatedStructName: "",
+            children: new Array<GongNode>()
+          }
+          updatepositioneventGongNodeStruct.children.push(updatepositioneventGongNodeInstance)
+
+          // insertion point for per field code
+        }
+      )
+
+      /**
+      * fill up the UpdateSpeedEvent part of the mat tree
+      */
+      let updatespeedeventGongNodeStruct: GongNode = {
+        name: "UpdateSpeedEvent",
+        type: GongNodeType.STRUCT,
+        id: 0,
+        uniqueIdPerStack: 13 * nonInstanceNodeId,
+        structName: "UpdateSpeedEvent",
+        associationField: "",
+        associatedStructName: "",
+        children: new Array<GongNode>()
+      }
+      nonInstanceNodeId = nonInstanceNodeId + 1
+      this.gongNodeTree.push(updatespeedeventGongNodeStruct)
+
+      this.frontRepo.UpdateSpeedEvents_array.sort((t1, t2) => {
+        if (t1.Name > t2.Name) {
+          return 1;
+        }
+        if (t1.Name < t2.Name) {
+          return -1;
+        }
+        return 0;
+      });
+
+      this.frontRepo.UpdateSpeedEvents_array.forEach(
+        updatespeedeventDB => {
+          let updatespeedeventGongNodeInstance: GongNode = {
+            name: updatespeedeventDB.Name,
+            type: GongNodeType.INSTANCE,
+            id: updatespeedeventDB.ID,
+            uniqueIdPerStack: getUpdateSpeedEventUniqueID(updatespeedeventDB.ID),
+            structName: "UpdateSpeedEvent",
+            associationField: "",
+            associatedStructName: "",
+            children: new Array<GongNode>()
+          }
+          updatespeedeventGongNodeStruct.children.push(updatespeedeventGongNodeInstance)
+
+          // insertion point for per field code
         }
       )
 
