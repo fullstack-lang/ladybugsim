@@ -21,8 +21,8 @@ import (
 )
 
 // dummy variable to have the import declaration wihthout compile failure (even if no code needing this import is generated)
-var dummy_UpdateSpeedEvent sql.NullBool
-var __UpdateSpeedEvent_time__dummyDeclaration time.Duration
+var dummy_UpdateSpeedEvent_sql sql.NullBool
+var dummy_UpdateSpeedEvent_time time.Duration
 var dummy_UpdateSpeedEvent_sort sort.Float64Slice
 
 // UpdateSpeedEventAPI is the input in POST API

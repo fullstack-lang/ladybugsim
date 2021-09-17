@@ -66,11 +66,6 @@ func main() {
 	}
 	dbDB.SetMaxOpenConns(1)
 
-	// init back repos
-	ladybugsim_orm.BackRepo.Init(db_ladybug)
-	gongsim_orm.BackRepo.Init(db_ladybug)
-	gongsvg_orm.BackRepo.Init(db_ladybug)
-
 	// stage the simulation and the ladybugs
 	for _, ladybug := range ladybugsim_models.LadybugSim.Ladybugs {
 		ladybug.Stage().Commit()

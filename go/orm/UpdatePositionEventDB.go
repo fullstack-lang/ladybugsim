@@ -21,8 +21,8 @@ import (
 )
 
 // dummy variable to have the import declaration wihthout compile failure (even if no code needing this import is generated)
-var dummy_UpdatePositionEvent sql.NullBool
-var __UpdatePositionEvent_time__dummyDeclaration time.Duration
+var dummy_UpdatePositionEvent_sql sql.NullBool
+var dummy_UpdatePositionEvent_time time.Duration
 var dummy_UpdatePositionEvent_sort sort.Float64Slice
 
 // UpdatePositionEventAPI is the input in POST API
