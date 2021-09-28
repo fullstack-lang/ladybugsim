@@ -60,17 +60,17 @@ type BackRepoInterface interface {
 
 // swagger:ignore instructs the gong compiler (gongc) to avoid this particular struct
 var Stage StageStruct = StageStruct{ // insertion point for array initiatialisation
-	Ladybugs:           make(map[*Ladybug]struct{}, 0),
-	Ladybugs_mapString: make(map[string]*Ladybug, 0),
+	Ladybugs:           make(map[*Ladybug]struct{}),
+	Ladybugs_mapString: make(map[string]*Ladybug),
 
-	LadybugSimulations:           make(map[*LadybugSimulation]struct{}, 0),
-	LadybugSimulations_mapString: make(map[string]*LadybugSimulation, 0),
+	LadybugSimulations:           make(map[*LadybugSimulation]struct{}),
+	LadybugSimulations_mapString: make(map[string]*LadybugSimulation),
 
-	UpdatePositionEvents:           make(map[*UpdatePositionEvent]struct{}, 0),
-	UpdatePositionEvents_mapString: make(map[string]*UpdatePositionEvent, 0),
+	UpdatePositionEvents:           make(map[*UpdatePositionEvent]struct{}),
+	UpdatePositionEvents_mapString: make(map[string]*UpdatePositionEvent),
 
-	UpdateSpeedEvents:           make(map[*UpdateSpeedEvent]struct{}, 0),
-	UpdateSpeedEvents_mapString: make(map[string]*UpdateSpeedEvent, 0),
+	UpdateSpeedEvents:           make(map[*UpdateSpeedEvent]struct{}),
+	UpdateSpeedEvents_mapString: make(map[string]*UpdateSpeedEvent),
 
 	// end of insertion point
 }
@@ -540,17 +540,17 @@ type AllModelsStructDeleteInterface interface { // insertion point for Callbacks
 }
 
 func (stage *StageStruct) Reset() { // insertion point for array reset
-	stage.Ladybugs = make(map[*Ladybug]struct{}, 0)
-	stage.Ladybugs_mapString = make(map[string]*Ladybug, 0)
+	stage.Ladybugs = make(map[*Ladybug]struct{})
+	stage.Ladybugs_mapString = make(map[string]*Ladybug)
 
-	stage.LadybugSimulations = make(map[*LadybugSimulation]struct{}, 0)
-	stage.LadybugSimulations_mapString = make(map[string]*LadybugSimulation, 0)
+	stage.LadybugSimulations = make(map[*LadybugSimulation]struct{})
+	stage.LadybugSimulations_mapString = make(map[string]*LadybugSimulation)
 
-	stage.UpdatePositionEvents = make(map[*UpdatePositionEvent]struct{}, 0)
-	stage.UpdatePositionEvents_mapString = make(map[string]*UpdatePositionEvent, 0)
+	stage.UpdatePositionEvents = make(map[*UpdatePositionEvent]struct{})
+	stage.UpdatePositionEvents_mapString = make(map[string]*UpdatePositionEvent)
 
-	stage.UpdateSpeedEvents = make(map[*UpdateSpeedEvent]struct{}, 0)
-	stage.UpdateSpeedEvents_mapString = make(map[string]*UpdateSpeedEvent, 0)
+	stage.UpdateSpeedEvents = make(map[*UpdateSpeedEvent]struct{})
+	stage.UpdateSpeedEvents_mapString = make(map[string]*UpdateSpeedEvent)
 
 }
 
