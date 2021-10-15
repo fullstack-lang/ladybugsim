@@ -11,12 +11,13 @@ import { MapOfSortingComponents } from '../map-components'
 
 // insertion point for imports
 import { LadybugStatusSelect, LadybugStatusList } from '../LadybugStatus'
+import { LadybugSimulationDB } from '../ladybugsimulation-db'
 
 import { Router, RouterState, ActivatedRoute } from '@angular/router';
 
 import { MatDialog, MAT_DIALOG_DATA, MatDialogRef, MatDialogConfig } from '@angular/material/dialog';
 
-import { NullInt64 } from '../front-repo.service'
+import { NullInt64 } from '../null-int64'
 
 // LadybugDetailComponent is initilizaed from different routes
 // LadybugDetailComponentState detail different cases 
@@ -35,13 +36,13 @@ enum LadybugDetailComponentState {
 export class LadybugDetailComponent implements OnInit {
 
 	// insertion point for declarations
-	LadybugStatusList: LadybugStatusSelect[]
+	LadybugStatusList: LadybugStatusSelect[] = []
 
 	// the LadybugDB of interest
-	ladybug: LadybugDB;
+	ladybug: LadybugDB = new LadybugDB
 
 	// front repo
-	frontRepo: FrontRepo
+	frontRepo: FrontRepo = new FrontRepo
 
 	// this stores the information related to string fields
 	// if false, the field is inputed with an <input ...> form 
@@ -49,15 +50,15 @@ export class LadybugDetailComponent implements OnInit {
 	mapFields_displayAsTextArea = new Map<string, boolean>()
 
 	// the state at initialization (CREATION, UPDATE or CREATE with one association set)
-	state: LadybugDetailComponentState
+	state: LadybugDetailComponentState = LadybugDetailComponentState.CREATE_INSTANCE
 
 	// in UDPATE state, if is the id of the instance to update
 	// in CREATE state with one association set, this is the id of the associated instance
-	id: number
+	id: number = 0
 
 	// in CREATE state with one association set, this is the id of the associated instance
-	originStruct: string
-	originStructFieldName: string
+	originStruct: string = ""
+	originStructFieldName: string = ""
 
 	constructor(
 		private ladybugService: LadybugService,
@@ -71,9 +72,9 @@ export class LadybugDetailComponent implements OnInit {
 	ngOnInit(): void {
 
 		// compute state
-		this.id = +this.route.snapshot.paramMap.get('id');
-		this.originStruct = this.route.snapshot.paramMap.get('originStruct');
-		this.originStructFieldName = this.route.snapshot.paramMap.get('originStructFieldName');
+		this.id = +this.route.snapshot.paramMap.get('id')!;
+		this.originStruct = this.route.snapshot.paramMap.get('originStruct')!;
+		this.originStructFieldName = this.route.snapshot.paramMap.get('originStructFieldName')!;
 
 		const association = this.route.snapshot.paramMap.get('association');
 		if (this.id == 0) {
@@ -85,7 +86,7 @@ export class LadybugDetailComponent implements OnInit {
 				switch (this.originStructFieldName) {
 					// insertion point for state computation
 					case "Ladybugs":
-						console.log("Ladybug" + " is instanciated with back pointer to instance " + this.id + " LadybugSimulation association Ladybugs")
+						// console.log("Ladybug" + " is instanciated with back pointer to instance " + this.id + " LadybugSimulation association Ladybugs")
 						this.state = LadybugDetailComponentState.CREATE_INSTANCE_WITH_ASSOCIATION_LadybugSimulation_Ladybugs_SET
 						break;
 					default:
@@ -120,12 +121,14 @@ export class LadybugDetailComponent implements OnInit {
 						this.ladybug = new (LadybugDB)
 						break;
 					case LadybugDetailComponentState.UPDATE_INSTANCE:
-						this.ladybug = frontRepo.Ladybugs.get(this.id)
+						let ladybug = frontRepo.Ladybugs.get(this.id)
+						console.assert(ladybug != undefined, "missing ladybug with id:" + this.id)
+						this.ladybug = ladybug!
 						break;
 					// insertion point for init of association field
 					case LadybugDetailComponentState.CREATE_INSTANCE_WITH_ASSOCIATION_LadybugSimulation_Ladybugs_SET:
 						this.ladybug = new (LadybugDB)
-						this.ladybug.LadybugSimulation_Ladybugs_reverse = frontRepo.LadybugSimulations.get(this.id)
+						this.ladybug.LadybugSimulation_Ladybugs_reverse = frontRepo.LadybugSimulations.get(this.id)!
 						break;
 					default:
 						console.log(this.state + " is unkown state")
@@ -158,7 +161,7 @@ export class LadybugDetailComponent implements OnInit {
 				this.ladybug.LadybugSimulation_LadybugsDBID_Index = new NullInt64
 			}
 			this.ladybug.LadybugSimulation_LadybugsDBID_Index.Valid = true
-			this.ladybug.LadybugSimulation_Ladybugs_reverse = undefined // very important, otherwise, circular JSON
+			this.ladybug.LadybugSimulation_Ladybugs_reverse = new LadybugSimulationDB // very important, otherwise, circular JSON
 		}
 
 		switch (this.state) {
@@ -171,7 +174,7 @@ export class LadybugDetailComponent implements OnInit {
 			default:
 				this.ladybugService.postLadybug(this.ladybug).subscribe(ladybug => {
 					this.ladybugService.LadybugServiceChanged.next("post")
-					this.ladybug = {} // reset fields
+					this.ladybug = new (LadybugDB) // reset fields
 				});
 		}
 	}
@@ -180,7 +183,7 @@ export class LadybugDetailComponent implements OnInit {
 	// ONE-MANY association
 	// It uses the MapOfComponent provided by the front repo
 	openReverseSelection(AssociatedStruct: string, reverseField: string, selectionMode: string,
-		sourceField: string, intermediateStructField: string, nextAssociatedStruct: string ) {
+		sourceField: string, intermediateStructField: string, nextAssociatedStruct: string) {
 
 		console.log("mode " + selectionMode)
 
@@ -194,7 +197,7 @@ export class LadybugDetailComponent implements OnInit {
 		dialogConfig.height = "50%"
 		if (selectionMode == SelectionMode.ONE_MANY_ASSOCIATION_MODE) {
 
-			dialogData.ID = this.ladybug.ID
+			dialogData.ID = this.ladybug.ID!
 			dialogData.ReversePointer = reverseField
 			dialogData.OrderingMode = false
 			dialogData.SelectionMode = selectionMode
@@ -210,7 +213,7 @@ export class LadybugDetailComponent implements OnInit {
 			});
 		}
 		if (selectionMode == SelectionMode.MANY_MANY_ASSOCIATION_MODE) {
-			dialogData.ID = this.ladybug.ID
+			dialogData.ID = this.ladybug.ID!
 			dialogData.ReversePointer = reverseField
 			dialogData.OrderingMode = false
 			dialogData.SelectionMode = selectionMode
@@ -261,7 +264,7 @@ export class LadybugDetailComponent implements OnInit {
 		});
 	}
 
-	fillUpNameIfEmpty(event) {
+	fillUpNameIfEmpty(event: { value: { Name: string; }; }) {
 		if (this.ladybug.Name == undefined) {
 			this.ladybug.Name = event.value.Name
 		}
@@ -278,7 +281,7 @@ export class LadybugDetailComponent implements OnInit {
 
 	isATextArea(fieldName: string): boolean {
 		if (this.mapFields_displayAsTextArea.has(fieldName)) {
-			return this.mapFields_displayAsTextArea.get(fieldName)
+			return this.mapFields_displayAsTextArea.get(fieldName)!
 		} else {
 			return false
 		}

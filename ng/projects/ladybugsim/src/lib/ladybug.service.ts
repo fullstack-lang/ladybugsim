@@ -13,6 +13,9 @@ import { catchError, map, tap } from 'rxjs/operators';
 
 import { LadybugDB } from './ladybug-db';
 
+// insertion point for imports
+import { LadybugSimulationDB } from './ladybugsimulation-db'
+
 @Injectable({
   providedIn: 'root'
 })
@@ -35,14 +38,14 @@ export class LadybugService {
   ) {
     // path to the service share the same origin with the path to the document
     // get the origin in the URL to the document
-	let origin = this.document.location.origin
-    
-	// if debugging with ng, replace 4200 with 8080
-	origin = origin.replace("4200", "8080")
+    let origin = this.document.location.origin
+
+    // if debugging with ng, replace 4200 with 8080
+    origin = origin.replace("4200", "8080")
 
     // compute path to the service
     this.ladybugsUrl = origin + '/api/github.com/fullstack-lang/ladybugsim/go/v1/ladybugs';
-   }
+  }
 
   /** GET ladybugs from the server */
   getLadybugs(): Observable<LadybugDB[]> {
@@ -67,18 +70,18 @@ export class LadybugService {
   /** POST: add a new ladybug to the server */
   postLadybug(ladybugdb: LadybugDB): Observable<LadybugDB> {
 
-		// insertion point for reset of pointers and reverse pointers (to avoid circular JSON)
+    // insertion point for reset of pointers and reverse pointers (to avoid circular JSON)
     let _LadybugSimulation_Ladybugs_reverse = ladybugdb.LadybugSimulation_Ladybugs_reverse
-    ladybugdb.LadybugSimulation_Ladybugs_reverse = {}
+    ladybugdb.LadybugSimulation_Ladybugs_reverse = new LadybugSimulationDB
 
-		return this.http.post<LadybugDB>(this.ladybugsUrl, ladybugdb, this.httpOptions).pipe(
-			tap(_ => {
-				// insertion point for restoration of reverse pointers
+    return this.http.post<LadybugDB>(this.ladybugsUrl, ladybugdb, this.httpOptions).pipe(
+      tap(_ => {
+        // insertion point for restoration of reverse pointers
         ladybugdb.LadybugSimulation_Ladybugs_reverse = _LadybugSimulation_Ladybugs_reverse
-				this.log(`posted ladybugdb id=${ladybugdb.ID}`)
-			}),
-			catchError(this.handleError<LadybugDB>('postLadybug'))
-		);
+        this.log(`posted ladybugdb id=${ladybugdb.ID}`)
+      }),
+      catchError(this.handleError<LadybugDB>('postLadybug'))
+    );
   }
 
   /** DELETE: delete the ladybugdb from the server */
@@ -99,9 +102,9 @@ export class LadybugService {
 
     // insertion point for reset of pointers and reverse pointers (to avoid circular JSON)
     let _LadybugSimulation_Ladybugs_reverse = ladybugdb.LadybugSimulation_Ladybugs_reverse
-    ladybugdb.LadybugSimulation_Ladybugs_reverse = {}
+    ladybugdb.LadybugSimulation_Ladybugs_reverse = new LadybugSimulationDB
 
-    return this.http.put(url, ladybugdb, this.httpOptions).pipe(
+    return this.http.put<LadybugDB>(url, ladybugdb, this.httpOptions).pipe(
       tap(_ => {
         // insertion point for restoration of reverse pointers
         ladybugdb.LadybugSimulation_Ladybugs_reverse = _LadybugSimulation_Ladybugs_reverse

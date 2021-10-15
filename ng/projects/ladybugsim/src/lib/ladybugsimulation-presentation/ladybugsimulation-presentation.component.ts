@@ -23,17 +23,17 @@ export class LadybugSimulationPresentationComponent implements OnInit {
 
 	// insertion point for declarations
 	// fields from SimulationStep
-	SimulationStep_Hours: number
-	SimulationStep_Minutes: number
-	SimulationStep_Seconds: number
+	SimulationStep_Hours: number = 0
+	SimulationStep_Minutes: number = 0
+	SimulationStep_Seconds: number = 0
 
-	displayedColumns: string[] = [];
-	dataSource = ELEMENT_DATA;
+	displayedColumns: string[] = []
+	dataSource = ELEMENT_DATA
 
-	ladybugsimulation: LadybugSimulationDB;
+	ladybugsimulation: LadybugSimulationDB = new (LadybugSimulationDB)
 
 	// front repo
-	frontRepo: FrontRepo
+	frontRepo: FrontRepo = new (FrontRepo)
  
 	constructor(
 		private ladybugsimulationService: LadybugSimulationService,
@@ -60,12 +60,12 @@ export class LadybugSimulationPresentationComponent implements OnInit {
 	}
 
 	getLadybugSimulation(): void {
-		const id = +this.route.snapshot.paramMap.get('id');
+		const id = +this.route.snapshot.paramMap.get('id')!
 		this.frontRepoService.pull().subscribe(
 			frontRepo => {
 				this.frontRepo = frontRepo
 
-				this.ladybugsimulation = this.frontRepo.LadybugSimulations.get(id)
+				this.ladybugsimulation = this.frontRepo.LadybugSimulations.get(id)!
 
 				// insertion point for recovery of durations
 				// computation of Hours, Minutes, Seconds for SimulationStep

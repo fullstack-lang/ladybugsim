@@ -15,7 +15,7 @@ import { Router, RouterState, ActivatedRoute } from '@angular/router';
 
 import { MatDialog, MAT_DIALOG_DATA, MatDialogRef, MatDialogConfig } from '@angular/material/dialog';
 
-import { NullInt64 } from '../front-repo.service'
+import { NullInt64 } from '../null-int64'
 
 // UpdatePositionEventDetailComponent is initilizaed from different routes
 // UpdatePositionEventDetailComponentState detail different cases 
@@ -33,15 +33,15 @@ enum UpdatePositionEventDetailComponentState {
 export class UpdatePositionEventDetailComponent implements OnInit {
 
 	// insertion point for declarations
-	Duration_Hours: number
-	Duration_Minutes: number
-	Duration_Seconds: number
+	Duration_Hours: number = 0
+	Duration_Minutes: number = 0
+	Duration_Seconds: number = 0
 
 	// the UpdatePositionEventDB of interest
-	updatepositionevent: UpdatePositionEventDB;
+	updatepositionevent: UpdatePositionEventDB = new UpdatePositionEventDB
 
 	// front repo
-	frontRepo: FrontRepo
+	frontRepo: FrontRepo = new FrontRepo
 
 	// this stores the information related to string fields
 	// if false, the field is inputed with an <input ...> form 
@@ -49,15 +49,15 @@ export class UpdatePositionEventDetailComponent implements OnInit {
 	mapFields_displayAsTextArea = new Map<string, boolean>()
 
 	// the state at initialization (CREATION, UPDATE or CREATE with one association set)
-	state: UpdatePositionEventDetailComponentState
+	state: UpdatePositionEventDetailComponentState = UpdatePositionEventDetailComponentState.CREATE_INSTANCE
 
 	// in UDPATE state, if is the id of the instance to update
 	// in CREATE state with one association set, this is the id of the associated instance
-	id: number
+	id: number = 0
 
 	// in CREATE state with one association set, this is the id of the associated instance
-	originStruct: string
-	originStructFieldName: string
+	originStruct: string = ""
+	originStructFieldName: string = ""
 
 	constructor(
 		private updatepositioneventService: UpdatePositionEventService,
@@ -71,9 +71,9 @@ export class UpdatePositionEventDetailComponent implements OnInit {
 	ngOnInit(): void {
 
 		// compute state
-		this.id = +this.route.snapshot.paramMap.get('id');
-		this.originStruct = this.route.snapshot.paramMap.get('originStruct');
-		this.originStructFieldName = this.route.snapshot.paramMap.get('originStructFieldName');
+		this.id = +this.route.snapshot.paramMap.get('id')!;
+		this.originStruct = this.route.snapshot.paramMap.get('originStruct')!;
+		this.originStructFieldName = this.route.snapshot.paramMap.get('originStructFieldName')!;
 
 		const association = this.route.snapshot.paramMap.get('association');
 		if (this.id == 0) {
@@ -115,7 +115,9 @@ export class UpdatePositionEventDetailComponent implements OnInit {
 						this.updatepositionevent = new (UpdatePositionEventDB)
 						break;
 					case UpdatePositionEventDetailComponentState.UPDATE_INSTANCE:
-						this.updatepositionevent = frontRepo.UpdatePositionEvents.get(this.id)
+						let updatepositionevent = frontRepo.UpdatePositionEvents.get(this.id)
+						console.assert(updatepositionevent != undefined, "missing updatepositionevent with id:" + this.id)
+						this.updatepositionevent = updatepositionevent!
 						break;
 					// insertion point for init of association field
 					default:
@@ -158,7 +160,7 @@ export class UpdatePositionEventDetailComponent implements OnInit {
 			default:
 				this.updatepositioneventService.postUpdatePositionEvent(this.updatepositionevent).subscribe(updatepositionevent => {
 					this.updatepositioneventService.UpdatePositionEventServiceChanged.next("post")
-					this.updatepositionevent = {} // reset fields
+					this.updatepositionevent = new (UpdatePositionEventDB) // reset fields
 				});
 		}
 	}
@@ -167,7 +169,7 @@ export class UpdatePositionEventDetailComponent implements OnInit {
 	// ONE-MANY association
 	// It uses the MapOfComponent provided by the front repo
 	openReverseSelection(AssociatedStruct: string, reverseField: string, selectionMode: string,
-		sourceField: string, intermediateStructField: string, nextAssociatedStruct: string ) {
+		sourceField: string, intermediateStructField: string, nextAssociatedStruct: string) {
 
 		console.log("mode " + selectionMode)
 
@@ -181,7 +183,7 @@ export class UpdatePositionEventDetailComponent implements OnInit {
 		dialogConfig.height = "50%"
 		if (selectionMode == SelectionMode.ONE_MANY_ASSOCIATION_MODE) {
 
-			dialogData.ID = this.updatepositionevent.ID
+			dialogData.ID = this.updatepositionevent.ID!
 			dialogData.ReversePointer = reverseField
 			dialogData.OrderingMode = false
 			dialogData.SelectionMode = selectionMode
@@ -197,7 +199,7 @@ export class UpdatePositionEventDetailComponent implements OnInit {
 			});
 		}
 		if (selectionMode == SelectionMode.MANY_MANY_ASSOCIATION_MODE) {
-			dialogData.ID = this.updatepositionevent.ID
+			dialogData.ID = this.updatepositionevent.ID!
 			dialogData.ReversePointer = reverseField
 			dialogData.OrderingMode = false
 			dialogData.SelectionMode = selectionMode
@@ -248,7 +250,7 @@ export class UpdatePositionEventDetailComponent implements OnInit {
 		});
 	}
 
-	fillUpNameIfEmpty(event) {
+	fillUpNameIfEmpty(event: { value: { Name: string; }; }) {
 		if (this.updatepositionevent.Name == undefined) {
 			this.updatepositionevent.Name = event.value.Name
 		}
@@ -265,7 +267,7 @@ export class UpdatePositionEventDetailComponent implements OnInit {
 
 	isATextArea(fieldName: string): boolean {
 		if (this.mapFields_displayAsTextArea.has(fieldName)) {
-			return this.mapFields_displayAsTextArea.get(fieldName)
+			return this.mapFields_displayAsTextArea.get(fieldName)!
 		} else {
 			return false
 		}

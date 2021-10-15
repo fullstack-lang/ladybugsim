@@ -13,6 +13,8 @@ import { catchError, map, tap } from 'rxjs/operators';
 
 import { UpdatePositionEventDB } from './updatepositionevent-db';
 
+// insertion point for imports
+
 @Injectable({
   providedIn: 'root'
 })
@@ -35,14 +37,14 @@ export class UpdatePositionEventService {
   ) {
     // path to the service share the same origin with the path to the document
     // get the origin in the URL to the document
-	let origin = this.document.location.origin
-    
-	// if debugging with ng, replace 4200 with 8080
-	origin = origin.replace("4200", "8080")
+    let origin = this.document.location.origin
+
+    // if debugging with ng, replace 4200 with 8080
+    origin = origin.replace("4200", "8080")
 
     // compute path to the service
     this.updatepositioneventsUrl = origin + '/api/github.com/fullstack-lang/ladybugsim/go/v1/updatepositionevents';
-   }
+  }
 
   /** GET updatepositionevents from the server */
   getUpdatePositionEvents(): Observable<UpdatePositionEventDB[]> {
@@ -67,15 +69,15 @@ export class UpdatePositionEventService {
   /** POST: add a new updatepositionevent to the server */
   postUpdatePositionEvent(updatepositioneventdb: UpdatePositionEventDB): Observable<UpdatePositionEventDB> {
 
-		// insertion point for reset of pointers and reverse pointers (to avoid circular JSON)
+    // insertion point for reset of pointers and reverse pointers (to avoid circular JSON)
 
-		return this.http.post<UpdatePositionEventDB>(this.updatepositioneventsUrl, updatepositioneventdb, this.httpOptions).pipe(
-			tap(_ => {
-				// insertion point for restoration of reverse pointers
-				this.log(`posted updatepositioneventdb id=${updatepositioneventdb.ID}`)
-			}),
-			catchError(this.handleError<UpdatePositionEventDB>('postUpdatePositionEvent'))
-		);
+    return this.http.post<UpdatePositionEventDB>(this.updatepositioneventsUrl, updatepositioneventdb, this.httpOptions).pipe(
+      tap(_ => {
+        // insertion point for restoration of reverse pointers
+        this.log(`posted updatepositioneventdb id=${updatepositioneventdb.ID}`)
+      }),
+      catchError(this.handleError<UpdatePositionEventDB>('postUpdatePositionEvent'))
+    );
   }
 
   /** DELETE: delete the updatepositioneventdb from the server */
@@ -96,7 +98,7 @@ export class UpdatePositionEventService {
 
     // insertion point for reset of pointers and reverse pointers (to avoid circular JSON)
 
-    return this.http.put(url, updatepositioneventdb, this.httpOptions).pipe(
+    return this.http.put<UpdatePositionEventDB>(url, updatepositioneventdb, this.httpOptions).pipe(
       tap(_ => {
         // insertion point for restoration of reverse pointers
         this.log(`updated updatepositioneventdb id=${updatepositioneventdb.ID}`)

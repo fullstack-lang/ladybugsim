@@ -23,13 +23,13 @@ export class LadybugPresentationComponent implements OnInit {
 
 	// insertion point for declarations
 
-	displayedColumns: string[] = [];
-	dataSource = ELEMENT_DATA;
+	displayedColumns: string[] = []
+	dataSource = ELEMENT_DATA
 
-	ladybug: LadybugDB;
+	ladybug: LadybugDB = new (LadybugDB)
 
 	// front repo
-	frontRepo: FrontRepo
+	frontRepo: FrontRepo = new (FrontRepo)
  
 	constructor(
 		private ladybugService: LadybugService,
@@ -56,12 +56,12 @@ export class LadybugPresentationComponent implements OnInit {
 	}
 
 	getLadybug(): void {
-		const id = +this.route.snapshot.paramMap.get('id');
+		const id = +this.route.snapshot.paramMap.get('id')!
 		this.frontRepoService.pull().subscribe(
 			frontRepo => {
 				this.frontRepo = frontRepo
 
-				this.ladybug = this.frontRepo.Ladybugs.get(id)
+				this.ladybug = this.frontRepo.Ladybugs.get(id)!
 
 				// insertion point for recovery of durations
 			}

@@ -7,7 +7,8 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatButton } from '@angular/material/button'
 
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog'
-import { DialogData, FrontRepoService, FrontRepo, NullInt64, SelectionMode } from '../front-repo.service'
+import { DialogData, FrontRepoService, FrontRepo, SelectionMode } from '../front-repo.service'
+import { NullInt64 } from '../null-int64'
 import { SelectionModel } from '@angular/cdk/collections';
 
 const allowMultiSelect = true;
@@ -33,26 +34,28 @@ enum TableComponentMode {
 export class UpdatePositionEventsTableComponent implements OnInit {
 
   // mode at invocation
-  mode: TableComponentMode
+  mode: TableComponentMode = TableComponentMode.DISPLAY_MODE
 
   // used if the component is called as a selection component of UpdatePositionEvent instances
-  selection: SelectionModel<UpdatePositionEventDB>;
-  initialSelection = new Array<UpdatePositionEventDB>();
+  selection: SelectionModel<UpdatePositionEventDB> = new (SelectionModel)
+  initialSelection = new Array<UpdatePositionEventDB>()
 
   // the data source for the table
-  updatepositionevents: UpdatePositionEventDB[];
-  matTableDataSource: MatTableDataSource<UpdatePositionEventDB>
+  updatepositionevents: UpdatePositionEventDB[] = []
+  matTableDataSource: MatTableDataSource<UpdatePositionEventDB> = new (MatTableDataSource)
 
   // front repo, that will be referenced by this.updatepositionevents
-  frontRepo: FrontRepo
+  frontRepo: FrontRepo = new (FrontRepo)
 
   // displayedColumns is referenced by the MatTable component for specify what columns
   // have to be displayed and in what order
   displayedColumns: string[];
 
   // for sorting & pagination
-  @ViewChild(MatSort) sort: MatSort;
-  @ViewChild(MatPaginator) paginator: MatPaginator;
+  @ViewChild(MatSort)
+  sort: MatSort | undefined
+  @ViewChild(MatPaginator)
+  paginator: MatPaginator | undefined;
 
   ngAfterViewInit() {
 
@@ -67,7 +70,8 @@ export class UpdatePositionEventsTableComponent implements OnInit {
           return updatepositioneventDB.Duration;
 
         default:
-          return UpdatePositionEventDB[property];
+          console.assert(false, "Unknown field")
+          return "";
       }
     };
 
@@ -85,8 +89,8 @@ export class UpdatePositionEventsTableComponent implements OnInit {
       return isSelected
     };
 
-    this.matTableDataSource.sort = this.sort;
-    this.matTableDataSource.paginator = this.paginator;
+    this.matTableDataSource.sort = this.sort!
+    this.matTableDataSource.paginator = this.paginator!
   }
 
   applyFilter(event: Event) {
@@ -169,7 +173,7 @@ export class UpdatePositionEventsTableComponent implements OnInit {
           this.updatepositionevents.forEach(
             updatepositionevent => {
               let ID = this.dialogData.ID
-              let revPointer = updatepositionevent[this.dialogData.ReversePointer]
+              let revPointer = updatepositionevent[this.dialogData.ReversePointer as keyof UpdatePositionEventDB] as unknown as NullInt64
               if (revPointer.Int64 == ID) {
                 this.initialSelection.push(updatepositionevent)
               }
@@ -180,15 +184,15 @@ export class UpdatePositionEventsTableComponent implements OnInit {
 
         if (this.mode == TableComponentMode.MANY_MANY_ASSOCIATION_MODE) {
 
-          let mapOfSourceInstances = this.frontRepo[this.dialogData.SourceStruct + "s"]
-          let sourceInstance = mapOfSourceInstances.get(this.dialogData.ID)
+          let mapOfSourceInstances = this.frontRepo[this.dialogData.SourceStruct + "s" as keyof FrontRepo] as Map<number, UpdatePositionEventDB>
+          let sourceInstance = mapOfSourceInstances.get(this.dialogData.ID)!
 
-          if (sourceInstance[this.dialogData.SourceField]) {
-            for (let associationInstance of sourceInstance[this.dialogData.SourceField]) {
-              let updatepositionevent = associationInstance[this.dialogData.IntermediateStructField]
-              this.initialSelection.push(updatepositionevent)
-            }
+          let sourceField = sourceInstance[this.dialogData.SourceField as keyof typeof sourceInstance]! as unknown as UpdatePositionEventDB[]
+          for (let associationInstance of sourceField) {
+            let updatepositionevent = associationInstance[this.dialogData.IntermediateStructField as keyof typeof associationInstance] as unknown as UpdatePositionEventDB
+            this.initialSelection.push(updatepositionevent)
           }
+
           this.selection = new SelectionModel<UpdatePositionEventDB>(allowMultiSelect, this.initialSelection);
         }
 
@@ -264,8 +268,9 @@ export class UpdatePositionEventsTableComponent implements OnInit {
       // reset all initial selection of updatepositionevent that belong to updatepositionevent
       this.initialSelection.forEach(
         updatepositionevent => {
-          updatepositionevent[this.dialogData.ReversePointer].Int64 = 0
-          updatepositionevent[this.dialogData.ReversePointer].Valid = true
+          let index = updatepositionevent[this.dialogData.ReversePointer as keyof UpdatePositionEventDB] as unknown as NullInt64
+          index.Int64 = 0
+          index.Valid = true
           toUpdate.add(updatepositionevent)
         }
       )
@@ -273,9 +278,9 @@ export class UpdatePositionEventsTableComponent implements OnInit {
       // from selection, set updatepositionevent that belong to updatepositionevent
       this.selection.selected.forEach(
         updatepositionevent => {
-          let ID = +this.dialogData.ID
-          updatepositionevent[this.dialogData.ReversePointer].Int64 = ID
-          updatepositionevent[this.dialogData.ReversePointer].Valid = true
+          let ID = this.dialogData.ID as number
+          let reversePointer = updatepositionevent[this.dialogData.ReversePointer  as keyof UpdatePositionEventDB] as unknown as NullInt64
+          reversePointer.Int64 = ID
           toUpdate.add(updatepositionevent)
         }
       )
@@ -293,8 +298,9 @@ export class UpdatePositionEventsTableComponent implements OnInit {
 
     if (this.mode == TableComponentMode.MANY_MANY_ASSOCIATION_MODE) {
 
-      let mapOfSourceInstances = this.frontRepo[this.dialogData.SourceStruct + "s"]
-      let sourceInstance = mapOfSourceInstances.get(this.dialogData.ID)
+      // get the source instance via the map of instances in the front repo
+      let mapOfSourceInstances = this.frontRepo[this.dialogData.SourceStruct + "s" as keyof FrontRepo] as Map<number, UpdatePositionEventDB>
+      let sourceInstance = mapOfSourceInstances.get(this.dialogData.ID)!
 
       // First, parse all instance of the association struct and remove the instance
       // that have unselect
@@ -310,23 +316,21 @@ export class UpdatePositionEventsTableComponent implements OnInit {
       }
 
       // delete the association instance
-      if (sourceInstance[this.dialogData.SourceField]) {
-        for (let associationInstance of sourceInstance[this.dialogData.SourceField]) {
-          let updatepositionevent = associationInstance[this.dialogData.IntermediateStructField]
-          if (unselectedUpdatePositionEvent.has(updatepositionevent.ID)) {
+      let associationInstance = sourceInstance[this.dialogData.SourceField as keyof typeof sourceInstance]
+      let updatepositionevent = associationInstance![this.dialogData.IntermediateStructField as keyof typeof associationInstance] as unknown as UpdatePositionEventDB
+      if (unselectedUpdatePositionEvent.has(updatepositionevent.ID)) {
+        this.frontRepoService.deleteService(this.dialogData.IntermediateStruct, associationInstance)
 
-            this.frontRepoService.deleteService( this.dialogData.IntermediateStruct, associationInstance )
-          }
-        }
+
       }
 
-      // is the source array is emptyn create it
-      if (sourceInstance[this.dialogData.SourceField] == undefined) {
-        sourceInstance[this.dialogData.SourceField] = new Array<any>()
+      // is the source array is empty create it
+      if (sourceInstance[this.dialogData.SourceField as keyof typeof sourceInstance] == undefined) {
+        (sourceInstance[this.dialogData.SourceField as keyof typeof sourceInstance] as unknown as Array<UpdatePositionEventDB>) = new Array<UpdatePositionEventDB>()
       }
 
       // second, parse all instance of the selected
-      if (sourceInstance[this.dialogData.SourceField]) {
+      if (sourceInstance[this.dialogData.SourceField as keyof typeof sourceInstance]) {
         this.selection.selected.forEach(
           updatepositionevent => {
             if (!this.initialSelection.includes(updatepositionevent)) {
@@ -336,13 +340,11 @@ export class UpdatePositionEventsTableComponent implements OnInit {
                 Name: sourceInstance["Name"] + "-" + updatepositionevent.Name,
               }
 
-              associationInstance[this.dialogData.IntermediateStructField+"ID"] = new NullInt64
-              associationInstance[this.dialogData.IntermediateStructField+"ID"].Int64 = updatepositionevent.ID
-              associationInstance[this.dialogData.IntermediateStructField+"ID"].Valid = true
+              let index = associationInstance[this.dialogData.IntermediateStructField+"ID" as keyof typeof associationInstance] as unknown as NullInt64
+              index.Int64 = updatepositionevent.ID
 
-              associationInstance[this.dialogData.SourceStruct + "_" + this.dialogData.SourceField + "DBID"] = new NullInt64
-              associationInstance[this.dialogData.SourceStruct + "_" + this.dialogData.SourceField + "DBID"].Int64 = sourceInstance["ID"]
-              associationInstance[this.dialogData.SourceStruct + "_" + this.dialogData.SourceField + "DBID"].Valid = true
+              let indexDB = associationInstance[this.dialogData.IntermediateStructField+"DBID" as keyof typeof associationInstance] as unknown as NullInt64
+              indexDB.Int64 = updatepositionevent.ID
 
               this.frontRepoService.postService( this.dialogData.IntermediateStruct, associationInstance )
 

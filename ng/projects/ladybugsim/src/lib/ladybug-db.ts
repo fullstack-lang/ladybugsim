@@ -2,24 +2,24 @@
 import { LadybugSimulationDB } from './ladybugsimulation-db'
 
 // usefull for managing pointer ID values that can be nullable
-import { NullInt64 } from './front-repo.service'
+import { NullInt64 } from './null-int64'
 
 export class LadybugDB {
-	CreatedAt?: string;
-	DeletedAt?: string;
-	ID?: number;
+	CreatedAt?: string
+	DeletedAt?: string
+	ID: number = 0
 
 	// insertion point for basic fields declarations
-	TechName?: string
-	Name?: string
-	Id?: number
-	Position?: number
-	Speed?: number
-	LadybugStatus?: string
+	TechName: string = ""
+	Name: string = ""
+	Id: number = 0
+	Position: number = 0
+	Speed: number = 0
+	LadybugStatus: string = ""
 
 	// insertion point for other declarations
-	LadybugSimulation_LadybugsDBID?: NullInt64
-	LadybugSimulation_LadybugsDBID_Index?: NullInt64 // store the index of the ladybug instance in LadybugSimulation.Ladybugs
-	LadybugSimulation_Ladybugs_reverse?: LadybugSimulationDB
+	LadybugSimulation_LadybugsDBID: NullInt64 = new NullInt64
+	LadybugSimulation_LadybugsDBID_Index: NullInt64  = new NullInt64 // store the index of the ladybug instance in LadybugSimulation.Ladybugs
+	LadybugSimulation_Ladybugs_reverse?: LadybugSimulationDB 
 
 }
