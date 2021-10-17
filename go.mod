@@ -3,9 +3,9 @@ module github.com/fullstack-lang/ladybugsim
 go 1.17
 
 require (
-	github.com/fullstack-lang/gongdoc v0.0.0-20211017113338-587953175006
-	github.com/fullstack-lang/gongsim v0.0.0-20211017113339-d090724cf663
-	github.com/fullstack-lang/gongsvg v0.0.0-20211017113340-ccea9e7b0685
+	github.com/fullstack-lang/gongdoc v0.0.0-20211017115116-d39d324e65c8
+	github.com/fullstack-lang/gongsim v0.0.0-20211017115116-639f8d09dab8
+	github.com/fullstack-lang/gongsvg v0.0.0-20211017115116-8dbe713b0c1a
 	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-contrib/static v0.0.1
 	github.com/gin-gonic/gin v1.7.4
@@ -22,7 +22,7 @@ require (
 	github.com/benoitkugler/textlayout v0.0.1 // indirect
 	github.com/dsnet/compress v0.0.1 // indirect
 	github.com/frankban/quicktest v1.13.1 // indirect
-	github.com/fullstack-lang/gong v0.0.0-20211017113338-dc0dc3e819d3 // indirect
+	github.com/fullstack-lang/gong v0.0.0-20211017115116-4931b25a7529 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-latex/latex v0.0.0-20210823091927-c0d11ff05a81 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
