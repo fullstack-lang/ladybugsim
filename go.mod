@@ -3,9 +3,9 @@ module github.com/fullstack-lang/ladybugsim
 go 1.17
 
 require (
-	github.com/fullstack-lang/gongdoc v0.0.0-20211017115116-d39d324e65c8
+	github.com/fullstack-lang/gongdoc v0.0.0-20211017120233-0d3489c14f9f
 	github.com/fullstack-lang/gongsim v0.0.0-20211017115116-639f8d09dab8
-	github.com/fullstack-lang/gongsvg v0.0.0-20211017115116-8dbe713b0c1a
+	github.com/fullstack-lang/gongsvg v0.0.0-20211017120233-e88c86eb8389
 	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-contrib/static v0.0.1
 	github.com/gin-gonic/gin v1.7.4
