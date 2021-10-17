@@ -170,16 +170,14 @@ export class UpdateSpeedEventsTableComponent implements OnInit {
 
         // in case the component is called as a selection component
         if (this.mode == TableComponentMode.ONE_MANY_ASSOCIATION_MODE) {
-          this.updatespeedevents.forEach(
-            updatespeedevent => {
-              let ID = this.dialogData.ID
-              let revPointer = updatespeedevent[this.dialogData.ReversePointer as keyof UpdateSpeedEventDB] as unknown as NullInt64
-              if (revPointer.Int64 == ID) {
-                this.initialSelection.push(updatespeedevent)
-              }
+          for (let updatespeedevent of this.updatespeedevents) {
+            let ID = this.dialogData.ID
+            let revPointer = updatespeedevent[this.dialogData.ReversePointer as keyof UpdateSpeedEventDB] as unknown as NullInt64
+            if (revPointer.Int64 == ID) {
+              this.initialSelection.push(updatespeedevent)
             }
-          )
-          this.selection = new SelectionModel<UpdateSpeedEventDB>(allowMultiSelect, this.initialSelection);
+            this.selection = new SelectionModel<UpdateSpeedEventDB>(allowMultiSelect, this.initialSelection);
+          }
         }
 
         if (this.mode == TableComponentMode.MANY_MANY_ASSOCIATION_MODE) {
@@ -266,34 +264,31 @@ export class UpdateSpeedEventsTableComponent implements OnInit {
       let toUpdate = new Set<UpdateSpeedEventDB>()
 
       // reset all initial selection of updatespeedevent that belong to updatespeedevent
-      this.initialSelection.forEach(
-        updatespeedevent => {
-          let index = updatespeedevent[this.dialogData.ReversePointer as keyof UpdateSpeedEventDB] as unknown as NullInt64
-          index.Int64 = 0
-          index.Valid = true
-          toUpdate.add(updatespeedevent)
-        }
-      )
+      for (let updatespeedevent of this.initialSelection) {
+        let index = updatespeedevent[this.dialogData.ReversePointer as keyof UpdateSpeedEventDB] as unknown as NullInt64
+        index.Int64 = 0
+        index.Valid = true
+        toUpdate.add(updatespeedevent)
+
+      }
 
       // from selection, set updatespeedevent that belong to updatespeedevent
-      this.selection.selected.forEach(
-        updatespeedevent => {
-          let ID = this.dialogData.ID as number
-          let reversePointer = updatespeedevent[this.dialogData.ReversePointer  as keyof UpdateSpeedEventDB] as unknown as NullInt64
-          reversePointer.Int64 = ID
-          toUpdate.add(updatespeedevent)
-        }
-      )
+      for (let updatespeedevent of this.selection.selected) {
+        let ID = this.dialogData.ID as number
+        let reversePointer = updatespeedevent[this.dialogData.ReversePointer as keyof UpdateSpeedEventDB] as unknown as NullInt64
+        reversePointer.Int64 = ID
+        reversePointer.Valid = true
+        toUpdate.add(updatespeedevent)
+      }
+
 
       // update all updatespeedevent (only update selection & initial selection)
-      toUpdate.forEach(
-        updatespeedevent => {
-          this.updatespeedeventService.updateUpdateSpeedEvent(updatespeedevent)
-            .subscribe(updatespeedevent => {
-              this.updatespeedeventService.UpdateSpeedEventServiceChanged.next("update")
-            });
-        }
-      )
+      for (let updatespeedevent of toUpdate) {
+        this.updatespeedeventService.updateUpdateSpeedEvent(updatespeedevent)
+          .subscribe(updatespeedevent => {
+            this.updatespeedeventService.UpdateSpeedEventServiceChanged.next("update")
+          });
+      }
     }
 
     if (this.mode == TableComponentMode.MANY_MANY_ASSOCIATION_MODE) {
@@ -340,13 +335,15 @@ export class UpdateSpeedEventsTableComponent implements OnInit {
                 Name: sourceInstance["Name"] + "-" + updatespeedevent.Name,
               }
 
-              let index = associationInstance[this.dialogData.IntermediateStructField+"ID" as keyof typeof associationInstance] as unknown as NullInt64
+              let index = associationInstance[this.dialogData.IntermediateStructField + "ID" as keyof typeof associationInstance] as unknown as NullInt64
               index.Int64 = updatespeedevent.ID
+              index.Valid = true
 
-              let indexDB = associationInstance[this.dialogData.IntermediateStructField+"DBID" as keyof typeof associationInstance] as unknown as NullInt64
+              let indexDB = associationInstance[this.dialogData.IntermediateStructField + "DBID" as keyof typeof associationInstance] as unknown as NullInt64
               indexDB.Int64 = updatespeedevent.ID
+              index.Valid = true
 
-              this.frontRepoService.postService( this.dialogData.IntermediateStruct, associationInstance )
+              this.frontRepoService.postService(this.dialogData.IntermediateStruct, associationInstance)
 
             } else {
               // console.log("updatespeedevent " + updatespeedevent.Name + " is still selected")

@@ -224,16 +224,14 @@ export class LadybugSimulationsTableComponent implements OnInit {
 
         // in case the component is called as a selection component
         if (this.mode == TableComponentMode.ONE_MANY_ASSOCIATION_MODE) {
-          this.ladybugsimulations.forEach(
-            ladybugsimulation => {
-              let ID = this.dialogData.ID
-              let revPointer = ladybugsimulation[this.dialogData.ReversePointer as keyof LadybugSimulationDB] as unknown as NullInt64
-              if (revPointer.Int64 == ID) {
-                this.initialSelection.push(ladybugsimulation)
-              }
+          for (let ladybugsimulation of this.ladybugsimulations) {
+            let ID = this.dialogData.ID
+            let revPointer = ladybugsimulation[this.dialogData.ReversePointer as keyof LadybugSimulationDB] as unknown as NullInt64
+            if (revPointer.Int64 == ID) {
+              this.initialSelection.push(ladybugsimulation)
             }
-          )
-          this.selection = new SelectionModel<LadybugSimulationDB>(allowMultiSelect, this.initialSelection);
+            this.selection = new SelectionModel<LadybugSimulationDB>(allowMultiSelect, this.initialSelection);
+          }
         }
 
         if (this.mode == TableComponentMode.MANY_MANY_ASSOCIATION_MODE) {
@@ -320,34 +318,31 @@ export class LadybugSimulationsTableComponent implements OnInit {
       let toUpdate = new Set<LadybugSimulationDB>()
 
       // reset all initial selection of ladybugsimulation that belong to ladybugsimulation
-      this.initialSelection.forEach(
-        ladybugsimulation => {
-          let index = ladybugsimulation[this.dialogData.ReversePointer as keyof LadybugSimulationDB] as unknown as NullInt64
-          index.Int64 = 0
-          index.Valid = true
-          toUpdate.add(ladybugsimulation)
-        }
-      )
+      for (let ladybugsimulation of this.initialSelection) {
+        let index = ladybugsimulation[this.dialogData.ReversePointer as keyof LadybugSimulationDB] as unknown as NullInt64
+        index.Int64 = 0
+        index.Valid = true
+        toUpdate.add(ladybugsimulation)
+
+      }
 
       // from selection, set ladybugsimulation that belong to ladybugsimulation
-      this.selection.selected.forEach(
-        ladybugsimulation => {
-          let ID = this.dialogData.ID as number
-          let reversePointer = ladybugsimulation[this.dialogData.ReversePointer  as keyof LadybugSimulationDB] as unknown as NullInt64
-          reversePointer.Int64 = ID
-          toUpdate.add(ladybugsimulation)
-        }
-      )
+      for (let ladybugsimulation of this.selection.selected) {
+        let ID = this.dialogData.ID as number
+        let reversePointer = ladybugsimulation[this.dialogData.ReversePointer as keyof LadybugSimulationDB] as unknown as NullInt64
+        reversePointer.Int64 = ID
+        reversePointer.Valid = true
+        toUpdate.add(ladybugsimulation)
+      }
+
 
       // update all ladybugsimulation (only update selection & initial selection)
-      toUpdate.forEach(
-        ladybugsimulation => {
-          this.ladybugsimulationService.updateLadybugSimulation(ladybugsimulation)
-            .subscribe(ladybugsimulation => {
-              this.ladybugsimulationService.LadybugSimulationServiceChanged.next("update")
-            });
-        }
-      )
+      for (let ladybugsimulation of toUpdate) {
+        this.ladybugsimulationService.updateLadybugSimulation(ladybugsimulation)
+          .subscribe(ladybugsimulation => {
+            this.ladybugsimulationService.LadybugSimulationServiceChanged.next("update")
+          });
+      }
     }
 
     if (this.mode == TableComponentMode.MANY_MANY_ASSOCIATION_MODE) {
@@ -394,13 +389,15 @@ export class LadybugSimulationsTableComponent implements OnInit {
                 Name: sourceInstance["Name"] + "-" + ladybugsimulation.Name,
               }
 
-              let index = associationInstance[this.dialogData.IntermediateStructField+"ID" as keyof typeof associationInstance] as unknown as NullInt64
+              let index = associationInstance[this.dialogData.IntermediateStructField + "ID" as keyof typeof associationInstance] as unknown as NullInt64
               index.Int64 = ladybugsimulation.ID
+              index.Valid = true
 
-              let indexDB = associationInstance[this.dialogData.IntermediateStructField+"DBID" as keyof typeof associationInstance] as unknown as NullInt64
+              let indexDB = associationInstance[this.dialogData.IntermediateStructField + "DBID" as keyof typeof associationInstance] as unknown as NullInt64
               indexDB.Int64 = ladybugsimulation.ID
+              index.Valid = true
 
-              this.frontRepoService.postService( this.dialogData.IntermediateStruct, associationInstance )
+              this.frontRepoService.postService(this.dialogData.IntermediateStruct, associationInstance)
 
             } else {
               // console.log("ladybugsimulation " + ladybugsimulation.Name + " is still selected")

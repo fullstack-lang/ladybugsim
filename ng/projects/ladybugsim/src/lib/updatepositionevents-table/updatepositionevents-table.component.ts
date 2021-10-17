@@ -170,16 +170,14 @@ export class UpdatePositionEventsTableComponent implements OnInit {
 
         // in case the component is called as a selection component
         if (this.mode == TableComponentMode.ONE_MANY_ASSOCIATION_MODE) {
-          this.updatepositionevents.forEach(
-            updatepositionevent => {
-              let ID = this.dialogData.ID
-              let revPointer = updatepositionevent[this.dialogData.ReversePointer as keyof UpdatePositionEventDB] as unknown as NullInt64
-              if (revPointer.Int64 == ID) {
-                this.initialSelection.push(updatepositionevent)
-              }
+          for (let updatepositionevent of this.updatepositionevents) {
+            let ID = this.dialogData.ID
+            let revPointer = updatepositionevent[this.dialogData.ReversePointer as keyof UpdatePositionEventDB] as unknown as NullInt64
+            if (revPointer.Int64 == ID) {
+              this.initialSelection.push(updatepositionevent)
             }
-          )
-          this.selection = new SelectionModel<UpdatePositionEventDB>(allowMultiSelect, this.initialSelection);
+            this.selection = new SelectionModel<UpdatePositionEventDB>(allowMultiSelect, this.initialSelection);
+          }
         }
 
         if (this.mode == TableComponentMode.MANY_MANY_ASSOCIATION_MODE) {
@@ -266,34 +264,31 @@ export class UpdatePositionEventsTableComponent implements OnInit {
       let toUpdate = new Set<UpdatePositionEventDB>()
 
       // reset all initial selection of updatepositionevent that belong to updatepositionevent
-      this.initialSelection.forEach(
-        updatepositionevent => {
-          let index = updatepositionevent[this.dialogData.ReversePointer as keyof UpdatePositionEventDB] as unknown as NullInt64
-          index.Int64 = 0
-          index.Valid = true
-          toUpdate.add(updatepositionevent)
-        }
-      )
+      for (let updatepositionevent of this.initialSelection) {
+        let index = updatepositionevent[this.dialogData.ReversePointer as keyof UpdatePositionEventDB] as unknown as NullInt64
+        index.Int64 = 0
+        index.Valid = true
+        toUpdate.add(updatepositionevent)
+
+      }
 
       // from selection, set updatepositionevent that belong to updatepositionevent
-      this.selection.selected.forEach(
-        updatepositionevent => {
-          let ID = this.dialogData.ID as number
-          let reversePointer = updatepositionevent[this.dialogData.ReversePointer  as keyof UpdatePositionEventDB] as unknown as NullInt64
-          reversePointer.Int64 = ID
-          toUpdate.add(updatepositionevent)
-        }
-      )
+      for (let updatepositionevent of this.selection.selected) {
+        let ID = this.dialogData.ID as number
+        let reversePointer = updatepositionevent[this.dialogData.ReversePointer as keyof UpdatePositionEventDB] as unknown as NullInt64
+        reversePointer.Int64 = ID
+        reversePointer.Valid = true
+        toUpdate.add(updatepositionevent)
+      }
+
 
       // update all updatepositionevent (only update selection & initial selection)
-      toUpdate.forEach(
-        updatepositionevent => {
-          this.updatepositioneventService.updateUpdatePositionEvent(updatepositionevent)
-            .subscribe(updatepositionevent => {
-              this.updatepositioneventService.UpdatePositionEventServiceChanged.next("update")
-            });
-        }
-      )
+      for (let updatepositionevent of toUpdate) {
+        this.updatepositioneventService.updateUpdatePositionEvent(updatepositionevent)
+          .subscribe(updatepositionevent => {
+            this.updatepositioneventService.UpdatePositionEventServiceChanged.next("update")
+          });
+      }
     }
 
     if (this.mode == TableComponentMode.MANY_MANY_ASSOCIATION_MODE) {
@@ -340,13 +335,15 @@ export class UpdatePositionEventsTableComponent implements OnInit {
                 Name: sourceInstance["Name"] + "-" + updatepositionevent.Name,
               }
 
-              let index = associationInstance[this.dialogData.IntermediateStructField+"ID" as keyof typeof associationInstance] as unknown as NullInt64
+              let index = associationInstance[this.dialogData.IntermediateStructField + "ID" as keyof typeof associationInstance] as unknown as NullInt64
               index.Int64 = updatepositionevent.ID
+              index.Valid = true
 
-              let indexDB = associationInstance[this.dialogData.IntermediateStructField+"DBID" as keyof typeof associationInstance] as unknown as NullInt64
+              let indexDB = associationInstance[this.dialogData.IntermediateStructField + "DBID" as keyof typeof associationInstance] as unknown as NullInt64
               indexDB.Int64 = updatepositionevent.ID
+              index.Valid = true
 
-              this.frontRepoService.postService( this.dialogData.IntermediateStruct, associationInstance )
+              this.frontRepoService.postService(this.dialogData.IntermediateStruct, associationInstance)
 
             } else {
               // console.log("updatepositionevent " + updatepositionevent.Name + " is still selected")

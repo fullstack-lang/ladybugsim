@@ -197,16 +197,14 @@ export class LadybugsTableComponent implements OnInit {
 
         // in case the component is called as a selection component
         if (this.mode == TableComponentMode.ONE_MANY_ASSOCIATION_MODE) {
-          this.ladybugs.forEach(
-            ladybug => {
-              let ID = this.dialogData.ID
-              let revPointer = ladybug[this.dialogData.ReversePointer as keyof LadybugDB] as unknown as NullInt64
-              if (revPointer.Int64 == ID) {
-                this.initialSelection.push(ladybug)
-              }
+          for (let ladybug of this.ladybugs) {
+            let ID = this.dialogData.ID
+            let revPointer = ladybug[this.dialogData.ReversePointer as keyof LadybugDB] as unknown as NullInt64
+            if (revPointer.Int64 == ID) {
+              this.initialSelection.push(ladybug)
             }
-          )
-          this.selection = new SelectionModel<LadybugDB>(allowMultiSelect, this.initialSelection);
+            this.selection = new SelectionModel<LadybugDB>(allowMultiSelect, this.initialSelection);
+          }
         }
 
         if (this.mode == TableComponentMode.MANY_MANY_ASSOCIATION_MODE) {
@@ -293,34 +291,31 @@ export class LadybugsTableComponent implements OnInit {
       let toUpdate = new Set<LadybugDB>()
 
       // reset all initial selection of ladybug that belong to ladybug
-      this.initialSelection.forEach(
-        ladybug => {
-          let index = ladybug[this.dialogData.ReversePointer as keyof LadybugDB] as unknown as NullInt64
-          index.Int64 = 0
-          index.Valid = true
-          toUpdate.add(ladybug)
-        }
-      )
+      for (let ladybug of this.initialSelection) {
+        let index = ladybug[this.dialogData.ReversePointer as keyof LadybugDB] as unknown as NullInt64
+        index.Int64 = 0
+        index.Valid = true
+        toUpdate.add(ladybug)
+
+      }
 
       // from selection, set ladybug that belong to ladybug
-      this.selection.selected.forEach(
-        ladybug => {
-          let ID = this.dialogData.ID as number
-          let reversePointer = ladybug[this.dialogData.ReversePointer  as keyof LadybugDB] as unknown as NullInt64
-          reversePointer.Int64 = ID
-          toUpdate.add(ladybug)
-        }
-      )
+      for (let ladybug of this.selection.selected) {
+        let ID = this.dialogData.ID as number
+        let reversePointer = ladybug[this.dialogData.ReversePointer as keyof LadybugDB] as unknown as NullInt64
+        reversePointer.Int64 = ID
+        reversePointer.Valid = true
+        toUpdate.add(ladybug)
+      }
+
 
       // update all ladybug (only update selection & initial selection)
-      toUpdate.forEach(
-        ladybug => {
-          this.ladybugService.updateLadybug(ladybug)
-            .subscribe(ladybug => {
-              this.ladybugService.LadybugServiceChanged.next("update")
-            });
-        }
-      )
+      for (let ladybug of toUpdate) {
+        this.ladybugService.updateLadybug(ladybug)
+          .subscribe(ladybug => {
+            this.ladybugService.LadybugServiceChanged.next("update")
+          });
+      }
     }
 
     if (this.mode == TableComponentMode.MANY_MANY_ASSOCIATION_MODE) {
@@ -367,13 +362,15 @@ export class LadybugsTableComponent implements OnInit {
                 Name: sourceInstance["Name"] + "-" + ladybug.Name,
               }
 
-              let index = associationInstance[this.dialogData.IntermediateStructField+"ID" as keyof typeof associationInstance] as unknown as NullInt64
+              let index = associationInstance[this.dialogData.IntermediateStructField + "ID" as keyof typeof associationInstance] as unknown as NullInt64
               index.Int64 = ladybug.ID
+              index.Valid = true
 
-              let indexDB = associationInstance[this.dialogData.IntermediateStructField+"DBID" as keyof typeof associationInstance] as unknown as NullInt64
+              let indexDB = associationInstance[this.dialogData.IntermediateStructField + "DBID" as keyof typeof associationInstance] as unknown as NullInt64
               indexDB.Int64 = ladybug.ID
+              index.Valid = true
 
-              this.frontRepoService.postService( this.dialogData.IntermediateStruct, associationInstance )
+              this.frontRepoService.postService(this.dialogData.IntermediateStruct, associationInstance)
 
             } else {
               // console.log("ladybug " + ladybug.Name + " is still selected")
