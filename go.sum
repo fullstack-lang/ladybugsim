@@ -97,6 +97,8 @@ github.com/fullstack-lang/gongsim v0.0.0-20211017113339-d090724cf663 h1:tJbUKv61
 github.com/fullstack-lang/gongsim v0.0.0-20211017113339-d090724cf663/go.mod h1:NFSA/FN8b5YM2vHxG2Jkz/VA3oJaKr/B+Bw4MeYmw00=
 github.com/fullstack-lang/gongsim v0.0.0-20211017115116-639f8d09dab8 h1:GoQ38zebEHIBfMM4QgjuGh4SkTZ7vgW/86lyUOCyi08=
 github.com/fullstack-lang/gongsim v0.0.0-20211017115116-639f8d09dab8/go.mod h1:pglLYX0XbSE1w2nZVxsWjKevsB5pMe0uuqqpupysj6g=
+github.com/fullstack-lang/gongsim v0.0.0-20211017121441-d7838965352d h1:U1PRp9gpxZ00RfmxNl2CCCv26WvQIhn/ya5DPaVxLh8=
+github.com/fullstack-lang/gongsim v0.0.0-20211017121441-d7838965352d/go.mod h1:pglLYX0XbSE1w2nZVxsWjKevsB5pMe0uuqqpupysj6g=
 github.com/fullstack-lang/gongsvg v0.0.0-20210915064220-25c763375bb6 h1:JsYt0v8bMfLnoqU12r1C4RkPWo2IdOy8zYwAjYKiZhc=
 github.com/fullstack-lang/gongsvg v0.0.0-20210915064220-25c763375bb6/go.mod h1:7UYo++EKPHvu3hqQRy7oMMQLmtiaokRfp3AEpTkxpR0=
 github.com/fullstack-lang/gongsvg v0.0.0-20210926165932-b26e7b765eba h1:3B6pPaP3Uu/bNuLy4rH/NRqK7BOIoq2GrcSCzkqQlYw=
@@ -111,6 +113,8 @@ github.com/fullstack-lang/gongsvg v0.0.0-20211017115116-8dbe713b0c1a h1:KFwt3hb2
 github.com/fullstack-lang/gongsvg v0.0.0-20211017115116-8dbe713b0c1a/go.mod h1:FKPZxzf0rNc6voG4+6HwtaoeRA8GZ+RCubKbcPha1hc=
 github.com/fullstack-lang/gongsvg v0.0.0-20211017120233-e88c86eb8389 h1:hJTuNVd1gX909oAvdOKRbMNxRyMzFVMJGZa5ycNkiM0=
 github.com/fullstack-lang/gongsvg v0.0.0-20211017120233-e88c86eb8389/go.mod h1:T0wKQTJSxw40sH25C1ENRkmhR0tqCq4BL+V/PAUp8zU=
+github.com/fullstack-lang/gongsvg v0.0.0-20211017121441-55a2bde43e8d h1:HvPrq3Ut3djW0d8lsyfTWaKBGBiBVThsxVka4SMIT60=
+github.com/fullstack-lang/gongsvg v0.0.0-20211017121441-55a2bde43e8d/go.mod h1:06yvrJp3gQweKYSjK6rELYtLW5YtCYGSd/OfUKAR1Po=
 github.com/fyne-io/mobile v0.1.3-0.20210412090810-650a3139866a/go.mod h1:/kOrWrZB6sasLbEy2JIvr4arEzQTXBTZGb3Y96yWbHY=
 github.com/gin-contrib/cors v1.3.1 h1:doAsuITavI4IOcd0Y19U4B+O0dNWihRyX//nn4sEmgA=
 github.com/gin-contrib/cors v1.3.1/go.mod h1:jjEJ4268OPZUcU7k9Pm653S7lXUGcqMADzFA61xsmDk=
