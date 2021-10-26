@@ -62,6 +62,9 @@ export class UpdateSpeedEventsTableComponent implements OnInit {
     // enable sorting on all fields (including pointers and reverse pointer)
     this.matTableDataSource.sortingDataAccessor = (updatespeedeventDB: UpdateSpeedEventDB, property: string) => {
       switch (property) {
+        case 'ID':
+          return updatespeedeventDB.ID
+
         // insertion point for specific sorting accessor
         case 'Name':
           return updatespeedeventDB.Name;

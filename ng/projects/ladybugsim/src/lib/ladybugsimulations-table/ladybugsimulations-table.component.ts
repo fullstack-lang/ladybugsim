@@ -62,6 +62,9 @@ export class LadybugSimulationsTableComponent implements OnInit {
     // enable sorting on all fields (including pointers and reverse pointer)
     this.matTableDataSource.sortingDataAccessor = (ladybugsimulationDB: LadybugSimulationDB, property: string) => {
       switch (property) {
+        case 'ID':
+          return ladybugsimulationDB.ID
+
         // insertion point for specific sorting accessor
         case 'Name':
           return ladybugsimulationDB.Name;
