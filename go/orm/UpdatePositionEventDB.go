@@ -57,12 +57,12 @@ type UpdatePositionEventDB struct {
 	gorm.Model
 
 	// insertion for basic fields declaration
+
 	// Declation for basic field updatepositioneventDB.Name {{BasicKind}} (to be completed)
 	Name_Data sql.NullString
 
 	// Declation for basic field updatepositioneventDB.Duration {{BasicKind}} (to be completed)
 	Duration_Data sql.NullInt64
-
 	// encoding of pointers
 	UpdatePositionEventPointersEnconding
 }
@@ -80,13 +80,13 @@ type UpdatePositionEventDBResponse struct {
 // UpdatePositionEventWOP is a UpdatePositionEvent without pointers (WOP is an acronym for "Without Pointers")
 // it holds the same basic fields but pointers are encoded into uint
 type UpdatePositionEventWOP struct {
-	ID int
+	ID int `xlsx:"0"`
 
 	// insertion for WOP basic fields
 
-	Name string
+	Name string `xlsx:"1"`
 
-	Duration time.Duration
+	Duration time.Duration `xlsx:"2"`
 	// insertion for WOP pointer fields
 }
 
@@ -375,23 +375,23 @@ func (backRepo *BackRepoStruct) CheckoutUpdatePositionEvent(updatepositionevent 
 // CopyBasicFieldsFromUpdatePositionEvent
 func (updatepositioneventDB *UpdatePositionEventDB) CopyBasicFieldsFromUpdatePositionEvent(updatepositionevent *models.UpdatePositionEvent) {
 	// insertion point for fields commit
+
 	updatepositioneventDB.Name_Data.String = updatepositionevent.Name
 	updatepositioneventDB.Name_Data.Valid = true
 
 	updatepositioneventDB.Duration_Data.Int64 = int64(updatepositionevent.Duration)
 	updatepositioneventDB.Duration_Data.Valid = true
-
 }
 
 // CopyBasicFieldsFromUpdatePositionEventWOP
 func (updatepositioneventDB *UpdatePositionEventDB) CopyBasicFieldsFromUpdatePositionEventWOP(updatepositionevent *UpdatePositionEventWOP) {
 	// insertion point for fields commit
+
 	updatepositioneventDB.Name_Data.String = updatepositionevent.Name
 	updatepositioneventDB.Name_Data.Valid = true
 
 	updatepositioneventDB.Duration_Data.Int64 = int64(updatepositionevent.Duration)
 	updatepositioneventDB.Duration_Data.Valid = true
-
 }
 
 // CopyBasicFieldsToUpdatePositionEvent
@@ -467,6 +467,51 @@ func (backRepoUpdatePositionEvent *BackRepoUpdatePositionEventStruct) BackupXL(f
 		row := sh.AddRow()
 		row.WriteStruct(&updatepositioneventWOP, -1)
 	}
+}
+
+// RestoreXL from the "UpdatePositionEvent" sheet all UpdatePositionEventDB instances
+func (backRepoUpdatePositionEvent *BackRepoUpdatePositionEventStruct) RestoreXLPhaseOne(file *xlsx.File) {
+
+	// resets the map
+	BackRepoUpdatePositionEventid_atBckpTime_newID = make(map[uint]uint)
+
+	sh, ok := file.Sheet["UpdatePositionEvent"]
+	_ = sh
+	if !ok {
+		log.Panic(errors.New("sheet not found"))
+	}
+
+	// log.Println("Max row is", sh.MaxRow)
+	err := sh.ForEachRow(backRepoUpdatePositionEvent.rowVisitorUpdatePositionEvent)
+	if err != nil {
+		log.Panic("Err=", err)
+	}
+}
+
+func (backRepoUpdatePositionEvent *BackRepoUpdatePositionEventStruct) rowVisitorUpdatePositionEvent(row *xlsx.Row) error {
+
+	log.Printf("row line %d\n", row.GetCoordinate())
+	log.Println(row)
+
+	// skip first line
+	if row.GetCoordinate() > 0 {
+		var updatepositioneventWOP UpdatePositionEventWOP
+		row.ReadStruct(&updatepositioneventWOP)
+
+		// add the unmarshalled struct to the stage
+		updatepositioneventDB := new(UpdatePositionEventDB)
+		updatepositioneventDB.CopyBasicFieldsFromUpdatePositionEventWOP(&updatepositioneventWOP)
+
+		updatepositioneventDB_ID_atBackupTime := updatepositioneventDB.ID
+		updatepositioneventDB.ID = 0
+		query := backRepoUpdatePositionEvent.db.Create(updatepositioneventDB)
+		if query.Error != nil {
+			log.Panic(query.Error)
+		}
+		(*backRepoUpdatePositionEvent.Map_UpdatePositionEventDBID_UpdatePositionEventDB)[updatepositioneventDB.ID] = updatepositioneventDB
+		BackRepoUpdatePositionEventid_atBckpTime_newID[updatepositioneventDB_ID_atBackupTime] = updatepositioneventDB.ID
+	}
+	return nil
 }
 
 // RestorePhaseOne read the file "UpdatePositionEventDB.json" in dirPath that stores an array

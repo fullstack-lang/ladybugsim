@@ -57,6 +57,7 @@ type LadybugSimulationDB struct {
 	gorm.Model
 
 	// insertion for basic fields declaration
+
 	// Declation for basic field ladybugsimulationDB.Name {{BasicKind}} (to be completed)
 	Name_Data sql.NullString
 
@@ -89,7 +90,6 @@ type LadybugSimulationDB struct {
 
 	// Declation for basic field ladybugsimulationDB.RightRelayInitialPosX {{BasicKind}} (to be completed)
 	RightRelayInitialPosX_Data sql.NullFloat64
-
 	// encoding of pointers
 	LadybugSimulationPointersEnconding
 }
@@ -107,31 +107,31 @@ type LadybugSimulationDBResponse struct {
 // LadybugSimulationWOP is a LadybugSimulation without pointers (WOP is an acronym for "Without Pointers")
 // it holds the same basic fields but pointers are encoded into uint
 type LadybugSimulationWOP struct {
-	ID int
+	ID int `xlsx:"0"`
 
 	// insertion for WOP basic fields
 
-	Name string
+	Name string `xlsx:"1"`
 
-	EventNb int
+	EventNb int `xlsx:"2"`
 
-	NbOfCollision int
+	NbOfCollision int `xlsx:"3"`
 
-	LadybugRadius float64
+	LadybugRadius float64 `xlsx:"4"`
 
-	AbsoluteSpeed float64
+	AbsoluteSpeed float64 `xlsx:"5"`
 
-	SimulationStep time.Duration
+	SimulationStep time.Duration `xlsx:"6"`
 
-	MaxDistanceInOneStep float64
+	MaxDistanceInOneStep float64 `xlsx:"7"`
 
-	NbLadybugs int
+	NbLadybugs int `xlsx:"8"`
 
-	NbLadybugsOnTheGround int
+	NbLadybugsOnTheGround int `xlsx:"9"`
 
-	LeftRelayInitialPosX float64
+	LeftRelayInitialPosX float64 `xlsx:"10"`
 
-	RightRelayInitialPosX float64
+	RightRelayInitialPosX float64 `xlsx:"11"`
 	// insertion for WOP pointer fields
 }
 
@@ -475,6 +475,7 @@ func (backRepo *BackRepoStruct) CheckoutLadybugSimulation(ladybugsimulation *mod
 // CopyBasicFieldsFromLadybugSimulation
 func (ladybugsimulationDB *LadybugSimulationDB) CopyBasicFieldsFromLadybugSimulation(ladybugsimulation *models.LadybugSimulation) {
 	// insertion point for fields commit
+
 	ladybugsimulationDB.Name_Data.String = ladybugsimulation.Name
 	ladybugsimulationDB.Name_Data.Valid = true
 
@@ -507,12 +508,12 @@ func (ladybugsimulationDB *LadybugSimulationDB) CopyBasicFieldsFromLadybugSimula
 
 	ladybugsimulationDB.RightRelayInitialPosX_Data.Float64 = ladybugsimulation.RightRelayInitialPosX
 	ladybugsimulationDB.RightRelayInitialPosX_Data.Valid = true
-
 }
 
 // CopyBasicFieldsFromLadybugSimulationWOP
 func (ladybugsimulationDB *LadybugSimulationDB) CopyBasicFieldsFromLadybugSimulationWOP(ladybugsimulation *LadybugSimulationWOP) {
 	// insertion point for fields commit
+
 	ladybugsimulationDB.Name_Data.String = ladybugsimulation.Name
 	ladybugsimulationDB.Name_Data.Valid = true
 
@@ -545,7 +546,6 @@ func (ladybugsimulationDB *LadybugSimulationDB) CopyBasicFieldsFromLadybugSimula
 
 	ladybugsimulationDB.RightRelayInitialPosX_Data.Float64 = ladybugsimulation.RightRelayInitialPosX
 	ladybugsimulationDB.RightRelayInitialPosX_Data.Valid = true
-
 }
 
 // CopyBasicFieldsToLadybugSimulation
@@ -639,6 +639,51 @@ func (backRepoLadybugSimulation *BackRepoLadybugSimulationStruct) BackupXL(file 
 		row := sh.AddRow()
 		row.WriteStruct(&ladybugsimulationWOP, -1)
 	}
+}
+
+// RestoreXL from the "LadybugSimulation" sheet all LadybugSimulationDB instances
+func (backRepoLadybugSimulation *BackRepoLadybugSimulationStruct) RestoreXLPhaseOne(file *xlsx.File) {
+
+	// resets the map
+	BackRepoLadybugSimulationid_atBckpTime_newID = make(map[uint]uint)
+
+	sh, ok := file.Sheet["LadybugSimulation"]
+	_ = sh
+	if !ok {
+		log.Panic(errors.New("sheet not found"))
+	}
+
+	// log.Println("Max row is", sh.MaxRow)
+	err := sh.ForEachRow(backRepoLadybugSimulation.rowVisitorLadybugSimulation)
+	if err != nil {
+		log.Panic("Err=", err)
+	}
+}
+
+func (backRepoLadybugSimulation *BackRepoLadybugSimulationStruct) rowVisitorLadybugSimulation(row *xlsx.Row) error {
+
+	log.Printf("row line %d\n", row.GetCoordinate())
+	log.Println(row)
+
+	// skip first line
+	if row.GetCoordinate() > 0 {
+		var ladybugsimulationWOP LadybugSimulationWOP
+		row.ReadStruct(&ladybugsimulationWOP)
+
+		// add the unmarshalled struct to the stage
+		ladybugsimulationDB := new(LadybugSimulationDB)
+		ladybugsimulationDB.CopyBasicFieldsFromLadybugSimulationWOP(&ladybugsimulationWOP)
+
+		ladybugsimulationDB_ID_atBackupTime := ladybugsimulationDB.ID
+		ladybugsimulationDB.ID = 0
+		query := backRepoLadybugSimulation.db.Create(ladybugsimulationDB)
+		if query.Error != nil {
+			log.Panic(query.Error)
+		}
+		(*backRepoLadybugSimulation.Map_LadybugSimulationDBID_LadybugSimulationDB)[ladybugsimulationDB.ID] = ladybugsimulationDB
+		BackRepoLadybugSimulationid_atBckpTime_newID[ladybugsimulationDB_ID_atBackupTime] = ladybugsimulationDB.ID
+	}
+	return nil
 }
 
 // RestorePhaseOne read the file "LadybugSimulationDB.json" in dirPath that stores an array

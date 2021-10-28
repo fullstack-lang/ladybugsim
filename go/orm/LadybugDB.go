@@ -45,6 +45,7 @@ type LadybugAPI struct {
 // reverse pointers of slice of poitners to Struct
 type LadybugPointersEnconding struct {
 	// insertion for pointer fields encoding declaration
+
 	// Implementation of a reverse ID for field LadybugSimulation{}.Ladybugs []*Ladybug
 	LadybugSimulation_LadybugsDBID sql.NullInt64
 
@@ -62,6 +63,7 @@ type LadybugDB struct {
 	gorm.Model
 
 	// insertion for basic fields declaration
+
 	// Declation for basic field ladybugDB.TechName {{BasicKind}} (to be completed)
 	TechName_Data sql.NullString
 
@@ -79,7 +81,6 @@ type LadybugDB struct {
 
 	// Declation for basic field ladybugDB.LadybugStatus {{BasicKind}} (to be completed)
 	LadybugStatus_Data sql.NullString
-
 	// encoding of pointers
 	LadybugPointersEnconding
 }
@@ -97,21 +98,21 @@ type LadybugDBResponse struct {
 // LadybugWOP is a Ladybug without pointers (WOP is an acronym for "Without Pointers")
 // it holds the same basic fields but pointers are encoded into uint
 type LadybugWOP struct {
-	ID int
+	ID int `xlsx:"0"`
 
 	// insertion for WOP basic fields
 
-	TechName string
+	TechName string `xlsx:"1"`
 
-	Name string
+	Name string `xlsx:"2"`
 
-	Id int
+	Id int `xlsx:"3"`
 
-	Position float64
+	Position float64 `xlsx:"4"`
 
-	Speed float64
+	Speed float64 `xlsx:"5"`
 
-	LadybugStatus models.LadybugStatus
+	LadybugStatus models.LadybugStatus `xlsx:"6"`
 	// insertion for WOP pointer fields
 }
 
@@ -404,6 +405,7 @@ func (backRepo *BackRepoStruct) CheckoutLadybug(ladybug *models.Ladybug) {
 // CopyBasicFieldsFromLadybug
 func (ladybugDB *LadybugDB) CopyBasicFieldsFromLadybug(ladybug *models.Ladybug) {
 	// insertion point for fields commit
+
 	ladybugDB.TechName_Data.String = ladybug.TechName
 	ladybugDB.TechName_Data.Valid = true
 
@@ -421,12 +423,12 @@ func (ladybugDB *LadybugDB) CopyBasicFieldsFromLadybug(ladybug *models.Ladybug) 
 
 	ladybugDB.LadybugStatus_Data.String = string(ladybug.LadybugStatus)
 	ladybugDB.LadybugStatus_Data.Valid = true
-
 }
 
 // CopyBasicFieldsFromLadybugWOP
 func (ladybugDB *LadybugDB) CopyBasicFieldsFromLadybugWOP(ladybug *LadybugWOP) {
 	// insertion point for fields commit
+
 	ladybugDB.TechName_Data.String = ladybug.TechName
 	ladybugDB.TechName_Data.Valid = true
 
@@ -444,7 +446,6 @@ func (ladybugDB *LadybugDB) CopyBasicFieldsFromLadybugWOP(ladybug *LadybugWOP) {
 
 	ladybugDB.LadybugStatus_Data.String = string(ladybug.LadybugStatus)
 	ladybugDB.LadybugStatus_Data.Valid = true
-
 }
 
 // CopyBasicFieldsToLadybug
@@ -528,6 +529,51 @@ func (backRepoLadybug *BackRepoLadybugStruct) BackupXL(file *xlsx.File) {
 		row := sh.AddRow()
 		row.WriteStruct(&ladybugWOP, -1)
 	}
+}
+
+// RestoreXL from the "Ladybug" sheet all LadybugDB instances
+func (backRepoLadybug *BackRepoLadybugStruct) RestoreXLPhaseOne(file *xlsx.File) {
+
+	// resets the map
+	BackRepoLadybugid_atBckpTime_newID = make(map[uint]uint)
+
+	sh, ok := file.Sheet["Ladybug"]
+	_ = sh
+	if !ok {
+		log.Panic(errors.New("sheet not found"))
+	}
+
+	// log.Println("Max row is", sh.MaxRow)
+	err := sh.ForEachRow(backRepoLadybug.rowVisitorLadybug)
+	if err != nil {
+		log.Panic("Err=", err)
+	}
+}
+
+func (backRepoLadybug *BackRepoLadybugStruct) rowVisitorLadybug(row *xlsx.Row) error {
+
+	log.Printf("row line %d\n", row.GetCoordinate())
+	log.Println(row)
+
+	// skip first line
+	if row.GetCoordinate() > 0 {
+		var ladybugWOP LadybugWOP
+		row.ReadStruct(&ladybugWOP)
+
+		// add the unmarshalled struct to the stage
+		ladybugDB := new(LadybugDB)
+		ladybugDB.CopyBasicFieldsFromLadybugWOP(&ladybugWOP)
+
+		ladybugDB_ID_atBackupTime := ladybugDB.ID
+		ladybugDB.ID = 0
+		query := backRepoLadybug.db.Create(ladybugDB)
+		if query.Error != nil {
+			log.Panic(query.Error)
+		}
+		(*backRepoLadybug.Map_LadybugDBID_LadybugDB)[ladybugDB.ID] = ladybugDB
+		BackRepoLadybugid_atBckpTime_newID[ladybugDB_ID_atBackupTime] = ladybugDB.ID
+	}
+	return nil
 }
 
 // RestorePhaseOne read the file "LadybugDB.json" in dirPath that stores an array
