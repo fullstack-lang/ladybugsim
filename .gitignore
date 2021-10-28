@@ -3,3 +3,4 @@ test.db
 go/tests/debug.test
 ladybugsim.exe
 ladybugsim
+go/controllers/ladybugsimapi.yml
