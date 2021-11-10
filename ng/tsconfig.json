@@ -23,7 +23,7 @@
       "rxjs/operators": [
         "./node_modules/rxjs/operators"
       ],
-      "@angular-material-components/datetime-picker":[
+      "@angular-material-components/datetime-picker": [
         "./node_modules/@angular-material-components/datetime-picker"
       ],
       "rxjs": [
@@ -40,16 +40,16 @@
         "projects/ladybugsim/src/public-api.ts",
       ],
       "gongsimcontrol": [
-        "../../gongsim/ng/projects/gongsimcontrol/src/public-api.ts"
+        "../vendor/github.com/fullstack-lang/gongsim/ng/projects/gongsimcontrol/src/public-api.ts"
       ],
       "gongsim": [
-        "../../gongsim/ng/projects/gongsim/src/public-api.ts"
+        "../vendor/github.com/fullstack-lang/gongsim/ng/projects/gongsim/src/public-api.ts"
       ],
       "gongsvg": [
-        "../../gongsvg/ng/projects/gongsvg/src/public-api.ts"
+        "../vendor/github.com/fullstack-lang/gongsvg/ng/projects/gongsvg/src/public-api.ts"
       ],
       "gongsvgspecific": [
-        "../../gongsvg/ng/projects/gongsvgspecific/src/public-api.ts"
+        "../vendor/github.com/fullstack-lang/gongsvg/ng/projects/gongsvgspecific/src/public-api.ts"
       ],
     },
     "preserveSymlinks": true,
