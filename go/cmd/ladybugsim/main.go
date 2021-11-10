@@ -23,10 +23,12 @@ import (
 	gongsim_controllers "github.com/fullstack-lang/gongsim/go/controllers"
 	gongsim_models "github.com/fullstack-lang/gongsim/go/models"
 	gongsim_orm "github.com/fullstack-lang/gongsim/go/orm"
+	_ "github.com/fullstack-lang/gongsim/ng"
 
 	gongsvg_controllers "github.com/fullstack-lang/gongsvg/go/controllers"
 	gongsvg_models "github.com/fullstack-lang/gongsvg/go/models"
 	gongsvg_orm "github.com/fullstack-lang/gongsvg/go/orm"
+	_ "github.com/fullstack-lang/gongsvg/ng"
 )
 
 var (

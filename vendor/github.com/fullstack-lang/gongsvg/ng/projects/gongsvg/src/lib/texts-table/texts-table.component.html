@@ -1,0 +1,135 @@
+<div>
+    <mat-form-field>
+        <mat-label>Filter</mat-label>
+        <input matInput (keyup)="applyFilter($event)" placeholder="Ex. ium" #input>
+    </mat-form-field>
+    <h1 *ngIf="dialogData">text</h1>
+    <table class="table" mat-table [dataSource]="matTableDataSource" matSort>
+        <!-- Checkbox Column -->
+        <ng-container matColumnDef="select" sticky>
+            <th mat-header-cell *matHeaderCellDef>
+                <mat-checkbox (change)="$event ? masterToggle() : null" [checked]="selection.hasValue() && isAllSelected()" [indeterminate]="selection.hasValue() && !isAllSelected()">
+                </mat-checkbox>
+            </th>
+            <td mat-cell *matCellDef="let row">
+                <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? selection.toggle(row) : null" [checked]="selection.isSelected(row)">
+                </mat-checkbox>
+            </td>
+        </ng-container>
+
+        <!-- insertion point for fields specific code -->
+        <!-- -->
+        <ng-container matColumnDef="Name">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Name </th>
+            <td mat-cell *matCellDef="let Text">
+                {{Text.Name}}
+            </td>
+        </ng-container>
+        <!-- -->
+        <ng-container matColumnDef="X">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> X </th>
+            <td mat-cell *matCellDef="let Text">
+                {{Text.X.toPrecision(5)}}
+            </td>
+        </ng-container>
+        <!-- -->
+        <ng-container matColumnDef="Y">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Y </th>
+            <td mat-cell *matCellDef="let Text">
+                {{Text.Y.toPrecision(5)}}
+            </td>
+        </ng-container>
+        <!-- -->
+        <ng-container matColumnDef="Content">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Content </th>
+            <td mat-cell *matCellDef="let Text">
+                {{Text.Content}}
+            </td>
+        </ng-container>
+        <!-- -->
+        <ng-container matColumnDef="Color">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Color </th>
+            <td mat-cell *matCellDef="let Text">
+                {{Text.Color}}
+            </td>
+        </ng-container>
+        <!-- -->
+        <ng-container matColumnDef="FillOpacity">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> FillOpacity </th>
+            <td mat-cell *matCellDef="let Text">
+                {{Text.FillOpacity.toPrecision(5)}}
+            </td>
+        </ng-container>
+        <!-- -->
+        <ng-container matColumnDef="Stroke">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Stroke </th>
+            <td mat-cell *matCellDef="let Text">
+                {{Text.Stroke}}
+            </td>
+        </ng-container>
+        <!-- -->
+        <ng-container matColumnDef="StrokeWidth">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> StrokeWidth </th>
+            <td mat-cell *matCellDef="let Text">
+                {{Text.StrokeWidth.toPrecision(5)}}
+            </td>
+        </ng-container>
+        <!-- -->
+        <ng-container matColumnDef="StrokeDashArray">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> StrokeDashArray </th>
+            <td mat-cell *matCellDef="let Text">
+                {{Text.StrokeDashArray}}
+            </td>
+        </ng-container>
+        <!-- -->
+        <ng-container matColumnDef="Transform">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Transform </th>
+            <td mat-cell *matCellDef="let Text">
+                {{Text.Transform}}
+            </td>
+        </ng-container>
+        <!-- -->
+        <ng-container matColumnDef="SVG_Texts">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> <-- (SVG) Texts </th>
+            <td mat-cell *matCellDef="let text">
+                {{frontRepo.SVGs.get(text.SVG_TextsDBID.Int64)?.Name}}
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="ID" sticky>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> ID. </th>
+            <td mat-cell *matCellDef="let Text"> {{Text.ID}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="Edit">
+            <th mat-header-cell *matHeaderCellDef> Edit </th>
+            <td mat-cell *matCellDef="let text;  let j = index;">
+                <i class="material-icons" [ngStyle]="{'color':'rgba(0,0,0,.50)'}" (click)="setEditorRouterOutlet(text.ID)">edit</i>
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="Delete">
+            <th mat-header-cell *matHeaderCellDef> Delete </th>
+            <td mat-cell *matCellDef="let text;  let j = index;">
+                <i class="material-icons" [ngStyle]="{'color':'rgba(0,0,0,.50)'}" (click)="deleteText(text.ID, text)">delete</i>
+            </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+
+        <tr mat-row *matRowDef="
+        let row; 
+        columns: displayedColumns;
+        " (click)="setPresentationRouterOutlet( row.ID ) " class="row-link">
+        </tr>
+
+        <!-- Row shown when there is no matching data. -->
+        <tr class="mat-row" *matNoDataRow>
+            <td class="mat-cell" colspan="4">No data matching the filter "{{input.value}}"</td>
+        </tr>
+    </table>
+    <mat-paginator [pageSizeOptions]="[10, 20, 50, 100, 500, 1000]" showFirstLastButtons></mat-paginator>
+</div>
+<button class="table__save" color="primary" *ngIf="dialogData" mat-raised-button (click)="save()">
+    Save
+</button>
