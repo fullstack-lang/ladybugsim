@@ -23,7 +23,7 @@
             "label": "02 - go run",
             "type": "shell",
             "options": {
-                "cwd": "."
+                "cwd": "./go/cmd/ladybugsim"
             },
             "command": "go",
             "args": [
@@ -39,8 +39,7 @@
                 "cwd": "."
             },
             "command": "./ladybugsim",
-            "args": [
-            ],
+            "args": [],
             "group": "build"
         },
         {

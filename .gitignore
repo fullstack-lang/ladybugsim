@@ -1,6 +1,6 @@
-__debug_bin
-test.db
+go/cmd/ladybugsim/test.db
 go/tests/debug.test
-ladybugsim.exe
-ladybugsim
 go/controllers/ladybugsimapi.yml
+go/cmd/ladybugsim/ladybugsim
+go/cmd/ladybugsim/ladybugsim.exe
+go/cmd/ladybugsim/__debug_bin
