@@ -43,7 +43,15 @@ func (specificEngine *LadybugSimulation) CommitAgents(engine *gongsim_models.Eng
 func (specificEngine *LadybugSimulation) CheckoutAgents(engine *gongsim_models.Engine) {}
 func (specificEngine *LadybugSimulation) GetLastCommitNb() (commitNb uint) {
 	if Stage.BackRepo != nil {
-		commitNb = Stage.BackRepo.GetLastCommitNb()
+		commitNb = Stage.BackRepo.GetLastCommitFromBackNb()
+	}
+
+	return
+}
+
+func (specificEngine *LadybugSimulation) GetLastCommitNbFromFront() (commitNb uint) {
+	if Stage.BackRepo != nil {
+		commitNb = Stage.BackRepo.GetLastCommitFromBackNb()
 	}
 
 	return

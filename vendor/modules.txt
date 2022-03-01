@@ -37,12 +37,13 @@ github.com/frankban/quicktest
 # github.com/fullstack-lang/gong v0.0.0-20211017115116-4931b25a7529
 ## explicit; go 1.17
 github.com/fullstack-lang/gong/go/models
+github.com/fullstack-lang/gong/test/go/models
 # github.com/fullstack-lang/gongdoc v0.0.0-20211017120233-0d3489c14f9f
 ## explicit; go 1.17
 github.com/fullstack-lang/gongdoc/go/models
 github.com/fullstack-lang/gongdoc/go/static
 github.com/fullstack-lang/gongdoc/go/walk
-# github.com/fullstack-lang/gongsim v0.0.0-20211110051109-b5172195084b
+# github.com/fullstack-lang/gongsim v0.0.0-20220301140631-0f8df8903320
 ## explicit; go 1.17
 github.com/fullstack-lang/gongsim/go/controllers
 github.com/fullstack-lang/gongsim/go/models

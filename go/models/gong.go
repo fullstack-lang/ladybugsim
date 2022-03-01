@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path"
+	"regexp"
 	"sort"
 	"strings"
 )
@@ -37,7 +39,12 @@ type StageStruct struct { // insertion point for definition of arrays registerin
 	BackRepo BackRepoInterface
 
 	// if set will be called before each commit to the back repo
-	OnInitCommitCallback OnInitCommitInterface
+	OnInitCommitCallback          OnInitCommitInterface
+	OnInitCommitFromFrontCallback OnInitCommitInterface
+	OnInitCommitFromBackCallback  OnInitCommitInterface
+
+	// store the number of instance per gongstruct
+	Map_GongStructName_InstancesNb map[string]int
 }
 
 type OnInitCommitInterface interface {
@@ -60,7 +67,7 @@ type BackRepoInterface interface {
 	CheckoutUpdatePositionEvent(updatepositionevent *UpdatePositionEvent)
 	CommitUpdateSpeedEvent(updatespeedevent *UpdateSpeedEvent)
 	CheckoutUpdateSpeedEvent(updatespeedevent *UpdateSpeedEvent)
-	GetLastCommitNb() uint
+	GetLastCommitFromBackNb() uint
 	GetLastPushFromFrontNb() uint
 }
 
@@ -79,12 +86,20 @@ var Stage StageStruct = StageStruct{ // insertion point for array initiatialisat
 	UpdateSpeedEvents_mapString: make(map[string]*UpdateSpeedEvent),
 
 	// end of insertion point
+	Map_GongStructName_InstancesNb: make(map[string]int),
 }
 
 func (stage *StageStruct) Commit() {
 	if stage.BackRepo != nil {
 		stage.BackRepo.Commit(stage)
 	}
+
+	// insertion point for computing the map of number of instances per gongstruct
+	stage.Map_GongStructName_InstancesNb["Ladybug"] = len(stage.Ladybugs)
+	stage.Map_GongStructName_InstancesNb["LadybugSimulation"] = len(stage.LadybugSimulations)
+	stage.Map_GongStructName_InstancesNb["UpdatePositionEvent"] = len(stage.UpdatePositionEvents)
+	stage.Map_GongStructName_InstancesNb["UpdateSpeedEvent"] = len(stage.UpdateSpeedEvents)
+
 }
 
 func (stage *StageStruct) Checkout() {
@@ -583,21 +598,26 @@ import (
 	"{{ModelsPackageName}}"
 )
 
-var __Dummy_time_variable time.Time
+func init() {
+	var __Dummy_time_variable time.Time
+	_ = __Dummy_time_variable
+	InjectionGateway["{{databaseName}}"] = {{databaseName}}Injection
+}
 
-func Unmarshall(stage *models.StageStruct) {
+// {{databaseName}}Injection will stage objects of database "{{databaseName}}"
+func {{databaseName}}Injection() {
 
-	// map of identifiers{{Identifiers}}
+	// Declaration of instances to stage{{Identifiers}}
 
-	// initializers of values{{ValueInitializers}}
+	// Setup of values{{ValueInitializers}}
 
-	// initializers of pointers{{PointersInitializers}}
+	// Setup of pointers{{PointersInitializers}}
 }
 
 `
 
 const IdentifiersDecls = `
-	{{Identifier}} := (&models.{{GeneratedStructName}}{ Name : "{{GeneratedFieldNameValue}}"}).Stage()`
+	{{Identifier}} := (&models.{{GeneratedStructName}}{Name: "{{GeneratedFieldNameValue}}"}).Stage()`
 
 const StringInitStatement = `
 	{{Identifier}}.{{GeneratedFieldName}} = "{{GeneratedFieldNameValue}}"`
@@ -619,9 +639,14 @@ func (stage *StageStruct) Marshall(file *os.File, modelsPackageName, packageName
 
 	name := file.Name()
 
+	if !strings.HasSuffix(name, ".go") {
+		log.Fatalln(name + " is not a go filename")
+	}
+
 	log.Println("filename of marshall output  is " + name)
 
 	res := marshallRes
+	res = strings.ReplaceAll(res, "{{databaseName}}", strings.ReplaceAll(path.Base(name), ".go", ""))
 	res = strings.ReplaceAll(res, "{{PackageName}}", packageName)
 	res = strings.ReplaceAll(res, "{{ModelsPackageName}}", modelsPackageName)
 
@@ -658,7 +683,7 @@ func (stage *StageStruct) Marshall(file *os.File, modelsPackageName, packageName
 		decl = strings.ReplaceAll(decl, "{{GeneratedFieldNameValue}}", ladybug.Name)
 		identifiersDecl += decl
 
-		initializerStatements += fmt.Sprintf("\n\n	// Init Ladybug values %s", ladybug.Name)
+		initializerStatements += fmt.Sprintf("\n\n	// Ladybug %s values setup", ladybug.Name)
 		// Initialisation of values
 		setValueField = StringInitStatement
 		setValueField = strings.ReplaceAll(setValueField, "{{Identifier}}", id)
@@ -720,7 +745,7 @@ func (stage *StageStruct) Marshall(file *os.File, modelsPackageName, packageName
 		decl = strings.ReplaceAll(decl, "{{GeneratedFieldNameValue}}", ladybugsimulation.Name)
 		identifiersDecl += decl
 
-		initializerStatements += fmt.Sprintf("\n\n	// Init LadybugSimulation values %s", ladybugsimulation.Name)
+		initializerStatements += fmt.Sprintf("\n\n	// LadybugSimulation %s values setup", ladybugsimulation.Name)
 		// Initialisation of values
 		setValueField = StringInitStatement
 		setValueField = strings.ReplaceAll(setValueField, "{{Identifier}}", id)
@@ -812,7 +837,7 @@ func (stage *StageStruct) Marshall(file *os.File, modelsPackageName, packageName
 		decl = strings.ReplaceAll(decl, "{{GeneratedFieldNameValue}}", updatepositionevent.Name)
 		identifiersDecl += decl
 
-		initializerStatements += fmt.Sprintf("\n\n	// Init UpdatePositionEvent values %s", updatepositionevent.Name)
+		initializerStatements += fmt.Sprintf("\n\n	// UpdatePositionEvent %s values setup", updatepositionevent.Name)
 		// Initialisation of values
 		setValueField = StringInitStatement
 		setValueField = strings.ReplaceAll(setValueField, "{{Identifier}}", id)
@@ -850,7 +875,7 @@ func (stage *StageStruct) Marshall(file *os.File, modelsPackageName, packageName
 		decl = strings.ReplaceAll(decl, "{{GeneratedFieldNameValue}}", updatespeedevent.Name)
 		identifiersDecl += decl
 
-		initializerStatements += fmt.Sprintf("\n\n	// Init UpdateSpeedEvent values %s", updatespeedevent.Name)
+		initializerStatements += fmt.Sprintf("\n\n	// UpdateSpeedEvent %s values setup", updatespeedevent.Name)
 		// Initialisation of values
 		setValueField = StringInitStatement
 		setValueField = strings.ReplaceAll(setValueField, "{{Identifier}}", id)
@@ -927,10 +952,15 @@ func (stage *StageStruct) Marshall(file *os.File, modelsPackageName, packageName
 // unique identifier per struct
 func generatesIdentifier(gongStructName string, idx int, instanceName string) (identifier string) {
 
-	identifier = fmt.Sprintf("__%s__%06d_%s",
-		gongStructName,
-		idx,
-		strings.ReplaceAll(instanceName, " ", "_"))
+	identifier = instanceName
+	// Make a Regex to say we only want letters and numbers
+	reg, err := regexp.Compile("[^a-zA-Z0-9]+")
+	if err != nil {
+		log.Fatal(err)
+	}
+	processedString := reg.ReplaceAllString(instanceName, "_")
+
+	identifier = fmt.Sprintf("__%s__%06d_%s", gongStructName, idx, processedString)
 
 	return
 }
