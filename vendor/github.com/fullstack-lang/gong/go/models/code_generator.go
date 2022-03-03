@@ -72,6 +72,11 @@ func CodeGenerator(
 	forGongStructWithNameFieldOnly bool) {
 
 	file, err := os.Create(generatedFilePath)
+
+	if err != nil {
+		file, err = os.Create(generatedFilePath)
+	}
+
 	if err != nil {
 		log.Panic(err)
 	}
@@ -151,6 +156,7 @@ func CodeGenerator(
 	code = strings.ReplaceAll(code, "{{TitlePkgName}}", strings.Title(pkgName))
 	code = strings.ReplaceAll(code, "{{pkgname}}", strings.ToLower(pkgName))
 	code = strings.ReplaceAll(code, "{{PkgPathRoot}}", strings.ReplaceAll(pkgGoPath, "/models", ""))
+	code = strings.ReplaceAll(code, "{{PkgPathAboveRoot}}", strings.ReplaceAll(pkgGoPath, "/go/models", ""))
 
 	pkgPathRootWithoutSlashes := strings.ReplaceAll(pkgGoPath, "/models", "")
 	pkgPathRootWithoutSlashes = strings.ReplaceAll(pkgPathRootWithoutSlashes, "/", "_")

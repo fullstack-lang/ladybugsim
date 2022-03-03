@@ -79,6 +79,9 @@ export class {{Structname}}sTableComponent implements OnInit {
     // enable sorting on all fields (including pointers and reverse pointer)
     this.matTableDataSource.sortingDataAccessor = ({{structname}}DB: {{Structname}}DB, property: string) => {
       switch (property) {
+        case 'ID':
+          return {{structname}}DB.ID
+
         // insertion point for specific sorting accessor{{` + string(rune(NgTableTsInsertionPerStructColumnsSorting)) + `}}
         default:
           console.assert(false, "Unknown field")
@@ -467,7 +470,7 @@ func MultiCodeGeneratorNgTable(
 
 		// create the component directory
 		dirPath := filepath.Join(matTargetPath, strings.ToLower(_struct.Name)+"s-table")
-		errd := os.Mkdir(dirPath, os.ModePerm)
+		errd := os.MkdirAll(dirPath, os.ModePerm)
 		if os.IsNotExist(errd) {
 			log.Println("creating directory : " + dirPath)
 		}

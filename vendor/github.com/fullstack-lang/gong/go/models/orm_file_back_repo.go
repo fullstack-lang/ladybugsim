@@ -21,30 +21,39 @@ import (
 // BackRepoStruct supports callback functions
 type BackRepoStruct struct {
 	// insertion point for per struct back repo declarations{{` + string(rune(BackRepoPerStructDeclarations)) + `}}
-	CommitNb uint // this ng is updated at the BackRepo level but also at the BackRepo<GongStruct> level
+	CommitFromBackNb uint // this ng is updated at the BackRepo level but also at the BackRepo<GongStruct> level
 
 	PushFromFrontNb uint // records increments from push from front
 }
 
-func (backRepo *BackRepoStruct) GetLastCommitNb() uint {
-	return backRepo.CommitNb
+func (backRepo *BackRepoStruct) GetLastCommitFromBackNb() uint {
+	return backRepo.CommitFromBackNb
 }
 
 func (backRepo *BackRepoStruct) GetLastPushFromFrontNb() uint {
 	return backRepo.PushFromFrontNb
 }
 
-func (backRepo *BackRepoStruct) IncrementCommitNb() uint {
+func (backRepo *BackRepoStruct) IncrementCommitFromBackNb() uint {
 	if models.Stage.OnInitCommitCallback != nil {
 		models.Stage.OnInitCommitCallback.BeforeCommit(&models.Stage)
 	}
-	backRepo.CommitNb = backRepo.CommitNb + 1
-	return backRepo.CommitNb
+	if models.Stage.OnInitCommitFromBackCallback != nil {
+		models.Stage.OnInitCommitFromBackCallback.BeforeCommit(&models.Stage)
+	}
+	backRepo.CommitFromBackNb = backRepo.CommitFromBackNb + 1
+	return backRepo.CommitFromBackNb
 }
 
 func (backRepo *BackRepoStruct) IncrementPushFromFrontNb() uint {
+	if models.Stage.OnInitCommitCallback != nil {
+		models.Stage.OnInitCommitCallback.BeforeCommit(&models.Stage)
+	}
+	if models.Stage.OnInitCommitFromFrontCallback != nil {
+		models.Stage.OnInitCommitFromFrontCallback.BeforeCommit(&models.Stage)
+	}
 	backRepo.PushFromFrontNb = backRepo.PushFromFrontNb + 1
-	return backRepo.CommitNb
+	return backRepo.CommitFromBackNb
 }
 
 // Init the BackRepoStruct inner variables and link to the database
@@ -60,7 +69,7 @@ func (backRepo *BackRepoStruct) Commit(stage *models.StageStruct) {
 
 	// insertion point for per struct back repo phase two commit{{` + string(rune(BackRepoPerStructPhaseTwoCommits)) + `}}
 
-	backRepo.IncrementCommitNb()
+	backRepo.IncrementCommitFromBackNb()
 }
 
 // Checkout the database into the stage
@@ -72,8 +81,8 @@ func (backRepo *BackRepoStruct) Checkout(stage *models.StageStruct) {
 
 var BackRepo BackRepoStruct
 
-func GetLastCommitNb() uint {
-	return BackRepo.GetLastCommitNb()
+func GetLastCommitFromBackNb() uint {
+	return BackRepo.GetLastCommitFromBackNb()
 }
 
 func GetLastPushFromFrontNb() uint {
@@ -82,14 +91,14 @@ func GetLastPushFromFrontNb() uint {
 
 // Backup the BackRepoStruct
 func (backRepo *BackRepoStruct) Backup(stage *models.StageStruct, dirPath string) {
-	os.Mkdir(dirPath, os.ModePerm)
+	os.MkdirAll(dirPath, os.ModePerm)
 
 	// insertion point for per struct backup{{` + string(rune(BackRepoBackup)) + `}}
 }
 
 // Backup in XL the BackRepoStruct
 func (backRepo *BackRepoStruct) BackupXL(stage *models.StageStruct, dirPath string) {
-	os.Mkdir(dirPath, os.ModePerm)
+	os.MkdirAll(dirPath, os.ModePerm)
 
 	// open an existing file
 	file := xlsx.NewFile()
@@ -131,6 +140,29 @@ func (backRepo *BackRepoStruct) Restore(stage *models.StageStruct, dirPath strin
 
 // Restore the database into the back repo
 func (backRepo *BackRepoStruct) RestoreXL(stage *models.StageStruct, dirPath string) {
+
+	// clean the stage
+	models.Stage.Reset()
+
+	// commit the cleaned stage
+	models.Stage.Commit()
+
+	// open an existing file
+	filename := filepath.Join(dirPath, "bckp.xlsx")
+	file, err := xlsx.OpenFile(filename)
+
+	if err != nil {
+		log.Panic("Cannot read the XL file", err.Error())
+	}
+
+	//
+	// restauration first phase (create DB instance with new IDs)
+	//
+
+	// insertion point for per struct backup{{` + string(rune(BackRepoRestoreXLPhaseOne)) + `}}
+
+	// commit the restored stage
+	models.Stage.Commit()
 }
 `
 
@@ -150,6 +182,7 @@ const (
 	BackRepoBackup
 	BackRepoBackupXL
 	BackRepoRestorePhaseOne
+	BackRepoRestoreXLPhaseOne
 	BackRepoRestorePhaseTwo
 )
 
@@ -223,6 +256,9 @@ map[string]string{
 
 	string(rune(BackRepoRestorePhaseOne)): `
 	backRepo.BackRepo{{Structname}}.RestorePhaseOne(dirPath)`,
+
+	string(rune(BackRepoRestoreXLPhaseOne)): `
+	backRepo.BackRepo{{Structname}}.RestoreXLPhaseOne(file)`,
 
 	string(rune(BackRepoRestorePhaseTwo)): `
 	backRepo.BackRepo{{Structname}}.RestorePhaseTwo()`,
