@@ -17,6 +17,8 @@ import { Router, RouterState } from '@angular/router';
 import { UpdateSpeedEventDB } from '../updatespeedevent-db'
 import { UpdateSpeedEventService } from '../updatespeedevent.service'
 
+// insertion point for additional imports
+
 // TableComponent is initilizaed from different routes
 // TableComponentMode detail different cases 
 enum TableComponentMode {
@@ -162,7 +164,7 @@ export class UpdateSpeedEventsTableComponent implements OnInit {
 
         this.updatespeedevents = this.frontRepo.UpdateSpeedEvents_array;
 
-        // insertion point for variables Recoveries
+        // insertion point for time duration Recoveries
         // compute strings for durations
         for (let updatespeedevent of this.updatespeedevents) {
           updatespeedevent.Duration_string =
@@ -170,7 +172,8 @@ export class UpdateSpeedEventsTableComponent implements OnInit {
             Math.floor(updatespeedevent.Duration % (3600 * 1000 * 1000 * 1000) / (60 * 1000 * 1000 * 1000)) + "M " +
             updatespeedevent.Duration % (60 * 1000 * 1000 * 1000) / (1000 * 1000 * 1000) + "S"
         }
-
+        // insertion point for enum int Recoveries
+        
         // in case the component is called as a selection component
         if (this.mode == TableComponentMode.ONE_MANY_ASSOCIATION_MODE) {
           for (let updatespeedevent of this.updatespeedevents) {

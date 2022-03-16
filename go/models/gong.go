@@ -620,7 +620,7 @@ const IdentifiersDecls = `
 	{{Identifier}} := (&models.{{GeneratedStructName}}{Name: "{{GeneratedFieldNameValue}}"}).Stage()`
 
 const StringInitStatement = `
-	{{Identifier}}.{{GeneratedFieldName}} = "{{GeneratedFieldNameValue}}"`
+	{{Identifier}}.{{GeneratedFieldName}} = ` + "`" + `{{GeneratedFieldNameValue}}` + "`"
 
 const NumberInitStatement = `
 	{{Identifier}}.{{GeneratedFieldName}} = {{GeneratedFieldNameValue}}`
@@ -891,7 +891,6 @@ func (stage *StageStruct) Marshall(file *os.File, modelsPackageName, packageName
 
 	}
 
-
 	// insertion initialization of objects to stage
 	for idx, ladybug := range ladybugOrdered {
 		var setPointerField string
@@ -941,7 +940,6 @@ func (stage *StageStruct) Marshall(file *os.File, modelsPackageName, packageName
 		// Initialisation of values
 	}
 
-
 	res = strings.ReplaceAll(res, "{{Identifiers}}", identifiersDecl)
 	res = strings.ReplaceAll(res, "{{ValueInitializers}}", initializerStatements)
 	res = strings.ReplaceAll(res, "{{PointersInitializers}}", pointersInitializesStatements)
@@ -964,3 +962,32 @@ func generatesIdentifier(gongStructName string, idx int, instanceName string) (i
 
 	return
 }
+
+// insertion point of enum utility functions
+// Utility function for LadybugStatus
+// if enum values are string, it is stored with the value
+// if enum values are int, they are stored with the code of the value
+func (ladybugstatus LadybugStatus) ToString() (res string) {
+
+	// migration of former implementation of enum
+	switch ladybugstatus {
+	// insertion code per enum code
+	case ON_THE_FENCE:
+		res = "ON_THE_FENCE"
+	case ON_THE_GROUND:
+		res = "ON_THE_GROUND"
+	}
+	return
+}
+
+func (ladybugstatus *LadybugStatus) FromString(input string) {
+
+	switch input {
+	// insertion code per enum code
+	case "ON_THE_FENCE":
+		*ladybugstatus = ON_THE_FENCE
+	case "ON_THE_GROUND":
+		*ladybugstatus = ON_THE_GROUND
+	}
+}
+

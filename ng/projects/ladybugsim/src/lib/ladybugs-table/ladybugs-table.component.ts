@@ -17,6 +17,8 @@ import { Router, RouterState } from '@angular/router';
 import { LadybugDB } from '../ladybug-db'
 import { LadybugService } from '../ladybug.service'
 
+// insertion point for additional imports
+
 // TableComponent is initilizaed from different routes
 // TableComponentMode detail different cases 
 enum TableComponentMode {
@@ -196,8 +198,9 @@ export class LadybugsTableComponent implements OnInit {
 
         this.ladybugs = this.frontRepo.Ladybugs_array;
 
-        // insertion point for variables Recoveries
-
+        // insertion point for time duration Recoveries
+        // insertion point for enum int Recoveries
+        
         // in case the component is called as a selection component
         if (this.mode == TableComponentMode.ONE_MANY_ASSOCIATION_MODE) {
           for (let ladybug of this.ladybugs) {

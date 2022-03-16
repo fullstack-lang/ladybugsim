@@ -17,6 +17,8 @@ import { Router, RouterState } from '@angular/router';
 import { LadybugSimulationDB } from '../ladybugsimulation-db'
 import { LadybugSimulationService } from '../ladybugsimulation.service'
 
+// insertion point for additional imports
+
 // TableComponent is initilizaed from different routes
 // TableComponentMode detail different cases 
 enum TableComponentMode {
@@ -216,7 +218,7 @@ export class LadybugSimulationsTableComponent implements OnInit {
 
         this.ladybugsimulations = this.frontRepo.LadybugSimulations_array;
 
-        // insertion point for variables Recoveries
+        // insertion point for time duration Recoveries
         // compute strings for durations
         for (let ladybugsimulation of this.ladybugsimulations) {
           ladybugsimulation.SimulationStep_string =
@@ -224,7 +226,8 @@ export class LadybugSimulationsTableComponent implements OnInit {
             Math.floor(ladybugsimulation.SimulationStep % (3600 * 1000 * 1000 * 1000) / (60 * 1000 * 1000 * 1000)) + "M " +
             ladybugsimulation.SimulationStep % (60 * 1000 * 1000 * 1000) / (1000 * 1000 * 1000) + "S"
         }
-
+        // insertion point for enum int Recoveries
+        
         // in case the component is called as a selection component
         if (this.mode == TableComponentMode.ONE_MANY_ASSOCIATION_MODE) {
           for (let ladybugsimulation of this.ladybugsimulations) {

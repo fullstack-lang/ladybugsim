@@ -8,6 +8,8 @@ import { FrontRepoService, FrontRepo } from '../front-repo.service'
 
 import { Router, RouterState, ActivatedRoute } from '@angular/router';
 
+// insertion point for additional imports
+
 export interface ladybugsimulationDummyElement {
 }
 
@@ -21,11 +23,12 @@ const ELEMENT_DATA: ladybugsimulationDummyElement[] = [
 })
 export class LadybugSimulationPresentationComponent implements OnInit {
 
-	// insertion point for declarations
+	// insertion point for additionnal time duration declarations
 	// fields from SimulationStep
 	SimulationStep_Hours: number = 0
 	SimulationStep_Minutes: number = 0
 	SimulationStep_Seconds: number = 0
+	// insertion point for additionnal enum int field declarations
 
 	displayedColumns: string[] = []
 	dataSource = ELEMENT_DATA
@@ -72,6 +75,7 @@ export class LadybugSimulationPresentationComponent implements OnInit {
 				this.SimulationStep_Hours = Math.floor(this.ladybugsimulation.SimulationStep / (3600 * 1000 * 1000 * 1000))
 				this.SimulationStep_Minutes = Math.floor(this.ladybugsimulation.SimulationStep % (3600 * 1000 * 1000 * 1000) / (60 * 1000 * 1000 * 1000))
 				this.SimulationStep_Seconds = this.ladybugsimulation.SimulationStep % (60 * 1000 * 1000 * 1000) / (1000 * 1000 * 1000)
+				// insertion point for recovery of enum tint
 			}
 		);
 	}

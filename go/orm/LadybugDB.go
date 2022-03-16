@@ -421,7 +421,7 @@ func (ladybugDB *LadybugDB) CopyBasicFieldsFromLadybug(ladybug *models.Ladybug) 
 	ladybugDB.Speed_Data.Float64 = ladybug.Speed
 	ladybugDB.Speed_Data.Valid = true
 
-	ladybugDB.LadybugStatus_Data.String = string(ladybug.LadybugStatus)
+	ladybugDB.LadybugStatus_Data.String = ladybug.LadybugStatus.ToString()
 	ladybugDB.LadybugStatus_Data.Valid = true
 }
 
@@ -444,7 +444,7 @@ func (ladybugDB *LadybugDB) CopyBasicFieldsFromLadybugWOP(ladybug *LadybugWOP) {
 	ladybugDB.Speed_Data.Float64 = ladybug.Speed
 	ladybugDB.Speed_Data.Valid = true
 
-	ladybugDB.LadybugStatus_Data.String = string(ladybug.LadybugStatus)
+	ladybugDB.LadybugStatus_Data.String = ladybug.LadybugStatus.ToString()
 	ladybugDB.LadybugStatus_Data.Valid = true
 }
 
@@ -456,7 +456,7 @@ func (ladybugDB *LadybugDB) CopyBasicFieldsToLadybug(ladybug *models.Ladybug) {
 	ladybug.Id = int(ladybugDB.Id_Data.Int64)
 	ladybug.Position = ladybugDB.Position_Data.Float64
 	ladybug.Speed = ladybugDB.Speed_Data.Float64
-	ladybug.LadybugStatus = models.LadybugStatus(ladybugDB.LadybugStatus_Data.String)
+	ladybug.LadybugStatus.FromString(ladybugDB.LadybugStatus_Data.String)
 }
 
 // CopyBasicFieldsToLadybugWOP
@@ -468,7 +468,7 @@ func (ladybugDB *LadybugDB) CopyBasicFieldsToLadybugWOP(ladybug *LadybugWOP) {
 	ladybug.Id = int(ladybugDB.Id_Data.Int64)
 	ladybug.Position = ladybugDB.Position_Data.Float64
 	ladybug.Speed = ladybugDB.Speed_Data.Float64
-	ladybug.LadybugStatus = models.LadybugStatus(ladybugDB.LadybugStatus_Data.String)
+	ladybug.LadybugStatus.FromString(ladybugDB.LadybugStatus_Data.String)
 }
 
 // Backup generates a json file from a slice of all LadybugDB instances in the backrepo

@@ -11,6 +11,6 @@ export interface LadybugStatusSelect {
 }
 
 export const LadybugStatusList: LadybugStatusSelect[] = [ // insertion point	
-	{ value: 'ON_THE_FENCE', viewValue: '"ON_THE_FENCE"' },
-	{ value: 'ON_THE_GROUND', viewValue: '"ON_THE_GROUND"' },
+	{ value: LadybugStatus.ON_THE_FENCE, viewValue: "ON_THE_FENCE" },
+	{ value: LadybugStatus.ON_THE_GROUND, viewValue: "ON_THE_GROUND" },
 ];
