@@ -44,7 +44,7 @@ var ladybug uml.Classdiagram = uml.Classdiagram{
 						X: 350.000000,
 						Y: 86.500000,
 					},
-					Multiplicity: "*",
+					TargetMultiplicity: "*",
 				},
 			},
 			Fields: []*uml.Field{
