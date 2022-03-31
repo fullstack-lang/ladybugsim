@@ -251,7 +251,7 @@ export class UpdatePositionEventDetailComponent implements OnInit {
 	}
 
 	fillUpNameIfEmpty(event: { value: { Name: string; }; }) {
-		if (this.updatepositionevent.Name == undefined) {
+		if (this.updatepositionevent.Name == "") {
 			this.updatepositionevent.Name = event.value.Name
 		}
 	}

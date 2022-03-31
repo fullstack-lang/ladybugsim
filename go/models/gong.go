@@ -17,6 +17,14 @@ type __void struct{}
 // needed for creating set of instances in the stage
 var __member __void
 
+// GongStructInterface is the interface met by GongStructs
+// It allows runtime reflexion of instances (without the hassle of the "reflect" package)
+type GongStructInterface interface {
+	GetName() (res string)
+	GetFields() (res []string)
+	GetFieldStringValue(fieldName string) (res string)
+}
+
 // StageStruct enables storage of staged instances
 // swagger:ignore
 type StageStruct struct { // insertion point for definition of arrays registering instances
@@ -239,6 +247,36 @@ func DeleteORMLadybug(ladybug *Ladybug) {
 	}
 }
 
+// for satisfaction of GongStruct interface
+func (ladybug *Ladybug) GetName() (res string) {
+	return ladybug.Name
+}
+
+func (ladybug *Ladybug) GetFields() (res []string) {
+	// list of fields 
+	res = []string{"TechName", "Name", "Id", "Position", "Speed", "LadybugStatus",  }
+	return
+}
+
+func (ladybug *Ladybug) GetFieldStringValue(fieldName string) (res string) {
+	switch fieldName {
+	// string value of fields
+	case "TechName":
+		res = ladybug.TechName
+	case "Name":
+		res = ladybug.Name
+	case "Id":
+		res = fmt.Sprintf("%d", ladybug.Id)
+	case "Position":
+		res = fmt.Sprintf("%f", ladybug.Position)
+	case "Speed":
+		res = fmt.Sprintf("%f", ladybug.Speed)
+	case "LadybugStatus":
+		res = ladybug.LadybugStatus.ToCodeString()
+	}
+	return
+}
+
 func (stage *StageStruct) getLadybugSimulationOrderedStructWithNameField() []*LadybugSimulation {
 	// have alphabetical order generation
 	ladybugsimulationOrdered := []*LadybugSimulation{}
@@ -339,6 +377,53 @@ func DeleteORMLadybugSimulation(ladybugsimulation *LadybugSimulation) {
 	if Stage.AllModelsStructDeleteCallback != nil {
 		Stage.AllModelsStructDeleteCallback.DeleteORMLadybugSimulation(ladybugsimulation)
 	}
+}
+
+// for satisfaction of GongStruct interface
+func (ladybugsimulation *LadybugSimulation) GetName() (res string) {
+	return ladybugsimulation.Name
+}
+
+func (ladybugsimulation *LadybugSimulation) GetFields() (res []string) {
+	// list of fields 
+	res = []string{"Name", "EventNb", "NbOfCollision", "LadybugRadius", "AbsoluteSpeed", "SimulationStep", "MaxDistanceInOneStep", "NbLadybugs", "NbLadybugsOnTheGround", "LeftRelayInitialPosX", "RightRelayInitialPosX", "Ladybugs",  }
+	return
+}
+
+func (ladybugsimulation *LadybugSimulation) GetFieldStringValue(fieldName string) (res string) {
+	switch fieldName {
+	// string value of fields
+	case "Name":
+		res = ladybugsimulation.Name
+	case "EventNb":
+		res = fmt.Sprintf("%d", ladybugsimulation.EventNb)
+	case "NbOfCollision":
+		res = fmt.Sprintf("%d", ladybugsimulation.NbOfCollision)
+	case "LadybugRadius":
+		res = fmt.Sprintf("%f", ladybugsimulation.LadybugRadius)
+	case "AbsoluteSpeed":
+		res = fmt.Sprintf("%f", ladybugsimulation.AbsoluteSpeed)
+	case "SimulationStep":
+		res = fmt.Sprintf("%d", ladybugsimulation.SimulationStep)
+	case "MaxDistanceInOneStep":
+		res = fmt.Sprintf("%f", ladybugsimulation.MaxDistanceInOneStep)
+	case "NbLadybugs":
+		res = fmt.Sprintf("%d", ladybugsimulation.NbLadybugs)
+	case "NbLadybugsOnTheGround":
+		res = fmt.Sprintf("%d", ladybugsimulation.NbLadybugsOnTheGround)
+	case "LeftRelayInitialPosX":
+		res = fmt.Sprintf("%f", ladybugsimulation.LeftRelayInitialPosX)
+	case "RightRelayInitialPosX":
+		res = fmt.Sprintf("%f", ladybugsimulation.RightRelayInitialPosX)
+	case "Ladybugs":
+		for idx, __instance__ := range ladybugsimulation.Ladybugs {
+			if idx > 0 {
+				res += "\n"
+			}
+			res += __instance__.Name
+		}
+	}
+	return
 }
 
 func (stage *StageStruct) getUpdatePositionEventOrderedStructWithNameField() []*UpdatePositionEvent {
@@ -443,6 +528,28 @@ func DeleteORMUpdatePositionEvent(updatepositionevent *UpdatePositionEvent) {
 	}
 }
 
+// for satisfaction of GongStruct interface
+func (updatepositionevent *UpdatePositionEvent) GetName() (res string) {
+	return updatepositionevent.Name
+}
+
+func (updatepositionevent *UpdatePositionEvent) GetFields() (res []string) {
+	// list of fields 
+	res = []string{"Name", "Duration",  }
+	return
+}
+
+func (updatepositionevent *UpdatePositionEvent) GetFieldStringValue(fieldName string) (res string) {
+	switch fieldName {
+	// string value of fields
+	case "Name":
+		res = updatepositionevent.Name
+	case "Duration":
+		res = fmt.Sprintf("%d", updatepositionevent.Duration)
+	}
+	return
+}
+
 func (stage *StageStruct) getUpdateSpeedEventOrderedStructWithNameField() []*UpdateSpeedEvent {
 	// have alphabetical order generation
 	updatespeedeventOrdered := []*UpdateSpeedEvent{}
@@ -545,6 +652,28 @@ func DeleteORMUpdateSpeedEvent(updatespeedevent *UpdateSpeedEvent) {
 	}
 }
 
+// for satisfaction of GongStruct interface
+func (updatespeedevent *UpdateSpeedEvent) GetName() (res string) {
+	return updatespeedevent.Name
+}
+
+func (updatespeedevent *UpdateSpeedEvent) GetFields() (res []string) {
+	// list of fields 
+	res = []string{"Name", "Duration",  }
+	return
+}
+
+func (updatespeedevent *UpdateSpeedEvent) GetFieldStringValue(fieldName string) (res string) {
+	switch fieldName {
+	// string value of fields
+	case "Name":
+		res = updatespeedevent.Name
+	case "Duration":
+		res = fmt.Sprintf("%d", updatespeedevent.Duration)
+	}
+	return
+}
+
 // swagger:ignore
 type AllModelsStructCreateInterface interface { // insertion point for Callbacks on creation
 	CreateORMLadybug(Ladybug *Ladybug)
@@ -621,6 +750,9 @@ const IdentifiersDecls = `
 
 const StringInitStatement = `
 	{{Identifier}}.{{GeneratedFieldName}} = ` + "`" + `{{GeneratedFieldNameValue}}` + "`"
+
+const StringEnumInitStatement = `
+	{{Identifier}}.{{GeneratedFieldName}} = {{GeneratedFieldNameValue}}`
 
 const NumberInitStatement = `
 	{{Identifier}}.{{GeneratedFieldName}} = {{GeneratedFieldNameValue}}`
@@ -715,11 +847,13 @@ func (stage *StageStruct) Marshall(file *os.File, modelsPackageName, packageName
 		setValueField = strings.ReplaceAll(setValueField, "{{GeneratedFieldNameValue}}", fmt.Sprintf("%f", ladybug.Speed))
 		initializerStatements += setValueField
 
-		setValueField = StringInitStatement
-		setValueField = strings.ReplaceAll(setValueField, "{{Identifier}}", id)
-		setValueField = strings.ReplaceAll(setValueField, "{{GeneratedFieldName}}", "LadybugStatus")
-		setValueField = strings.ReplaceAll(setValueField, "{{GeneratedFieldNameValue}}", string(ladybug.LadybugStatus))
-		initializerStatements += setValueField
+		if ladybug.LadybugStatus != "" {
+			setValueField = StringEnumInitStatement
+			setValueField = strings.ReplaceAll(setValueField, "{{Identifier}}", id)
+			setValueField = strings.ReplaceAll(setValueField, "{{GeneratedFieldName}}", "LadybugStatus")
+			setValueField = strings.ReplaceAll(setValueField, "{{GeneratedFieldNameValue}}", "models."+ladybug.LadybugStatus.ToCodeString())
+			initializerStatements += setValueField
+		}
 
 	}
 
@@ -989,5 +1123,17 @@ func (ladybugstatus *LadybugStatus) FromString(input string) {
 	case "ON_THE_GROUND":
 		*ladybugstatus = ON_THE_GROUND
 	}
+}
+
+func (ladybugstatus *LadybugStatus) ToCodeString() (res string) {
+
+	switch *ladybugstatus {
+	// insertion code per enum code
+	case ON_THE_FENCE:
+		res = "ON_THE_FENCE"
+	case ON_THE_GROUND:
+		res = "ON_THE_GROUND"
+	}
+	return
 }
 

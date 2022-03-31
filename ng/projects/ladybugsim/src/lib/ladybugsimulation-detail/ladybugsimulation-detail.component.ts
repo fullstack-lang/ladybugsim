@@ -251,7 +251,7 @@ export class LadybugSimulationDetailComponent implements OnInit {
 	}
 
 	fillUpNameIfEmpty(event: { value: { Name: string; }; }) {
-		if (this.ladybugsimulation.Name == undefined) {
+		if (this.ladybugsimulation.Name == "") {
 			this.ladybugsimulation.Name = event.value.Name
 		}
 	}

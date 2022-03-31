@@ -251,7 +251,7 @@ export class UpdateSpeedEventDetailComponent implements OnInit {
 	}
 
 	fillUpNameIfEmpty(event: { value: { Name: string; }; }) {
-		if (this.updatespeedevent.Name == undefined) {
+		if (this.updatespeedevent.Name == "") {
 			this.updatespeedevent.Name = event.value.Name
 		}
 	}
