@@ -10,13 +10,6 @@
             "request": "launch",
             "mode": "test",
             "program": "${workspaceFolder}/go/tests",
-            "dlvLoadConfig": {
-                "followPointers": true,
-                "maxVariableRecurse": 1,
-                "maxStringLen": 300,
-                "maxArrayValues": 64,
-                "maxStructFields": -1
-            },
             "args": [
                 "-test.run",
                 "TestLadybugSim"
@@ -28,13 +21,6 @@
             "request": "launch",
             "mode": "debug",
             "program": "${workspaceFolder}/go/cmd/ladybugsim",
-            "dlvLoadConfig": {
-                "followPointers": true,
-                "maxVariableRecurse": 1,
-                "maxStringLen": 300,
-                "maxArrayValues": 64,
-                "maxStructFields": -1
-            },
             "args": []
         },
     ]

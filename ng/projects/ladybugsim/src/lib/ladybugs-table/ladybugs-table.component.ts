@@ -87,7 +87,11 @@ export class LadybugsTableComponent implements OnInit {
           return ladybugDB.LadybugStatus;
 
         case 'LadybugSimulation_Ladybugs':
-          return this.frontRepo.LadybugSimulations.get(ladybugDB.LadybugSimulation_LadybugsDBID.Int64)!.Name;
+          if (this.frontRepo.LadybugSimulations.get(ladybugDB.LadybugSimulation_LadybugsDBID.Int64) != undefined) {
+            return this.frontRepo.LadybugSimulations.get(ladybugDB.LadybugSimulation_LadybugsDBID.Int64)!.Name
+          } else {
+            return ""
+          }
 
         default:
           console.assert(false, "Unknown field")
