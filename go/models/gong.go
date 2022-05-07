@@ -253,8 +253,8 @@ func (ladybug *Ladybug) GetName() (res string) {
 }
 
 func (ladybug *Ladybug) GetFields() (res []string) {
-	// list of fields 
-	res = []string{"TechName", "Name", "Id", "Position", "Speed", "LadybugStatus",  }
+	// list of fields
+	res = []string{"TechName", "Name", "Id", "Position", "Speed", "LadybugStatus"}
 	return
 }
 
@@ -385,8 +385,8 @@ func (ladybugsimulation *LadybugSimulation) GetName() (res string) {
 }
 
 func (ladybugsimulation *LadybugSimulation) GetFields() (res []string) {
-	// list of fields 
-	res = []string{"Name", "EventNb", "NbOfCollision", "LadybugRadius", "AbsoluteSpeed", "SimulationStep", "MaxDistanceInOneStep", "NbLadybugs", "NbLadybugsOnTheGround", "LeftRelayInitialPosX", "RightRelayInitialPosX", "Ladybugs",  }
+	// list of fields
+	res = []string{"Name", "EventNb", "NbOfCollision", "LadybugRadius", "AbsoluteSpeed", "SimulationStep", "MaxDistanceInOneStep", "NbLadybugs", "NbLadybugsOnTheGround", "LeftRelayInitialPosX", "RightRelayInitialPosX", "Ladybugs"}
 	return
 }
 
@@ -534,8 +534,8 @@ func (updatepositionevent *UpdatePositionEvent) GetName() (res string) {
 }
 
 func (updatepositionevent *UpdatePositionEvent) GetFields() (res []string) {
-	// list of fields 
-	res = []string{"Name", "Duration",  }
+	// list of fields
+	res = []string{"Name", "Duration"}
 	return
 }
 
@@ -658,8 +658,8 @@ func (updatespeedevent *UpdateSpeedEvent) GetName() (res string) {
 }
 
 func (updatespeedevent *UpdateSpeedEvent) GetFields() (res []string) {
-	// list of fields 
-	res = []string{"Name", "Duration",  }
+	// list of fields
+	res = []string{"Name", "Duration"}
 	return
 }
 
@@ -1096,6 +1096,24 @@ func generatesIdentifier(gongStructName string, idx int, instanceName string) (i
 
 	return
 }
+
+// insertion point of functions that provide maps for reverse associations
+// generate function for reverse association maps of Ladybug
+// generate function for reverse association maps of LadybugSimulation
+func (stageStruct *StageStruct) CreateReverseMap_LadybugSimulation_Ladybugs() (res map[*Ladybug]*LadybugSimulation) {
+	res = make(map[*Ladybug]*LadybugSimulation)
+
+	for ladybugsimulation := range stageStruct.LadybugSimulations {
+		for _, ladybug_ := range ladybugsimulation.Ladybugs {
+			res[ladybug_] = ladybugsimulation
+		}
+	}
+
+	return
+}
+
+// generate function for reverse association maps of UpdatePositionEvent
+// generate function for reverse association maps of UpdateSpeedEvent
 
 // insertion point of enum utility functions
 // Utility function for LadybugStatus
