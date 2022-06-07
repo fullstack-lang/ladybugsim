@@ -267,7 +267,7 @@ func (backRepoUpdateSpeedEvent *BackRepoUpdateSpeedEventStruct) CheckoutPhaseOne
 
 	// list of instances to be removed
 	// start from the initial map on the stage and remove instances that have been checked out
-	updatespeedeventInstancesToBeRemovedFromTheStage := make(map[*models.UpdateSpeedEvent]struct{})
+	updatespeedeventInstancesToBeRemovedFromTheStage := make(map[*models.UpdateSpeedEvent]any)
 	for key, value := range models.Stage.UpdateSpeedEvents {
 		updatespeedeventInstancesToBeRemovedFromTheStage[key] = value
 	}

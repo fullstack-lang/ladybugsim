@@ -12,7 +12,7 @@ import (
 )
 
 // swagger:ignore
-type __void struct{}
+type __void any
 
 // needed for creating set of instances in the stage
 var __member __void
@@ -28,16 +28,16 @@ type GongStructInterface interface {
 // StageStruct enables storage of staged instances
 // swagger:ignore
 type StageStruct struct { // insertion point for definition of arrays registering instances
-	Ladybugs           map[*Ladybug]struct{}
+	Ladybugs           map[*Ladybug]any
 	Ladybugs_mapString map[string]*Ladybug
 
-	LadybugSimulations           map[*LadybugSimulation]struct{}
+	LadybugSimulations           map[*LadybugSimulation]any
 	LadybugSimulations_mapString map[string]*LadybugSimulation
 
-	UpdatePositionEvents           map[*UpdatePositionEvent]struct{}
+	UpdatePositionEvents           map[*UpdatePositionEvent]any
 	UpdatePositionEvents_mapString map[string]*UpdatePositionEvent
 
-	UpdateSpeedEvents           map[*UpdateSpeedEvent]struct{}
+	UpdateSpeedEvents           map[*UpdateSpeedEvent]any
 	UpdateSpeedEvents_mapString map[string]*UpdateSpeedEvent
 
 	AllModelsStructCreateCallback AllModelsStructCreateInterface
@@ -81,16 +81,16 @@ type BackRepoInterface interface {
 
 // swagger:ignore instructs the gong compiler (gongc) to avoid this particular struct
 var Stage StageStruct = StageStruct{ // insertion point for array initiatialisation
-	Ladybugs:           make(map[*Ladybug]struct{}),
+	Ladybugs:           make(map[*Ladybug]any),
 	Ladybugs_mapString: make(map[string]*Ladybug),
 
-	LadybugSimulations:           make(map[*LadybugSimulation]struct{}),
+	LadybugSimulations:           make(map[*LadybugSimulation]any),
 	LadybugSimulations_mapString: make(map[string]*LadybugSimulation),
 
-	UpdatePositionEvents:           make(map[*UpdatePositionEvent]struct{}),
+	UpdatePositionEvents:           make(map[*UpdatePositionEvent]any),
 	UpdatePositionEvents_mapString: make(map[string]*UpdatePositionEvent),
 
-	UpdateSpeedEvents:           make(map[*UpdateSpeedEvent]struct{}),
+	UpdateSpeedEvents:           make(map[*UpdateSpeedEvent]any),
 	UpdateSpeedEvents_mapString: make(map[string]*UpdateSpeedEvent),
 
 	// end of insertion point
@@ -690,16 +690,16 @@ type AllModelsStructDeleteInterface interface { // insertion point for Callbacks
 }
 
 func (stage *StageStruct) Reset() { // insertion point for array reset
-	stage.Ladybugs = make(map[*Ladybug]struct{})
+	stage.Ladybugs = make(map[*Ladybug]any)
 	stage.Ladybugs_mapString = make(map[string]*Ladybug)
 
-	stage.LadybugSimulations = make(map[*LadybugSimulation]struct{})
+	stage.LadybugSimulations = make(map[*LadybugSimulation]any)
 	stage.LadybugSimulations_mapString = make(map[string]*LadybugSimulation)
 
-	stage.UpdatePositionEvents = make(map[*UpdatePositionEvent]struct{})
+	stage.UpdatePositionEvents = make(map[*UpdatePositionEvent]any)
 	stage.UpdatePositionEvents_mapString = make(map[string]*UpdatePositionEvent)
 
-	stage.UpdateSpeedEvents = make(map[*UpdateSpeedEvent]struct{})
+	stage.UpdateSpeedEvents = make(map[*UpdateSpeedEvent]any)
 	stage.UpdateSpeedEvents_mapString = make(map[string]*UpdateSpeedEvent)
 
 }
@@ -1098,7 +1098,9 @@ func generatesIdentifier(gongStructName string, idx int, instanceName string) (i
 }
 
 // insertion point of functions that provide maps for reverse associations
+
 // generate function for reverse association maps of Ladybug
+
 // generate function for reverse association maps of LadybugSimulation
 func (stageStruct *StageStruct) CreateReverseMap_LadybugSimulation_Ladybugs() (res map[*Ladybug]*LadybugSimulation) {
 	res = make(map[*Ladybug]*LadybugSimulation)
@@ -1112,8 +1114,70 @@ func (stageStruct *StageStruct) CreateReverseMap_LadybugSimulation_Ladybugs() (r
 	return
 }
 
+
 // generate function for reverse association maps of UpdatePositionEvent
+
 // generate function for reverse association maps of UpdateSpeedEvent
+
+type GongstructSet interface {
+	map[any]any |
+		// insertion point for generic types
+		map[*Ladybug]any |
+		map[*LadybugSimulation]any |
+		map[*UpdatePositionEvent]any |
+		map[*UpdateSpeedEvent]any |
+		map[*any]any // because go does not support an extra "|" at the end of type specifications
+}
+
+type GongstructMapString interface {
+	map[any]any |
+		// insertion point for generic types
+		map[string]*Ladybug |
+		map[string]*LadybugSimulation |
+		map[string]*UpdatePositionEvent |
+		map[string]*UpdateSpeedEvent |
+		map[*any]any // because go does not support an extra "|" at the end of type specifications
+}
+
+// GongGetSet returns the set staged GongstructType instances
+// it is usefull because it allows refactoring of gong struct identifier
+func GongGetSet[Type GongstructSet]() *Type {
+	var ret Type
+
+	switch any(ret).(type) {
+	// insertion point for generic get functions
+	case map[*Ladybug]any:
+		return any(&Stage.Ladybugs).(*Type)
+	case map[*LadybugSimulation]any:
+		return any(&Stage.LadybugSimulations).(*Type)
+	case map[*UpdatePositionEvent]any:
+		return any(&Stage.UpdatePositionEvents).(*Type)
+	case map[*UpdateSpeedEvent]any:
+		return any(&Stage.UpdateSpeedEvents).(*Type)
+	default:
+		return nil
+	}
+}
+
+// GongGetMap returns the map of staged GongstructType instances
+// it is usefull because it allows refactoring of gong struct identifier
+func GongGetMap[Type GongstructMapString]() *Type {
+	var ret Type
+
+	switch any(ret).(type) {
+	// insertion point for generic get functions
+	case map[string]*Ladybug:
+		return any(&Stage.Ladybugs_mapString).(*Type)
+	case map[string]*LadybugSimulation:
+		return any(&Stage.LadybugSimulations_mapString).(*Type)
+	case map[string]*UpdatePositionEvent:
+		return any(&Stage.UpdatePositionEvents_mapString).(*Type)
+	case map[string]*UpdateSpeedEvent:
+		return any(&Stage.UpdateSpeedEvents_mapString).(*Type)
+	default:
+		return nil
+	}
+}
 
 // insertion point of enum utility functions
 // Utility function for LadybugStatus

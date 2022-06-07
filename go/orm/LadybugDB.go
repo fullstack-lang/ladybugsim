@@ -297,7 +297,7 @@ func (backRepoLadybug *BackRepoLadybugStruct) CheckoutPhaseOne() (Error error) {
 
 	// list of instances to be removed
 	// start from the initial map on the stage and remove instances that have been checked out
-	ladybugInstancesToBeRemovedFromTheStage := make(map[*models.Ladybug]struct{})
+	ladybugInstancesToBeRemovedFromTheStage := make(map[*models.Ladybug]any)
 	for key, value := range models.Stage.Ladybugs {
 		ladybugInstancesToBeRemovedFromTheStage[key] = value
 	}

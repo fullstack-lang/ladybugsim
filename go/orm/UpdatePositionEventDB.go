@@ -267,7 +267,7 @@ func (backRepoUpdatePositionEvent *BackRepoUpdatePositionEventStruct) CheckoutPh
 
 	// list of instances to be removed
 	// start from the initial map on the stage and remove instances that have been checked out
-	updatepositioneventInstancesToBeRemovedFromTheStage := make(map[*models.UpdatePositionEvent]struct{})
+	updatepositioneventInstancesToBeRemovedFromTheStage := make(map[*models.UpdatePositionEvent]any)
 	for key, value := range models.Stage.UpdatePositionEvents {
 		updatepositioneventInstancesToBeRemovedFromTheStage[key] = value
 	}

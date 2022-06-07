@@ -340,7 +340,7 @@ func (backRepoLadybugSimulation *BackRepoLadybugSimulationStruct) CheckoutPhaseO
 
 	// list of instances to be removed
 	// start from the initial map on the stage and remove instances that have been checked out
-	ladybugsimulationInstancesToBeRemovedFromTheStage := make(map[*models.LadybugSimulation]struct{})
+	ladybugsimulationInstancesToBeRemovedFromTheStage := make(map[*models.LadybugSimulation]any)
 	for key, value := range models.Stage.LadybugSimulations {
 		ladybugsimulationInstancesToBeRemovedFromTheStage[key] = value
 	}
