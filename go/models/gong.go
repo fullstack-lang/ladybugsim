@@ -1119,6 +1119,15 @@ func (stageStruct *StageStruct) CreateReverseMap_LadybugSimulation_Ladybugs() (r
 
 // generate function for reverse association maps of UpdateSpeedEvent
 
+// Gongstruct is the type paramter for generated generic function that allows 
+// - access to staged instances
+// - navigation between staged instances by going backward association links between gongstruct
+// - full refactoring of Gongstruct identifiers / fields
+type Gongstruct interface {
+	// insertion point for generic types
+	Ladybug | LadybugSimulation | UpdatePositionEvent | UpdateSpeedEvent
+}
+
 type GongstructSet interface {
 	map[any]any |
 		// insertion point for generic types
@@ -1178,6 +1187,158 @@ func GongGetMap[Type GongstructMapString]() *Type {
 		return nil
 	}
 }
+
+// GetGongstructInstancesSet returns the set staged GongstructType instances
+// it is usefull because it allows refactoring of gongstruct identifier
+func GetGongstructInstancesSet[Type Gongstruct]() *map[*Type]any {
+	var ret Type
+
+	switch any(ret).(type) {
+	// insertion point for generic get functions
+	case Ladybug:
+		return any(&Stage.Ladybugs).(*map[*Type]any)
+	case LadybugSimulation:
+		return any(&Stage.LadybugSimulations).(*map[*Type]any)
+	case UpdatePositionEvent:
+		return any(&Stage.UpdatePositionEvents).(*map[*Type]any)
+	case UpdateSpeedEvent:
+		return any(&Stage.UpdateSpeedEvents).(*map[*Type]any)
+	default:
+		return nil
+	}
+}
+
+// GetGongstructInstancesMap returns the map of staged GongstructType instances
+// it is usefull because it allows refactoring of gong struct identifier
+func GetGongstructInstancesMap[Type Gongstruct]() *map[string]*Type {
+	var ret Type
+
+	switch any(ret).(type) {
+	// insertion point for generic get functions
+	case Ladybug:
+		return any(&Stage.Ladybugs_mapString).(*map[string]*Type)
+	case LadybugSimulation:
+		return any(&Stage.LadybugSimulations_mapString).(*map[string]*Type)
+	case UpdatePositionEvent:
+		return any(&Stage.UpdatePositionEvents_mapString).(*map[string]*Type)
+	case UpdateSpeedEvent:
+		return any(&Stage.UpdateSpeedEvents_mapString).(*map[string]*Type)
+	default:
+		return nil
+	}
+}
+
+// GetAssociationName is a generic function that returns an instance of Type
+// where each association is filled with an instance whose name is the name of the association
+//
+// This function can be handy for generating navigation function that are refactorable
+func GetAssociationName[Type Gongstruct]() *Type {
+	var ret Type
+
+	switch any(ret).(type) {
+	// insertion point for instance with special fields
+	case Ladybug:
+		return any(&Ladybug{
+			// Initialisation of associations
+		}).(*Type)
+	case LadybugSimulation:
+		return any(&LadybugSimulation{
+			// Initialisation of associations
+			// field is initialized with an instance of Ladybug with the name of the field
+			Ladybugs: []*Ladybug{{Name: "Ladybugs"}},
+		}).(*Type)
+	case UpdatePositionEvent:
+		return any(&UpdatePositionEvent{
+			// Initialisation of associations
+		}).(*Type)
+	case UpdateSpeedEvent:
+		return any(&UpdateSpeedEvent{
+			// Initialisation of associations
+		}).(*Type)
+	default:
+		return nil
+	}
+}
+
+// GetPointerReverseMap allows backtrack navigation of any Start.Fieldname
+// associations (0..1) that is a pointer from one staged Gongstruct (type Start)
+// instances to another (type End)
+//
+// The function provides a map with keys as instances of End and values to arrays of *Start
+// the map is construed by iterating over all Start instances and populationg keys with End instances
+// and values with slice of Start instances
+func GetPointerReverseMap[Start, End Gongstruct](fieldname string) map[*End][]*Start {
+	var ret Start
+
+	switch any(ret).(type) {
+	// insertion point of functions that provide maps for reverse associations
+	// reverse maps of direct associations of Ladybug
+	case Ladybug:
+		switch fieldname {
+		// insertion point for per direct association field
+		}
+	// reverse maps of direct associations of LadybugSimulation
+	case LadybugSimulation:
+		switch fieldname {
+		// insertion point for per direct association field
+		}
+	// reverse maps of direct associations of UpdatePositionEvent
+	case UpdatePositionEvent:
+		switch fieldname {
+		// insertion point for per direct association field
+		}
+	// reverse maps of direct associations of UpdateSpeedEvent
+	case UpdateSpeedEvent:
+		switch fieldname {
+		// insertion point for per direct association field
+		}
+	}
+	return nil
+}
+
+// GetSliceOfPointersReverseMap allows backtrack navigation of any Start.Fieldname
+// associations (0..N) between one staged Gongstruct instances and many others
+//
+// The function provides a map with keys as instances of End and values to *Start instances
+// the map is construed by iterating over all Start instances and populating keys with End instances
+// and values with the Start instances
+func GetSliceOfPointersReverseMap[Start, End Gongstruct](fieldname string) map[*End]*Start {
+	var ret Start
+
+	switch any(ret).(type) {
+	// insertion point of functions that provide maps for reverse associations
+	// reverse maps of direct associations of Ladybug
+	case Ladybug:
+		switch fieldname {
+		// insertion point for per direct association field
+		}
+	// reverse maps of direct associations of LadybugSimulation
+	case LadybugSimulation:
+		switch fieldname {
+		// insertion point for per direct association field
+		case "Ladybugs":
+			res := make(map[*Ladybug]*LadybugSimulation)
+			for ladybugsimulation := range Stage.LadybugSimulations {
+				for _, ladybug_ := range ladybugsimulation.Ladybugs {
+					res[ladybug_] = ladybugsimulation
+				}
+			}
+			return any(res).(map[*End]*Start)
+		}
+	// reverse maps of direct associations of UpdatePositionEvent
+	case UpdatePositionEvent:
+		switch fieldname {
+		// insertion point for per direct association field
+		}
+	// reverse maps of direct associations of UpdateSpeedEvent
+	case UpdateSpeedEvent:
+		switch fieldname {
+		// insertion point for per direct association field
+		}
+	}
+	return nil
+}
+
 
 // insertion point of enum utility functions
 // Utility function for LadybugStatus
