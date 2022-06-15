@@ -252,31 +252,6 @@ func (ladybug *Ladybug) GetName() (res string) {
 	return ladybug.Name
 }
 
-func (ladybug *Ladybug) GetFields() (res []string) {
-	// list of fields
-	res = []string{"TechName", "Name", "Id", "Position", "Speed", "LadybugStatus"}
-	return
-}
-
-func (ladybug *Ladybug) GetFieldStringValue(fieldName string) (res string) {
-	switch fieldName {
-	// string value of fields
-	case "TechName":
-		res = ladybug.TechName
-	case "Name":
-		res = ladybug.Name
-	case "Id":
-		res = fmt.Sprintf("%d", ladybug.Id)
-	case "Position":
-		res = fmt.Sprintf("%f", ladybug.Position)
-	case "Speed":
-		res = fmt.Sprintf("%f", ladybug.Speed)
-	case "LadybugStatus":
-		res = ladybug.LadybugStatus.ToCodeString()
-	}
-	return
-}
-
 func (stage *StageStruct) getLadybugSimulationOrderedStructWithNameField() []*LadybugSimulation {
 	// have alphabetical order generation
 	ladybugsimulationOrdered := []*LadybugSimulation{}
@@ -382,48 +357,6 @@ func DeleteORMLadybugSimulation(ladybugsimulation *LadybugSimulation) {
 // for satisfaction of GongStruct interface
 func (ladybugsimulation *LadybugSimulation) GetName() (res string) {
 	return ladybugsimulation.Name
-}
-
-func (ladybugsimulation *LadybugSimulation) GetFields() (res []string) {
-	// list of fields
-	res = []string{"Name", "EventNb", "NbOfCollision", "LadybugRadius", "AbsoluteSpeed", "SimulationStep", "MaxDistanceInOneStep", "NbLadybugs", "NbLadybugsOnTheGround", "LeftRelayInitialPosX", "RightRelayInitialPosX", "Ladybugs"}
-	return
-}
-
-func (ladybugsimulation *LadybugSimulation) GetFieldStringValue(fieldName string) (res string) {
-	switch fieldName {
-	// string value of fields
-	case "Name":
-		res = ladybugsimulation.Name
-	case "EventNb":
-		res = fmt.Sprintf("%d", ladybugsimulation.EventNb)
-	case "NbOfCollision":
-		res = fmt.Sprintf("%d", ladybugsimulation.NbOfCollision)
-	case "LadybugRadius":
-		res = fmt.Sprintf("%f", ladybugsimulation.LadybugRadius)
-	case "AbsoluteSpeed":
-		res = fmt.Sprintf("%f", ladybugsimulation.AbsoluteSpeed)
-	case "SimulationStep":
-		res = fmt.Sprintf("%d", ladybugsimulation.SimulationStep)
-	case "MaxDistanceInOneStep":
-		res = fmt.Sprintf("%f", ladybugsimulation.MaxDistanceInOneStep)
-	case "NbLadybugs":
-		res = fmt.Sprintf("%d", ladybugsimulation.NbLadybugs)
-	case "NbLadybugsOnTheGround":
-		res = fmt.Sprintf("%d", ladybugsimulation.NbLadybugsOnTheGround)
-	case "LeftRelayInitialPosX":
-		res = fmt.Sprintf("%f", ladybugsimulation.LeftRelayInitialPosX)
-	case "RightRelayInitialPosX":
-		res = fmt.Sprintf("%f", ladybugsimulation.RightRelayInitialPosX)
-	case "Ladybugs":
-		for idx, __instance__ := range ladybugsimulation.Ladybugs {
-			if idx > 0 {
-				res += "\n"
-			}
-			res += __instance__.Name
-		}
-	}
-	return
 }
 
 func (stage *StageStruct) getUpdatePositionEventOrderedStructWithNameField() []*UpdatePositionEvent {
@@ -533,23 +466,6 @@ func (updatepositionevent *UpdatePositionEvent) GetName() (res string) {
 	return updatepositionevent.Name
 }
 
-func (updatepositionevent *UpdatePositionEvent) GetFields() (res []string) {
-	// list of fields
-	res = []string{"Name", "Duration"}
-	return
-}
-
-func (updatepositionevent *UpdatePositionEvent) GetFieldStringValue(fieldName string) (res string) {
-	switch fieldName {
-	// string value of fields
-	case "Name":
-		res = updatepositionevent.Name
-	case "Duration":
-		res = fmt.Sprintf("%d", updatepositionevent.Duration)
-	}
-	return
-}
-
 func (stage *StageStruct) getUpdateSpeedEventOrderedStructWithNameField() []*UpdateSpeedEvent {
 	// have alphabetical order generation
 	updatespeedeventOrdered := []*UpdateSpeedEvent{}
@@ -655,23 +571,6 @@ func DeleteORMUpdateSpeedEvent(updatespeedevent *UpdateSpeedEvent) {
 // for satisfaction of GongStruct interface
 func (updatespeedevent *UpdateSpeedEvent) GetName() (res string) {
 	return updatespeedevent.Name
-}
-
-func (updatespeedevent *UpdateSpeedEvent) GetFields() (res []string) {
-	// list of fields
-	res = []string{"Name", "Duration"}
-	return
-}
-
-func (updatespeedevent *UpdateSpeedEvent) GetFieldStringValue(fieldName string) (res string) {
-	switch fieldName {
-	// string value of fields
-	case "Name":
-		res = updatespeedevent.Name
-	case "Duration":
-		res = fmt.Sprintf("%d", updatespeedevent.Duration)
-	}
-	return
 }
 
 // swagger:ignore
@@ -803,7 +702,7 @@ func (stage *StageStruct) Marshall(file *os.File, modelsPackageName, packageName
 	sort.Slice(ladybugOrdered[:], func(i, j int) bool {
 		return ladybugOrdered[i].Name < ladybugOrdered[j].Name
 	})
-	identifiersDecl += fmt.Sprintf("\n\n	// Declarations of staged instances of Ladybug")
+	identifiersDecl += "\n\n	// Declarations of staged instances of Ladybug"
 	for idx, ladybug := range ladybugOrdered {
 
 		id = generatesIdentifier("Ladybug", idx, ladybug.Name)
@@ -867,7 +766,7 @@ func (stage *StageStruct) Marshall(file *os.File, modelsPackageName, packageName
 	sort.Slice(ladybugsimulationOrdered[:], func(i, j int) bool {
 		return ladybugsimulationOrdered[i].Name < ladybugsimulationOrdered[j].Name
 	})
-	identifiersDecl += fmt.Sprintf("\n\n	// Declarations of staged instances of LadybugSimulation")
+	identifiersDecl += "\n\n	// Declarations of staged instances of LadybugSimulation"
 	for idx, ladybugsimulation := range ladybugsimulationOrdered {
 
 		id = generatesIdentifier("LadybugSimulation", idx, ladybugsimulation.Name)
@@ -959,7 +858,7 @@ func (stage *StageStruct) Marshall(file *os.File, modelsPackageName, packageName
 	sort.Slice(updatepositioneventOrdered[:], func(i, j int) bool {
 		return updatepositioneventOrdered[i].Name < updatepositioneventOrdered[j].Name
 	})
-	identifiersDecl += fmt.Sprintf("\n\n	// Declarations of staged instances of UpdatePositionEvent")
+	identifiersDecl += "\n\n	// Declarations of staged instances of UpdatePositionEvent"
 	for idx, updatepositionevent := range updatepositioneventOrdered {
 
 		id = generatesIdentifier("UpdatePositionEvent", idx, updatepositionevent.Name)
@@ -997,7 +896,7 @@ func (stage *StageStruct) Marshall(file *os.File, modelsPackageName, packageName
 	sort.Slice(updatespeedeventOrdered[:], func(i, j int) bool {
 		return updatespeedeventOrdered[i].Name < updatespeedeventOrdered[j].Name
 	})
-	identifiersDecl += fmt.Sprintf("\n\n	// Declarations of staged instances of UpdateSpeedEvent")
+	identifiersDecl += "\n\n	// Declarations of staged instances of UpdateSpeedEvent"
 	for idx, updatespeedevent := range updatespeedeventOrdered {
 
 		id = generatesIdentifier("UpdateSpeedEvent", idx, updatespeedevent.Name)
@@ -1119,7 +1018,7 @@ func (stageStruct *StageStruct) CreateReverseMap_LadybugSimulation_Ladybugs() (r
 
 // generate function for reverse association maps of UpdateSpeedEvent
 
-// Gongstruct is the type paramter for generated generic function that allows 
+// Gongstruct is the type paramter for generated generic function that allows
 // - access to staged instances
 // - navigation between staged instances by going backward association links between gongstruct
 // - full refactoring of Gongstruct identifiers / fields
@@ -1339,6 +1238,119 @@ func GetSliceOfPointersReverseMap[Start, End Gongstruct](fieldname string) map[*
 	return nil
 }
 
+// GetGongstructName returns the name of the Gongstruct
+// this can be usefull if one want program robust to refactoring
+func GetGongstructName[Type Gongstruct]() (res string) {
+
+	var ret Type
+
+	switch any(ret).(type) {
+	// insertion point for generic get gongstruct name
+	case Ladybug:
+		res = "Ladybug"
+	case LadybugSimulation:
+		res = "LadybugSimulation"
+	case UpdatePositionEvent:
+		res = "UpdatePositionEvent"
+	case UpdateSpeedEvent:
+		res = "UpdateSpeedEvent"
+	}
+	return res
+}
+
+// GetFields return the array of the fields
+func GetFields[Type Gongstruct]() (res []string) {
+
+	var ret Type
+
+	switch any(ret).(type) {
+	// insertion point for generic get gongstruct name
+	case Ladybug:
+		res = []string{"TechName", "Name", "Id", "Position", "Speed", "LadybugStatus"}
+	case LadybugSimulation:
+		res = []string{"Name", "EventNb", "NbOfCollision", "LadybugRadius", "AbsoluteSpeed", "SimulationStep", "MaxDistanceInOneStep", "NbLadybugs", "NbLadybugsOnTheGround", "LeftRelayInitialPosX", "RightRelayInitialPosX", "Ladybugs"}
+	case UpdatePositionEvent:
+		res = []string{"Name", "Duration"}
+	case UpdateSpeedEvent:
+		res = []string{"Name", "Duration"}
+	}
+	return
+}
+
+func GetFieldStringValue[Type Gongstruct](instance Type, fieldName string) (res string) {
+	var ret Type
+
+	switch any(ret).(type) {
+	// insertion point for generic get gongstruct field value
+	case Ladybug:
+		switch fieldName {
+		// string value of fields
+		case "TechName":
+			res = any(instance).(Ladybug).TechName
+		case "Name":
+			res = any(instance).(Ladybug).Name
+		case "Id":
+			res = fmt.Sprintf("%d", any(instance).(Ladybug).Id)
+		case "Position":
+			res = fmt.Sprintf("%f", any(instance).(Ladybug).Position)
+		case "Speed":
+			res = fmt.Sprintf("%f", any(instance).(Ladybug).Speed)
+		case "LadybugStatus":
+			enum := any(instance).(Ladybug).LadybugStatus
+			res = enum.ToCodeString()
+		}
+	case LadybugSimulation:
+		switch fieldName {
+		// string value of fields
+		case "Name":
+			res = any(instance).(LadybugSimulation).Name
+		case "EventNb":
+			res = fmt.Sprintf("%d", any(instance).(LadybugSimulation).EventNb)
+		case "NbOfCollision":
+			res = fmt.Sprintf("%d", any(instance).(LadybugSimulation).NbOfCollision)
+		case "LadybugRadius":
+			res = fmt.Sprintf("%f", any(instance).(LadybugSimulation).LadybugRadius)
+		case "AbsoluteSpeed":
+			res = fmt.Sprintf("%f", any(instance).(LadybugSimulation).AbsoluteSpeed)
+		case "SimulationStep":
+			res = fmt.Sprintf("%d", any(instance).(LadybugSimulation).SimulationStep)
+		case "MaxDistanceInOneStep":
+			res = fmt.Sprintf("%f", any(instance).(LadybugSimulation).MaxDistanceInOneStep)
+		case "NbLadybugs":
+			res = fmt.Sprintf("%d", any(instance).(LadybugSimulation).NbLadybugs)
+		case "NbLadybugsOnTheGround":
+			res = fmt.Sprintf("%d", any(instance).(LadybugSimulation).NbLadybugsOnTheGround)
+		case "LeftRelayInitialPosX":
+			res = fmt.Sprintf("%f", any(instance).(LadybugSimulation).LeftRelayInitialPosX)
+		case "RightRelayInitialPosX":
+			res = fmt.Sprintf("%f", any(instance).(LadybugSimulation).RightRelayInitialPosX)
+		case "Ladybugs":
+			for idx, __instance__ := range any(instance).(LadybugSimulation).Ladybugs {
+				if idx > 0 {
+					res += "\n"
+				}
+				res += __instance__.Name
+			}
+		}
+	case UpdatePositionEvent:
+		switch fieldName {
+		// string value of fields
+		case "Name":
+			res = any(instance).(UpdatePositionEvent).Name
+		case "Duration":
+			res = fmt.Sprintf("%d", any(instance).(UpdatePositionEvent).Duration)
+		}
+	case UpdateSpeedEvent:
+		switch fieldName {
+		// string value of fields
+		case "Name":
+			res = any(instance).(UpdateSpeedEvent).Name
+		case "Duration":
+			res = fmt.Sprintf("%d", any(instance).(UpdateSpeedEvent).Duration)
+		}
+	}
+	return
+}
 
 // insertion point of enum utility functions
 // Utility function for LadybugStatus
