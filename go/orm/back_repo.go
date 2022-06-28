@@ -23,10 +23,6 @@ type BackRepoStruct struct {
 
 	BackRepoLadybugSimulation BackRepoLadybugSimulationStruct
 
-	BackRepoUpdatePositionEvent BackRepoUpdatePositionEventStruct
-
-	BackRepoUpdateSpeedEvent BackRepoUpdateSpeedEventStruct
-
 	CommitFromBackNb uint // this ng is updated at the BackRepo level but also at the BackRepo<GongStruct> level
 
 	PushFromFrontNb uint // records increments from push from front
@@ -67,8 +63,6 @@ func (backRepo *BackRepoStruct) init(db *gorm.DB) {
 	// insertion point for per struct back repo declarations
 	backRepo.BackRepoLadybug.Init(db)
 	backRepo.BackRepoLadybugSimulation.Init(db)
-	backRepo.BackRepoUpdatePositionEvent.Init(db)
-	backRepo.BackRepoUpdateSpeedEvent.Init(db)
 
 	models.Stage.BackRepo = backRepo
 }
@@ -78,14 +72,10 @@ func (backRepo *BackRepoStruct) Commit(stage *models.StageStruct) {
 	// insertion point for per struct back repo phase one commit
 	backRepo.BackRepoLadybug.CommitPhaseOne(stage)
 	backRepo.BackRepoLadybugSimulation.CommitPhaseOne(stage)
-	backRepo.BackRepoUpdatePositionEvent.CommitPhaseOne(stage)
-	backRepo.BackRepoUpdateSpeedEvent.CommitPhaseOne(stage)
 
 	// insertion point for per struct back repo phase two commit
 	backRepo.BackRepoLadybug.CommitPhaseTwo(backRepo)
 	backRepo.BackRepoLadybugSimulation.CommitPhaseTwo(backRepo)
-	backRepo.BackRepoUpdatePositionEvent.CommitPhaseTwo(backRepo)
-	backRepo.BackRepoUpdateSpeedEvent.CommitPhaseTwo(backRepo)
 
 	backRepo.IncrementCommitFromBackNb()
 }
@@ -95,14 +85,10 @@ func (backRepo *BackRepoStruct) Checkout(stage *models.StageStruct) {
 	// insertion point for per struct back repo phase one commit
 	backRepo.BackRepoLadybug.CheckoutPhaseOne()
 	backRepo.BackRepoLadybugSimulation.CheckoutPhaseOne()
-	backRepo.BackRepoUpdatePositionEvent.CheckoutPhaseOne()
-	backRepo.BackRepoUpdateSpeedEvent.CheckoutPhaseOne()
 
 	// insertion point for per struct back repo phase two commit
 	backRepo.BackRepoLadybug.CheckoutPhaseTwo(backRepo)
 	backRepo.BackRepoLadybugSimulation.CheckoutPhaseTwo(backRepo)
-	backRepo.BackRepoUpdatePositionEvent.CheckoutPhaseTwo(backRepo)
-	backRepo.BackRepoUpdateSpeedEvent.CheckoutPhaseTwo(backRepo)
 }
 
 var BackRepo BackRepoStruct
@@ -122,8 +108,6 @@ func (backRepo *BackRepoStruct) Backup(stage *models.StageStruct, dirPath string
 	// insertion point for per struct backup
 	backRepo.BackRepoLadybug.Backup(dirPath)
 	backRepo.BackRepoLadybugSimulation.Backup(dirPath)
-	backRepo.BackRepoUpdatePositionEvent.Backup(dirPath)
-	backRepo.BackRepoUpdateSpeedEvent.Backup(dirPath)
 }
 
 // Backup in XL the BackRepoStruct
@@ -136,8 +120,6 @@ func (backRepo *BackRepoStruct) BackupXL(stage *models.StageStruct, dirPath stri
 	// insertion point for per struct backup
 	backRepo.BackRepoLadybug.BackupXL(file)
 	backRepo.BackRepoLadybugSimulation.BackupXL(file)
-	backRepo.BackRepoUpdatePositionEvent.BackupXL(file)
-	backRepo.BackRepoUpdateSpeedEvent.BackupXL(file)
 
 	var b bytes.Buffer
 	writer := bufio.NewWriter(&b)
@@ -164,8 +146,6 @@ func (backRepo *BackRepoStruct) Restore(stage *models.StageStruct, dirPath strin
 	// insertion point for per struct backup
 	backRepo.BackRepoLadybug.RestorePhaseOne(dirPath)
 	backRepo.BackRepoLadybugSimulation.RestorePhaseOne(dirPath)
-	backRepo.BackRepoUpdatePositionEvent.RestorePhaseOne(dirPath)
-	backRepo.BackRepoUpdateSpeedEvent.RestorePhaseOne(dirPath)
 
 	//
 	// restauration second phase (reindex pointers with the new ID)
@@ -174,8 +154,6 @@ func (backRepo *BackRepoStruct) Restore(stage *models.StageStruct, dirPath strin
 	// insertion point for per struct backup
 	backRepo.BackRepoLadybug.RestorePhaseTwo()
 	backRepo.BackRepoLadybugSimulation.RestorePhaseTwo()
-	backRepo.BackRepoUpdatePositionEvent.RestorePhaseTwo()
-	backRepo.BackRepoUpdateSpeedEvent.RestorePhaseTwo()
 
 	models.Stage.Checkout()
 }
@@ -204,8 +182,6 @@ func (backRepo *BackRepoStruct) RestoreXL(stage *models.StageStruct, dirPath str
 	// insertion point for per struct backup
 	backRepo.BackRepoLadybug.RestoreXLPhaseOne(file)
 	backRepo.BackRepoLadybugSimulation.RestoreXLPhaseOne(file)
-	backRepo.BackRepoUpdatePositionEvent.RestoreXLPhaseOne(file)
-	backRepo.BackRepoUpdateSpeedEvent.RestoreXLPhaseOne(file)
 
 	// commit the restored stage
 	models.Stage.Commit()

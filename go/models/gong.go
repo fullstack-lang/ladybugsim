@@ -34,12 +34,6 @@ type StageStruct struct { // insertion point for definition of arrays registerin
 	LadybugSimulations           map[*LadybugSimulation]any
 	LadybugSimulations_mapString map[string]*LadybugSimulation
 
-	UpdatePositionEvents           map[*UpdatePositionEvent]any
-	UpdatePositionEvents_mapString map[string]*UpdatePositionEvent
-
-	UpdateSpeedEvents           map[*UpdateSpeedEvent]any
-	UpdateSpeedEvents_mapString map[string]*UpdateSpeedEvent
-
 	AllModelsStructCreateCallback AllModelsStructCreateInterface
 
 	AllModelsStructDeleteCallback AllModelsStructDeleteInterface
@@ -71,10 +65,6 @@ type BackRepoInterface interface {
 	CheckoutLadybug(ladybug *Ladybug)
 	CommitLadybugSimulation(ladybugsimulation *LadybugSimulation)
 	CheckoutLadybugSimulation(ladybugsimulation *LadybugSimulation)
-	CommitUpdatePositionEvent(updatepositionevent *UpdatePositionEvent)
-	CheckoutUpdatePositionEvent(updatepositionevent *UpdatePositionEvent)
-	CommitUpdateSpeedEvent(updatespeedevent *UpdateSpeedEvent)
-	CheckoutUpdateSpeedEvent(updatespeedevent *UpdateSpeedEvent)
 	GetLastCommitFromBackNb() uint
 	GetLastPushFromFrontNb() uint
 }
@@ -86,12 +76,6 @@ var Stage StageStruct = StageStruct{ // insertion point for array initiatialisat
 
 	LadybugSimulations:           make(map[*LadybugSimulation]any),
 	LadybugSimulations_mapString: make(map[string]*LadybugSimulation),
-
-	UpdatePositionEvents:           make(map[*UpdatePositionEvent]any),
-	UpdatePositionEvents_mapString: make(map[string]*UpdatePositionEvent),
-
-	UpdateSpeedEvents:           make(map[*UpdateSpeedEvent]any),
-	UpdateSpeedEvents_mapString: make(map[string]*UpdateSpeedEvent),
 
 	// end of insertion point
 	Map_GongStructName_InstancesNb: make(map[string]int),
@@ -105,8 +89,6 @@ func (stage *StageStruct) Commit() {
 	// insertion point for computing the map of number of instances per gongstruct
 	stage.Map_GongStructName_InstancesNb["Ladybug"] = len(stage.Ladybugs)
 	stage.Map_GongStructName_InstancesNb["LadybugSimulation"] = len(stage.LadybugSimulations)
-	stage.Map_GongStructName_InstancesNb["UpdatePositionEvent"] = len(stage.UpdatePositionEvents)
-	stage.Map_GongStructName_InstancesNb["UpdateSpeedEvent"] = len(stage.UpdateSpeedEvents)
 
 }
 
@@ -114,6 +96,11 @@ func (stage *StageStruct) Checkout() {
 	if stage.BackRepo != nil {
 		stage.BackRepo.Checkout(stage)
 	}
+
+	// insertion point for computing the map of number of instances per gongstruct
+	stage.Map_GongStructName_InstancesNb["Ladybug"] = len(stage.Ladybugs)
+	stage.Map_GongStructName_InstancesNb["LadybugSimulation"] = len(stage.LadybugSimulations)
+
 }
 
 // backup generates backup files in the dirPath
@@ -359,233 +346,15 @@ func (ladybugsimulation *LadybugSimulation) GetName() (res string) {
 	return ladybugsimulation.Name
 }
 
-func (stage *StageStruct) getUpdatePositionEventOrderedStructWithNameField() []*UpdatePositionEvent {
-	// have alphabetical order generation
-	updatepositioneventOrdered := []*UpdatePositionEvent{}
-	for updatepositionevent := range stage.UpdatePositionEvents {
-		updatepositioneventOrdered = append(updatepositioneventOrdered, updatepositionevent)
-	}
-	sort.Slice(updatepositioneventOrdered[:], func(i, j int) bool {
-		return updatepositioneventOrdered[i].Name < updatepositioneventOrdered[j].Name
-	})
-	return updatepositioneventOrdered
-}
-
-// Stage puts updatepositionevent to the model stage
-func (updatepositionevent *UpdatePositionEvent) Stage() *UpdatePositionEvent {
-	Stage.UpdatePositionEvents[updatepositionevent] = __member
-	Stage.UpdatePositionEvents_mapString[updatepositionevent.Name] = updatepositionevent
-
-	return updatepositionevent
-}
-
-// Unstage removes updatepositionevent off the model stage
-func (updatepositionevent *UpdatePositionEvent) Unstage() *UpdatePositionEvent {
-	delete(Stage.UpdatePositionEvents, updatepositionevent)
-	delete(Stage.UpdatePositionEvents_mapString, updatepositionevent.Name)
-	return updatepositionevent
-}
-
-// commit updatepositionevent to the back repo (if it is already staged)
-func (updatepositionevent *UpdatePositionEvent) Commit() *UpdatePositionEvent {
-	if _, ok := Stage.UpdatePositionEvents[updatepositionevent]; ok {
-		if Stage.BackRepo != nil {
-			Stage.BackRepo.CommitUpdatePositionEvent(updatepositionevent)
-		}
-	}
-	return updatepositionevent
-}
-
-// Checkout updatepositionevent to the back repo (if it is already staged)
-func (updatepositionevent *UpdatePositionEvent) Checkout() *UpdatePositionEvent {
-	if _, ok := Stage.UpdatePositionEvents[updatepositionevent]; ok {
-		if Stage.BackRepo != nil {
-			Stage.BackRepo.CheckoutUpdatePositionEvent(updatepositionevent)
-		}
-	}
-	return updatepositionevent
-}
-
-//
-// Legacy, to be deleted
-//
-
-// StageCopy appends a copy of updatepositionevent to the model stage
-func (updatepositionevent *UpdatePositionEvent) StageCopy() *UpdatePositionEvent {
-	_updatepositionevent := new(UpdatePositionEvent)
-	*_updatepositionevent = *updatepositionevent
-	_updatepositionevent.Stage()
-	return _updatepositionevent
-}
-
-// StageAndCommit appends updatepositionevent to the model stage and commit to the orm repo
-func (updatepositionevent *UpdatePositionEvent) StageAndCommit() *UpdatePositionEvent {
-	updatepositionevent.Stage()
-	if Stage.AllModelsStructCreateCallback != nil {
-		Stage.AllModelsStructCreateCallback.CreateORMUpdatePositionEvent(updatepositionevent)
-	}
-	return updatepositionevent
-}
-
-// DeleteStageAndCommit appends updatepositionevent to the model stage and commit to the orm repo
-func (updatepositionevent *UpdatePositionEvent) DeleteStageAndCommit() *UpdatePositionEvent {
-	updatepositionevent.Unstage()
-	DeleteORMUpdatePositionEvent(updatepositionevent)
-	return updatepositionevent
-}
-
-// StageCopyAndCommit appends a copy of updatepositionevent to the model stage and commit to the orm repo
-func (updatepositionevent *UpdatePositionEvent) StageCopyAndCommit() *UpdatePositionEvent {
-	_updatepositionevent := new(UpdatePositionEvent)
-	*_updatepositionevent = *updatepositionevent
-	_updatepositionevent.Stage()
-	if Stage.AllModelsStructCreateCallback != nil {
-		Stage.AllModelsStructCreateCallback.CreateORMUpdatePositionEvent(updatepositionevent)
-	}
-	return _updatepositionevent
-}
-
-// CreateORMUpdatePositionEvent enables dynamic staging of a UpdatePositionEvent instance
-func CreateORMUpdatePositionEvent(updatepositionevent *UpdatePositionEvent) {
-	updatepositionevent.Stage()
-	if Stage.AllModelsStructCreateCallback != nil {
-		Stage.AllModelsStructCreateCallback.CreateORMUpdatePositionEvent(updatepositionevent)
-	}
-}
-
-// DeleteORMUpdatePositionEvent enables dynamic staging of a UpdatePositionEvent instance
-func DeleteORMUpdatePositionEvent(updatepositionevent *UpdatePositionEvent) {
-	updatepositionevent.Unstage()
-	if Stage.AllModelsStructDeleteCallback != nil {
-		Stage.AllModelsStructDeleteCallback.DeleteORMUpdatePositionEvent(updatepositionevent)
-	}
-}
-
-// for satisfaction of GongStruct interface
-func (updatepositionevent *UpdatePositionEvent) GetName() (res string) {
-	return updatepositionevent.Name
-}
-
-func (stage *StageStruct) getUpdateSpeedEventOrderedStructWithNameField() []*UpdateSpeedEvent {
-	// have alphabetical order generation
-	updatespeedeventOrdered := []*UpdateSpeedEvent{}
-	for updatespeedevent := range stage.UpdateSpeedEvents {
-		updatespeedeventOrdered = append(updatespeedeventOrdered, updatespeedevent)
-	}
-	sort.Slice(updatespeedeventOrdered[:], func(i, j int) bool {
-		return updatespeedeventOrdered[i].Name < updatespeedeventOrdered[j].Name
-	})
-	return updatespeedeventOrdered
-}
-
-// Stage puts updatespeedevent to the model stage
-func (updatespeedevent *UpdateSpeedEvent) Stage() *UpdateSpeedEvent {
-	Stage.UpdateSpeedEvents[updatespeedevent] = __member
-	Stage.UpdateSpeedEvents_mapString[updatespeedevent.Name] = updatespeedevent
-
-	return updatespeedevent
-}
-
-// Unstage removes updatespeedevent off the model stage
-func (updatespeedevent *UpdateSpeedEvent) Unstage() *UpdateSpeedEvent {
-	delete(Stage.UpdateSpeedEvents, updatespeedevent)
-	delete(Stage.UpdateSpeedEvents_mapString, updatespeedevent.Name)
-	return updatespeedevent
-}
-
-// commit updatespeedevent to the back repo (if it is already staged)
-func (updatespeedevent *UpdateSpeedEvent) Commit() *UpdateSpeedEvent {
-	if _, ok := Stage.UpdateSpeedEvents[updatespeedevent]; ok {
-		if Stage.BackRepo != nil {
-			Stage.BackRepo.CommitUpdateSpeedEvent(updatespeedevent)
-		}
-	}
-	return updatespeedevent
-}
-
-// Checkout updatespeedevent to the back repo (if it is already staged)
-func (updatespeedevent *UpdateSpeedEvent) Checkout() *UpdateSpeedEvent {
-	if _, ok := Stage.UpdateSpeedEvents[updatespeedevent]; ok {
-		if Stage.BackRepo != nil {
-			Stage.BackRepo.CheckoutUpdateSpeedEvent(updatespeedevent)
-		}
-	}
-	return updatespeedevent
-}
-
-//
-// Legacy, to be deleted
-//
-
-// StageCopy appends a copy of updatespeedevent to the model stage
-func (updatespeedevent *UpdateSpeedEvent) StageCopy() *UpdateSpeedEvent {
-	_updatespeedevent := new(UpdateSpeedEvent)
-	*_updatespeedevent = *updatespeedevent
-	_updatespeedevent.Stage()
-	return _updatespeedevent
-}
-
-// StageAndCommit appends updatespeedevent to the model stage and commit to the orm repo
-func (updatespeedevent *UpdateSpeedEvent) StageAndCommit() *UpdateSpeedEvent {
-	updatespeedevent.Stage()
-	if Stage.AllModelsStructCreateCallback != nil {
-		Stage.AllModelsStructCreateCallback.CreateORMUpdateSpeedEvent(updatespeedevent)
-	}
-	return updatespeedevent
-}
-
-// DeleteStageAndCommit appends updatespeedevent to the model stage and commit to the orm repo
-func (updatespeedevent *UpdateSpeedEvent) DeleteStageAndCommit() *UpdateSpeedEvent {
-	updatespeedevent.Unstage()
-	DeleteORMUpdateSpeedEvent(updatespeedevent)
-	return updatespeedevent
-}
-
-// StageCopyAndCommit appends a copy of updatespeedevent to the model stage and commit to the orm repo
-func (updatespeedevent *UpdateSpeedEvent) StageCopyAndCommit() *UpdateSpeedEvent {
-	_updatespeedevent := new(UpdateSpeedEvent)
-	*_updatespeedevent = *updatespeedevent
-	_updatespeedevent.Stage()
-	if Stage.AllModelsStructCreateCallback != nil {
-		Stage.AllModelsStructCreateCallback.CreateORMUpdateSpeedEvent(updatespeedevent)
-	}
-	return _updatespeedevent
-}
-
-// CreateORMUpdateSpeedEvent enables dynamic staging of a UpdateSpeedEvent instance
-func CreateORMUpdateSpeedEvent(updatespeedevent *UpdateSpeedEvent) {
-	updatespeedevent.Stage()
-	if Stage.AllModelsStructCreateCallback != nil {
-		Stage.AllModelsStructCreateCallback.CreateORMUpdateSpeedEvent(updatespeedevent)
-	}
-}
-
-// DeleteORMUpdateSpeedEvent enables dynamic staging of a UpdateSpeedEvent instance
-func DeleteORMUpdateSpeedEvent(updatespeedevent *UpdateSpeedEvent) {
-	updatespeedevent.Unstage()
-	if Stage.AllModelsStructDeleteCallback != nil {
-		Stage.AllModelsStructDeleteCallback.DeleteORMUpdateSpeedEvent(updatespeedevent)
-	}
-}
-
-// for satisfaction of GongStruct interface
-func (updatespeedevent *UpdateSpeedEvent) GetName() (res string) {
-	return updatespeedevent.Name
-}
-
 // swagger:ignore
 type AllModelsStructCreateInterface interface { // insertion point for Callbacks on creation
 	CreateORMLadybug(Ladybug *Ladybug)
 	CreateORMLadybugSimulation(LadybugSimulation *LadybugSimulation)
-	CreateORMUpdatePositionEvent(UpdatePositionEvent *UpdatePositionEvent)
-	CreateORMUpdateSpeedEvent(UpdateSpeedEvent *UpdateSpeedEvent)
 }
 
 type AllModelsStructDeleteInterface interface { // insertion point for Callbacks on deletion
 	DeleteORMLadybug(Ladybug *Ladybug)
 	DeleteORMLadybugSimulation(LadybugSimulation *LadybugSimulation)
-	DeleteORMUpdatePositionEvent(UpdatePositionEvent *UpdatePositionEvent)
-	DeleteORMUpdateSpeedEvent(UpdateSpeedEvent *UpdateSpeedEvent)
 }
 
 func (stage *StageStruct) Reset() { // insertion point for array reset
@@ -595,12 +364,6 @@ func (stage *StageStruct) Reset() { // insertion point for array reset
 	stage.LadybugSimulations = make(map[*LadybugSimulation]any)
 	stage.LadybugSimulations_mapString = make(map[string]*LadybugSimulation)
 
-	stage.UpdatePositionEvents = make(map[*UpdatePositionEvent]any)
-	stage.UpdatePositionEvents_mapString = make(map[string]*UpdatePositionEvent)
-
-	stage.UpdateSpeedEvents = make(map[*UpdateSpeedEvent]any)
-	stage.UpdateSpeedEvents_mapString = make(map[string]*UpdateSpeedEvent)
-
 }
 
 func (stage *StageStruct) Nil() { // insertion point for array nil
@@ -609,12 +372,6 @@ func (stage *StageStruct) Nil() { // insertion point for array nil
 
 	stage.LadybugSimulations = nil
 	stage.LadybugSimulations_mapString = nil
-
-	stage.UpdatePositionEvents = nil
-	stage.UpdatePositionEvents_mapString = nil
-
-	stage.UpdateSpeedEvents = nil
-	stage.UpdateSpeedEvents_mapString = nil
 
 }
 
@@ -716,12 +473,6 @@ func (stage *StageStruct) Marshall(file *os.File, modelsPackageName, packageName
 
 		initializerStatements += fmt.Sprintf("\n\n	// Ladybug %s values setup", ladybug.Name)
 		// Initialisation of values
-		setValueField = StringInitStatement
-		setValueField = strings.ReplaceAll(setValueField, "{{Identifier}}", id)
-		setValueField = strings.ReplaceAll(setValueField, "{{GeneratedFieldName}}", "TechName")
-		setValueField = strings.ReplaceAll(setValueField, "{{GeneratedFieldNameValue}}", string(ladybug.TechName))
-		initializerStatements += setValueField
-
 		setValueField = StringInitStatement
 		setValueField = strings.ReplaceAll(setValueField, "{{Identifier}}", id)
 		setValueField = strings.ReplaceAll(setValueField, "{{GeneratedFieldName}}", "Name")
@@ -848,82 +599,6 @@ func (stage *StageStruct) Marshall(file *os.File, modelsPackageName, packageName
 
 	}
 
-	map_UpdatePositionEvent_Identifiers := make(map[*UpdatePositionEvent]string)
-	_ = map_UpdatePositionEvent_Identifiers
-
-	updatepositioneventOrdered := []*UpdatePositionEvent{}
-	for updatepositionevent := range stage.UpdatePositionEvents {
-		updatepositioneventOrdered = append(updatepositioneventOrdered, updatepositionevent)
-	}
-	sort.Slice(updatepositioneventOrdered[:], func(i, j int) bool {
-		return updatepositioneventOrdered[i].Name < updatepositioneventOrdered[j].Name
-	})
-	identifiersDecl += "\n\n	// Declarations of staged instances of UpdatePositionEvent"
-	for idx, updatepositionevent := range updatepositioneventOrdered {
-
-		id = generatesIdentifier("UpdatePositionEvent", idx, updatepositionevent.Name)
-		map_UpdatePositionEvent_Identifiers[updatepositionevent] = id
-
-		decl = IdentifiersDecls
-		decl = strings.ReplaceAll(decl, "{{Identifier}}", id)
-		decl = strings.ReplaceAll(decl, "{{GeneratedStructName}}", "UpdatePositionEvent")
-		decl = strings.ReplaceAll(decl, "{{GeneratedFieldNameValue}}", updatepositionevent.Name)
-		identifiersDecl += decl
-
-		initializerStatements += fmt.Sprintf("\n\n	// UpdatePositionEvent %s values setup", updatepositionevent.Name)
-		// Initialisation of values
-		setValueField = StringInitStatement
-		setValueField = strings.ReplaceAll(setValueField, "{{Identifier}}", id)
-		setValueField = strings.ReplaceAll(setValueField, "{{GeneratedFieldName}}", "Name")
-		setValueField = strings.ReplaceAll(setValueField, "{{GeneratedFieldNameValue}}", string(updatepositionevent.Name))
-		initializerStatements += setValueField
-
-		setValueField = NumberInitStatement
-		setValueField = strings.ReplaceAll(setValueField, "{{Identifier}}", id)
-		setValueField = strings.ReplaceAll(setValueField, "{{GeneratedFieldName}}", "Duration")
-		setValueField = strings.ReplaceAll(setValueField, "{{GeneratedFieldNameValue}}", fmt.Sprintf("%d", updatepositionevent.Duration))
-		initializerStatements += setValueField
-
-	}
-
-	map_UpdateSpeedEvent_Identifiers := make(map[*UpdateSpeedEvent]string)
-	_ = map_UpdateSpeedEvent_Identifiers
-
-	updatespeedeventOrdered := []*UpdateSpeedEvent{}
-	for updatespeedevent := range stage.UpdateSpeedEvents {
-		updatespeedeventOrdered = append(updatespeedeventOrdered, updatespeedevent)
-	}
-	sort.Slice(updatespeedeventOrdered[:], func(i, j int) bool {
-		return updatespeedeventOrdered[i].Name < updatespeedeventOrdered[j].Name
-	})
-	identifiersDecl += "\n\n	// Declarations of staged instances of UpdateSpeedEvent"
-	for idx, updatespeedevent := range updatespeedeventOrdered {
-
-		id = generatesIdentifier("UpdateSpeedEvent", idx, updatespeedevent.Name)
-		map_UpdateSpeedEvent_Identifiers[updatespeedevent] = id
-
-		decl = IdentifiersDecls
-		decl = strings.ReplaceAll(decl, "{{Identifier}}", id)
-		decl = strings.ReplaceAll(decl, "{{GeneratedStructName}}", "UpdateSpeedEvent")
-		decl = strings.ReplaceAll(decl, "{{GeneratedFieldNameValue}}", updatespeedevent.Name)
-		identifiersDecl += decl
-
-		initializerStatements += fmt.Sprintf("\n\n	// UpdateSpeedEvent %s values setup", updatespeedevent.Name)
-		// Initialisation of values
-		setValueField = StringInitStatement
-		setValueField = strings.ReplaceAll(setValueField, "{{Identifier}}", id)
-		setValueField = strings.ReplaceAll(setValueField, "{{GeneratedFieldName}}", "Name")
-		setValueField = strings.ReplaceAll(setValueField, "{{GeneratedFieldNameValue}}", string(updatespeedevent.Name))
-		initializerStatements += setValueField
-
-		setValueField = NumberInitStatement
-		setValueField = strings.ReplaceAll(setValueField, "{{Identifier}}", id)
-		setValueField = strings.ReplaceAll(setValueField, "{{GeneratedFieldName}}", "Duration")
-		setValueField = strings.ReplaceAll(setValueField, "{{GeneratedFieldNameValue}}", fmt.Sprintf("%d", updatespeedevent.Duration))
-		initializerStatements += setValueField
-
-	}
-
 	// insertion initialization of objects to stage
 	for idx, ladybug := range ladybugOrdered {
 		var setPointerField string
@@ -951,26 +626,6 @@ func (stage *StageStruct) Marshall(file *os.File, modelsPackageName, packageName
 			pointersInitializesStatements += setPointerField
 		}
 
-	}
-
-	for idx, updatepositionevent := range updatepositioneventOrdered {
-		var setPointerField string
-		_ = setPointerField
-
-		id = generatesIdentifier("UpdatePositionEvent", idx, updatepositionevent.Name)
-		map_UpdatePositionEvent_Identifiers[updatepositionevent] = id
-
-		// Initialisation of values
-	}
-
-	for idx, updatespeedevent := range updatespeedeventOrdered {
-		var setPointerField string
-		_ = setPointerField
-
-		id = generatesIdentifier("UpdateSpeedEvent", idx, updatespeedevent.Name)
-		map_UpdateSpeedEvent_Identifiers[updatespeedevent] = id
-
-		// Initialisation of values
 	}
 
 	res = strings.ReplaceAll(res, "{{Identifiers}}", identifiersDecl)
@@ -1014,17 +669,13 @@ func (stageStruct *StageStruct) CreateReverseMap_LadybugSimulation_Ladybugs() (r
 }
 
 
-// generate function for reverse association maps of UpdatePositionEvent
-
-// generate function for reverse association maps of UpdateSpeedEvent
-
 // Gongstruct is the type paramter for generated generic function that allows
 // - access to staged instances
 // - navigation between staged instances by going backward association links between gongstruct
 // - full refactoring of Gongstruct identifiers / fields
 type Gongstruct interface {
 	// insertion point for generic types
-	Ladybug | LadybugSimulation | UpdatePositionEvent | UpdateSpeedEvent
+	Ladybug | LadybugSimulation
 }
 
 type GongstructSet interface {
@@ -1032,8 +683,6 @@ type GongstructSet interface {
 		// insertion point for generic types
 		map[*Ladybug]any |
 		map[*LadybugSimulation]any |
-		map[*UpdatePositionEvent]any |
-		map[*UpdateSpeedEvent]any |
 		map[*any]any // because go does not support an extra "|" at the end of type specifications
 }
 
@@ -1042,8 +691,6 @@ type GongstructMapString interface {
 		// insertion point for generic types
 		map[string]*Ladybug |
 		map[string]*LadybugSimulation |
-		map[string]*UpdatePositionEvent |
-		map[string]*UpdateSpeedEvent |
 		map[*any]any // because go does not support an extra "|" at the end of type specifications
 }
 
@@ -1058,10 +705,6 @@ func GongGetSet[Type GongstructSet]() *Type {
 		return any(&Stage.Ladybugs).(*Type)
 	case map[*LadybugSimulation]any:
 		return any(&Stage.LadybugSimulations).(*Type)
-	case map[*UpdatePositionEvent]any:
-		return any(&Stage.UpdatePositionEvents).(*Type)
-	case map[*UpdateSpeedEvent]any:
-		return any(&Stage.UpdateSpeedEvents).(*Type)
 	default:
 		return nil
 	}
@@ -1078,10 +721,6 @@ func GongGetMap[Type GongstructMapString]() *Type {
 		return any(&Stage.Ladybugs_mapString).(*Type)
 	case map[string]*LadybugSimulation:
 		return any(&Stage.LadybugSimulations_mapString).(*Type)
-	case map[string]*UpdatePositionEvent:
-		return any(&Stage.UpdatePositionEvents_mapString).(*Type)
-	case map[string]*UpdateSpeedEvent:
-		return any(&Stage.UpdateSpeedEvents_mapString).(*Type)
 	default:
 		return nil
 	}
@@ -1098,10 +737,6 @@ func GetGongstructInstancesSet[Type Gongstruct]() *map[*Type]any {
 		return any(&Stage.Ladybugs).(*map[*Type]any)
 	case LadybugSimulation:
 		return any(&Stage.LadybugSimulations).(*map[*Type]any)
-	case UpdatePositionEvent:
-		return any(&Stage.UpdatePositionEvents).(*map[*Type]any)
-	case UpdateSpeedEvent:
-		return any(&Stage.UpdateSpeedEvents).(*map[*Type]any)
 	default:
 		return nil
 	}
@@ -1118,10 +753,6 @@ func GetGongstructInstancesMap[Type Gongstruct]() *map[string]*Type {
 		return any(&Stage.Ladybugs_mapString).(*map[string]*Type)
 	case LadybugSimulation:
 		return any(&Stage.LadybugSimulations_mapString).(*map[string]*Type)
-	case UpdatePositionEvent:
-		return any(&Stage.UpdatePositionEvents_mapString).(*map[string]*Type)
-	case UpdateSpeedEvent:
-		return any(&Stage.UpdateSpeedEvents_mapString).(*map[string]*Type)
 	default:
 		return nil
 	}
@@ -1145,14 +776,6 @@ func GetAssociationName[Type Gongstruct]() *Type {
 			// Initialisation of associations
 			// field is initialized with an instance of Ladybug with the name of the field
 			Ladybugs: []*Ladybug{{Name: "Ladybugs"}},
-		}).(*Type)
-	case UpdatePositionEvent:
-		return any(&UpdatePositionEvent{
-			// Initialisation of associations
-		}).(*Type)
-	case UpdateSpeedEvent:
-		return any(&UpdateSpeedEvent{
-			// Initialisation of associations
 		}).(*Type)
 	default:
 		return nil
@@ -1178,16 +801,6 @@ func GetPointerReverseMap[Start, End Gongstruct](fieldname string) map[*End][]*S
 		}
 	// reverse maps of direct associations of LadybugSimulation
 	case LadybugSimulation:
-		switch fieldname {
-		// insertion point for per direct association field
-		}
-	// reverse maps of direct associations of UpdatePositionEvent
-	case UpdatePositionEvent:
-		switch fieldname {
-		// insertion point for per direct association field
-		}
-	// reverse maps of direct associations of UpdateSpeedEvent
-	case UpdateSpeedEvent:
 		switch fieldname {
 		// insertion point for per direct association field
 		}
@@ -1224,16 +837,6 @@ func GetSliceOfPointersReverseMap[Start, End Gongstruct](fieldname string) map[*
 			}
 			return any(res).(map[*End]*Start)
 		}
-	// reverse maps of direct associations of UpdatePositionEvent
-	case UpdatePositionEvent:
-		switch fieldname {
-		// insertion point for per direct association field
-		}
-	// reverse maps of direct associations of UpdateSpeedEvent
-	case UpdateSpeedEvent:
-		switch fieldname {
-		// insertion point for per direct association field
-		}
 	}
 	return nil
 }
@@ -1250,10 +853,6 @@ func GetGongstructName[Type Gongstruct]() (res string) {
 		res = "Ladybug"
 	case LadybugSimulation:
 		res = "LadybugSimulation"
-	case UpdatePositionEvent:
-		res = "UpdatePositionEvent"
-	case UpdateSpeedEvent:
-		res = "UpdateSpeedEvent"
 	}
 	return res
 }
@@ -1266,13 +865,9 @@ func GetFields[Type Gongstruct]() (res []string) {
 	switch any(ret).(type) {
 	// insertion point for generic get gongstruct name
 	case Ladybug:
-		res = []string{"TechName", "Name", "Id", "Position", "Speed", "LadybugStatus"}
+		res = []string{"Name", "Id", "Position", "Speed", "LadybugStatus"}
 	case LadybugSimulation:
 		res = []string{"Name", "EventNb", "NbOfCollision", "LadybugRadius", "AbsoluteSpeed", "SimulationStep", "MaxDistanceInOneStep", "NbLadybugs", "NbLadybugsOnTheGround", "LeftRelayInitialPosX", "RightRelayInitialPosX", "Ladybugs"}
-	case UpdatePositionEvent:
-		res = []string{"Name", "Duration"}
-	case UpdateSpeedEvent:
-		res = []string{"Name", "Duration"}
 	}
 	return
 }
@@ -1285,8 +880,6 @@ func GetFieldStringValue[Type Gongstruct](instance Type, fieldName string) (res 
 	case Ladybug:
 		switch fieldName {
 		// string value of fields
-		case "TechName":
-			res = any(instance).(Ladybug).TechName
 		case "Name":
 			res = any(instance).(Ladybug).Name
 		case "Id":
@@ -1331,22 +924,6 @@ func GetFieldStringValue[Type Gongstruct](instance Type, fieldName string) (res 
 				}
 				res += __instance__.Name
 			}
-		}
-	case UpdatePositionEvent:
-		switch fieldName {
-		// string value of fields
-		case "Name":
-			res = any(instance).(UpdatePositionEvent).Name
-		case "Duration":
-			res = fmt.Sprintf("%d", any(instance).(UpdatePositionEvent).Duration)
-		}
-	case UpdateSpeedEvent:
-		switch fieldName {
-		// string value of fields
-		case "Name":
-			res = any(instance).(UpdateSpeedEvent).Name
-		case "Duration":
-			res = fmt.Sprintf("%d", any(instance).(UpdateSpeedEvent).Duration)
 		}
 	}
 	return

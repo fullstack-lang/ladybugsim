@@ -64,22 +64,19 @@ type LadybugDB struct {
 
 	// insertion for basic fields declaration
 
-	// Declation for basic field ladybugDB.TechName {{BasicKind}} (to be completed)
-	TechName_Data sql.NullString
-
-	// Declation for basic field ladybugDB.Name {{BasicKind}} (to be completed)
+	// Declation for basic field ladybugDB.Name
 	Name_Data sql.NullString
 
-	// Declation for basic field ladybugDB.Id {{BasicKind}} (to be completed)
+	// Declation for basic field ladybugDB.Id
 	Id_Data sql.NullInt64
 
-	// Declation for basic field ladybugDB.Position {{BasicKind}} (to be completed)
+	// Declation for basic field ladybugDB.Position
 	Position_Data sql.NullFloat64
 
-	// Declation for basic field ladybugDB.Speed {{BasicKind}} (to be completed)
+	// Declation for basic field ladybugDB.Speed
 	Speed_Data sql.NullFloat64
 
-	// Declation for basic field ladybugDB.LadybugStatus {{BasicKind}} (to be completed)
+	// Declation for basic field ladybugDB.LadybugStatus
 	LadybugStatus_Data sql.NullString
 	// encoding of pointers
 	LadybugPointersEnconding
@@ -102,24 +99,21 @@ type LadybugWOP struct {
 
 	// insertion for WOP basic fields
 
-	TechName string `xlsx:"1"`
+	Name string `xlsx:"1"`
 
-	Name string `xlsx:"2"`
+	Id int `xlsx:"2"`
 
-	Id int `xlsx:"3"`
+	Position float64 `xlsx:"3"`
 
-	Position float64 `xlsx:"4"`
+	Speed float64 `xlsx:"4"`
 
-	Speed float64 `xlsx:"5"`
-
-	LadybugStatus models.LadybugStatus `xlsx:"6"`
+	LadybugStatus models.LadybugStatus `xlsx:"5"`
 	// insertion for WOP pointer fields
 }
 
 var Ladybug_Fields = []string{
 	// insertion for WOP basic fields
 	"ID",
-	"TechName",
 	"Name",
 	"Id",
 	"Position",
@@ -406,9 +400,6 @@ func (backRepo *BackRepoStruct) CheckoutLadybug(ladybug *models.Ladybug) {
 func (ladybugDB *LadybugDB) CopyBasicFieldsFromLadybug(ladybug *models.Ladybug) {
 	// insertion point for fields commit
 
-	ladybugDB.TechName_Data.String = ladybug.TechName
-	ladybugDB.TechName_Data.Valid = true
-
 	ladybugDB.Name_Data.String = ladybug.Name
 	ladybugDB.Name_Data.Valid = true
 
@@ -429,9 +420,6 @@ func (ladybugDB *LadybugDB) CopyBasicFieldsFromLadybug(ladybug *models.Ladybug) 
 func (ladybugDB *LadybugDB) CopyBasicFieldsFromLadybugWOP(ladybug *LadybugWOP) {
 	// insertion point for fields commit
 
-	ladybugDB.TechName_Data.String = ladybug.TechName
-	ladybugDB.TechName_Data.Valid = true
-
 	ladybugDB.Name_Data.String = ladybug.Name
 	ladybugDB.Name_Data.Valid = true
 
@@ -451,7 +439,6 @@ func (ladybugDB *LadybugDB) CopyBasicFieldsFromLadybugWOP(ladybug *LadybugWOP) {
 // CopyBasicFieldsToLadybug
 func (ladybugDB *LadybugDB) CopyBasicFieldsToLadybug(ladybug *models.Ladybug) {
 	// insertion point for checkout of basic fields (back repo to stage)
-	ladybug.TechName = ladybugDB.TechName_Data.String
 	ladybug.Name = ladybugDB.Name_Data.String
 	ladybug.Id = int(ladybugDB.Id_Data.Int64)
 	ladybug.Position = ladybugDB.Position_Data.Float64
@@ -463,7 +450,6 @@ func (ladybugDB *LadybugDB) CopyBasicFieldsToLadybug(ladybug *models.Ladybug) {
 func (ladybugDB *LadybugDB) CopyBasicFieldsToLadybugWOP(ladybug *LadybugWOP) {
 	ladybug.ID = int(ladybugDB.ID)
 	// insertion point for checkout of basic fields (back repo to stage)
-	ladybug.TechName = ladybugDB.TechName_Data.String
 	ladybug.Name = ladybugDB.Name_Data.String
 	ladybug.Id = int(ladybugDB.Id_Data.Int64)
 	ladybug.Position = ladybugDB.Position_Data.Float64

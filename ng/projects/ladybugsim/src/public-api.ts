@@ -29,19 +29,5 @@ export * from './lib/ladybugsimulations-table/ladybugsimulations-table.component
 export * from './lib/ladybugsimulation-db'
 export * from './lib/ladybugsimulation.service'
 
-export * from './lib/updatepositionevent-detail/updatepositionevent-detail.component'
-export * from './lib/updatepositionevent-presentation/updatepositionevent-presentation.component'
-export * from './lib/updatepositionevent-sorting/updatepositionevent-sorting.component'
-export * from './lib/updatepositionevents-table/updatepositionevents-table.component'
-export * from './lib/updatepositionevent-db'
-export * from './lib/updatepositionevent.service'
-
-export * from './lib/updatespeedevent-detail/updatespeedevent-detail.component'
-export * from './lib/updatespeedevent-presentation/updatespeedevent-presentation.component'
-export * from './lib/updatespeedevent-sorting/updatespeedevent-sorting.component'
-export * from './lib/updatespeedevents-table/updatespeedevents-table.component'
-export * from './lib/updatespeedevent-db'
-export * from './lib/updatespeedevent.service'
-
 
 export * from './lib/LadybugStatus'

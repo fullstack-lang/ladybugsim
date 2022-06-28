@@ -10,7 +10,6 @@ export class LadybugDB {
 	ID: number = 0
 
 	// insertion point for basic fields declarations
-	TechName: string = ""
 	Name: string = ""
 	Id: number = 0
 	Position: number = 0

@@ -49,16 +49,6 @@ import { LadybugSimulationSortingComponent } from './ladybugsimulation-sorting/l
 import { LadybugSimulationDetailComponent } from './ladybugsimulation-detail/ladybugsimulation-detail.component'
 import { LadybugSimulationPresentationComponent } from './ladybugsimulation-presentation/ladybugsimulation-presentation.component'
 
-import { UpdatePositionEventsTableComponent } from './updatepositionevents-table/updatepositionevents-table.component'
-import { UpdatePositionEventSortingComponent } from './updatepositionevent-sorting/updatepositionevent-sorting.component'
-import { UpdatePositionEventDetailComponent } from './updatepositionevent-detail/updatepositionevent-detail.component'
-import { UpdatePositionEventPresentationComponent } from './updatepositionevent-presentation/updatepositionevent-presentation.component'
-
-import { UpdateSpeedEventsTableComponent } from './updatespeedevents-table/updatespeedevents-table.component'
-import { UpdateSpeedEventSortingComponent } from './updatespeedevent-sorting/updatespeedevent-sorting.component'
-import { UpdateSpeedEventDetailComponent } from './updatespeedevent-detail/updatespeedevent-detail.component'
-import { UpdateSpeedEventPresentationComponent } from './updatespeedevent-presentation/updatespeedevent-presentation.component'
-
 
 @NgModule({
 	declarations: [
@@ -72,16 +62,6 @@ import { UpdateSpeedEventPresentationComponent } from './updatespeedevent-presen
 		LadybugSimulationSortingComponent,
 		LadybugSimulationDetailComponent,
 		LadybugSimulationPresentationComponent,
-
-		UpdatePositionEventsTableComponent,
-		UpdatePositionEventSortingComponent,
-		UpdatePositionEventDetailComponent,
-		UpdatePositionEventPresentationComponent,
-
-		UpdateSpeedEventsTableComponent,
-		UpdateSpeedEventSortingComponent,
-		UpdateSpeedEventDetailComponent,
-		UpdateSpeedEventPresentationComponent,
 
 
 		SplitterComponent,
@@ -131,16 +111,6 @@ import { UpdateSpeedEventPresentationComponent } from './updatespeedevent-presen
 		LadybugSimulationSortingComponent,
 		LadybugSimulationDetailComponent,
 		LadybugSimulationPresentationComponent,
-
-		UpdatePositionEventsTableComponent,
-		UpdatePositionEventSortingComponent,
-		UpdatePositionEventDetailComponent,
-		UpdatePositionEventPresentationComponent,
-
-		UpdateSpeedEventsTableComponent,
-		UpdateSpeedEventSortingComponent,
-		UpdateSpeedEventDetailComponent,
-		UpdateSpeedEventPresentationComponent,
 
 
 		SplitterComponent,

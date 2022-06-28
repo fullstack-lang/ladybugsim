@@ -68,9 +68,6 @@ export class LadybugsTableComponent implements OnInit {
           return ladybugDB.ID
 
         // insertion point for specific sorting accessor
-        case 'TechName':
-          return ladybugDB.TechName;
-
         case 'Name':
           return ladybugDB.Name;
 
@@ -107,7 +104,6 @@ export class LadybugsTableComponent implements OnInit {
       let mergedContent = ""
 
       // insertion point for merging of fields
-      mergedContent += ladybugDB.TechName.toLowerCase()
       mergedContent += ladybugDB.Name.toLowerCase()
       mergedContent += ladybugDB.Id.toString()
       mergedContent += ladybugDB.Position.toString()
@@ -167,7 +163,6 @@ export class LadybugsTableComponent implements OnInit {
     )
     if (this.mode == TableComponentMode.DISPLAY_MODE) {
       this.displayedColumns = ['ID', 'Edit', 'Delete', // insertion point for columns to display
-        "TechName",
         "Name",
         "Id",
         "Position",
@@ -177,7 +172,6 @@ export class LadybugsTableComponent implements OnInit {
       ]
     } else {
       this.displayedColumns = ['select', 'ID', // insertion point for columns to display
-        "TechName",
         "Name",
         "Id",
         "Position",

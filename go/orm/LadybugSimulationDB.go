@@ -58,37 +58,37 @@ type LadybugSimulationDB struct {
 
 	// insertion for basic fields declaration
 
-	// Declation for basic field ladybugsimulationDB.Name {{BasicKind}} (to be completed)
+	// Declation for basic field ladybugsimulationDB.Name
 	Name_Data sql.NullString
 
-	// Declation for basic field ladybugsimulationDB.EventNb {{BasicKind}} (to be completed)
+	// Declation for basic field ladybugsimulationDB.EventNb
 	EventNb_Data sql.NullInt64
 
-	// Declation for basic field ladybugsimulationDB.NbOfCollision {{BasicKind}} (to be completed)
+	// Declation for basic field ladybugsimulationDB.NbOfCollision
 	NbOfCollision_Data sql.NullInt64
 
-	// Declation for basic field ladybugsimulationDB.LadybugRadius {{BasicKind}} (to be completed)
+	// Declation for basic field ladybugsimulationDB.LadybugRadius
 	LadybugRadius_Data sql.NullFloat64
 
-	// Declation for basic field ladybugsimulationDB.AbsoluteSpeed {{BasicKind}} (to be completed)
+	// Declation for basic field ladybugsimulationDB.AbsoluteSpeed
 	AbsoluteSpeed_Data sql.NullFloat64
 
-	// Declation for basic field ladybugsimulationDB.SimulationStep {{BasicKind}} (to be completed)
+	// Declation for basic field ladybugsimulationDB.SimulationStep
 	SimulationStep_Data sql.NullInt64
 
-	// Declation for basic field ladybugsimulationDB.MaxDistanceInOneStep {{BasicKind}} (to be completed)
+	// Declation for basic field ladybugsimulationDB.MaxDistanceInOneStep
 	MaxDistanceInOneStep_Data sql.NullFloat64
 
-	// Declation for basic field ladybugsimulationDB.NbLadybugs {{BasicKind}} (to be completed)
+	// Declation for basic field ladybugsimulationDB.NbLadybugs
 	NbLadybugs_Data sql.NullInt64
 
-	// Declation for basic field ladybugsimulationDB.NbLadybugsOnTheGround {{BasicKind}} (to be completed)
+	// Declation for basic field ladybugsimulationDB.NbLadybugsOnTheGround
 	NbLadybugsOnTheGround_Data sql.NullInt64
 
-	// Declation for basic field ladybugsimulationDB.LeftRelayInitialPosX {{BasicKind}} (to be completed)
+	// Declation for basic field ladybugsimulationDB.LeftRelayInitialPosX
 	LeftRelayInitialPosX_Data sql.NullFloat64
 
-	// Declation for basic field ladybugsimulationDB.RightRelayInitialPosX {{BasicKind}} (to be completed)
+	// Declation for basic field ladybugsimulationDB.RightRelayInitialPosX
 	RightRelayInitialPosX_Data sql.NullFloat64
 	// encoding of pointers
 	LadybugSimulationPointersEnconding
