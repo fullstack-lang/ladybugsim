@@ -132,18 +132,6 @@ func (stage *StageStruct) RestoreXL(dirPath string) {
 }
 
 // insertion point for cumulative sub template with model space calls
-func (stage *StageStruct) getLadybugOrderedStructWithNameField() []*Ladybug {
-	// have alphabetical order generation
-	ladybugOrdered := []*Ladybug{}
-	for ladybug := range stage.Ladybugs {
-		ladybugOrdered = append(ladybugOrdered, ladybug)
-	}
-	sort.Slice(ladybugOrdered[:], func(i, j int) bool {
-		return ladybugOrdered[i].Name < ladybugOrdered[j].Name
-	})
-	return ladybugOrdered
-}
-
 // Stage puts ladybug to the model stage
 func (ladybug *Ladybug) Stage() *Ladybug {
 	Stage.Ladybugs[ladybug] = __member
@@ -237,18 +225,6 @@ func DeleteORMLadybug(ladybug *Ladybug) {
 // for satisfaction of GongStruct interface
 func (ladybug *Ladybug) GetName() (res string) {
 	return ladybug.Name
-}
-
-func (stage *StageStruct) getLadybugSimulationOrderedStructWithNameField() []*LadybugSimulation {
-	// have alphabetical order generation
-	ladybugsimulationOrdered := []*LadybugSimulation{}
-	for ladybugsimulation := range stage.LadybugSimulations {
-		ladybugsimulationOrdered = append(ladybugsimulationOrdered, ladybugsimulation)
-	}
-	sort.Slice(ladybugsimulationOrdered[:], func(i, j int) bool {
-		return ladybugsimulationOrdered[i].Name < ladybugsimulationOrdered[j].Name
-	})
-	return ladybugsimulationOrdered
 }
 
 // Stage puts ladybugsimulation to the model stage
@@ -669,13 +645,23 @@ func (stageStruct *StageStruct) CreateReverseMap_LadybugSimulation_Ladybugs() (r
 }
 
 
-// Gongstruct is the type paramter for generated generic function that allows
+// Gongstruct is the type parameter for generated generic function that allows
 // - access to staged instances
 // - navigation between staged instances by going backward association links between gongstruct
 // - full refactoring of Gongstruct identifiers / fields
 type Gongstruct interface {
 	// insertion point for generic types
 	Ladybug | LadybugSimulation
+}
+
+// Gongstruct is the type parameter for generated generic function that allows
+// - access to staged instances
+// - navigation between staged instances by going backward association links between gongstruct
+// - full refactoring of Gongstruct identifiers / fields
+type PointerToGongstruct interface {
+	// insertion point for generic types
+	*Ladybug | *LadybugSimulation
+	GetName() string
 }
 
 type GongstructSet interface {
@@ -969,3 +955,4 @@ func (ladybugstatus *LadybugStatus) ToCodeString() (res string) {
 	return
 }
 
+// Last line of the template
