@@ -416,7 +416,7 @@ export class AnimateDetailComponent implements OnInit {
 	}
 
 	fillUpNameIfEmpty(event: { value: { Name: string; }; }) {
-		if (this.animate.Name == undefined) {
+		if (this.animate.Name == "") {
 			this.animate.Name = event.value.Name
 		}
 	}

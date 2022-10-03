@@ -262,7 +262,7 @@ export class CircleDetailComponent implements OnInit {
 	}
 
 	fillUpNameIfEmpty(event: { value: { Name: string; }; }) {
-		if (this.circle.Name == undefined) {
+		if (this.circle.Name == "") {
 			this.circle.Name = event.value.Name
 		}
 	}

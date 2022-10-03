@@ -262,7 +262,7 @@ export class TextDetailComponent implements OnInit {
 	}
 
 	fillUpNameIfEmpty(event: { value: { Name: string; }; }) {
-		if (this.text.Name == undefined) {
+		if (this.text.Name == "") {
 			this.text.Name = event.value.Name
 		}
 	}

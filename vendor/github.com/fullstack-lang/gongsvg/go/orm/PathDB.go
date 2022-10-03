@@ -64,28 +64,28 @@ type PathDB struct {
 
 	// insertion for basic fields declaration
 
-	// Declation for basic field pathDB.Name {{BasicKind}} (to be completed)
+	// Declation for basic field pathDB.Name
 	Name_Data sql.NullString
 
-	// Declation for basic field pathDB.Definition {{BasicKind}} (to be completed)
+	// Declation for basic field pathDB.Definition
 	Definition_Data sql.NullString
 
-	// Declation for basic field pathDB.Color {{BasicKind}} (to be completed)
+	// Declation for basic field pathDB.Color
 	Color_Data sql.NullString
 
-	// Declation for basic field pathDB.FillOpacity {{BasicKind}} (to be completed)
+	// Declation for basic field pathDB.FillOpacity
 	FillOpacity_Data sql.NullFloat64
 
-	// Declation for basic field pathDB.Stroke {{BasicKind}} (to be completed)
+	// Declation for basic field pathDB.Stroke
 	Stroke_Data sql.NullString
 
-	// Declation for basic field pathDB.StrokeWidth {{BasicKind}} (to be completed)
+	// Declation for basic field pathDB.StrokeWidth
 	StrokeWidth_Data sql.NullFloat64
 
-	// Declation for basic field pathDB.StrokeDashArray {{BasicKind}} (to be completed)
+	// Declation for basic field pathDB.StrokeDashArray
 	StrokeDashArray_Data sql.NullString
 
-	// Declation for basic field pathDB.Transform {{BasicKind}} (to be completed)
+	// Declation for basic field pathDB.Transform
 	Transform_Data sql.NullString
 	// encoding of pointers
 	PathPointersEnconding
@@ -328,7 +328,7 @@ func (backRepoPath *BackRepoPathStruct) CheckoutPhaseOne() (Error error) {
 
 	// list of instances to be removed
 	// start from the initial map on the stage and remove instances that have been checked out
-	pathInstancesToBeRemovedFromTheStage := make(map[*models.Path]struct{})
+	pathInstancesToBeRemovedFromTheStage := make(map[*models.Path]any)
 	for key, value := range models.Stage.Paths {
 		pathInstancesToBeRemovedFromTheStage[key] = value
 	}

@@ -262,7 +262,7 @@ export class EllipseDetailComponent implements OnInit {
 	}
 
 	fillUpNameIfEmpty(event: { value: { Name: string; }; }) {
-		if (this.ellipse.Name == undefined) {
+		if (this.ellipse.Name == "") {
 			this.ellipse.Name = event.value.Name
 		}
 	}

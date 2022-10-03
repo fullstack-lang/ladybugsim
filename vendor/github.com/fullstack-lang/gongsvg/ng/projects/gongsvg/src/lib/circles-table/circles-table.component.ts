@@ -17,6 +17,8 @@ import { Router, RouterState } from '@angular/router';
 import { CircleDB } from '../circle-db'
 import { CircleService } from '../circle.service'
 
+// insertion point for additional imports
+
 // TableComponent is initilizaed from different routes
 // TableComponentMode detail different cases 
 enum TableComponentMode {
@@ -97,7 +99,11 @@ export class CirclesTableComponent implements OnInit {
           return circleDB.Transform;
 
         case 'SVG_Circles':
-          return this.frontRepo.SVGs.get(circleDB.SVG_CirclesDBID.Int64)!.Name;
+          if (this.frontRepo.SVGs.get(circleDB.SVG_CirclesDBID.Int64) != undefined) {
+            return this.frontRepo.SVGs.get(circleDB.SVG_CirclesDBID.Int64)!.Name
+          } else {
+            return ""
+          }
 
         default:
           console.assert(false, "Unknown field")
@@ -220,8 +226,9 @@ export class CirclesTableComponent implements OnInit {
 
         this.circles = this.frontRepo.Circles_array;
 
-        // insertion point for variables Recoveries
-
+        // insertion point for time duration Recoveries
+        // insertion point for enum int Recoveries
+        
         // in case the component is called as a selection component
         if (this.mode == TableComponentMode.ONE_MANY_ASSOCIATION_MODE) {
           for (let circle of this.circles) {

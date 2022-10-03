@@ -1,16 +1,16 @@
 // generated from ng_file_enum.ts.go
 export enum EngineRunMode {
 	// insertion point	
-	FULL_SPEED = 1,
 	RELATIVE_SPEED = 0,
+	FULL_SPEED = 1,
 }
 
 export interface EngineRunModeSelect {
-	value: string;
+	value: number;
 	viewValue: string;
 }
 
 export const EngineRunModeList: EngineRunModeSelect[] = [ // insertion point	
-	{ value: 'FULL_SPEED', viewValue: '1' },
-	{ value: 'RELATIVE_SPEED', viewValue: '0' },
+	{ value: EngineRunMode.RELATIVE_SPEED, viewValue: "RELATIVE_SPEED" },
+	{ value: EngineRunMode.FULL_SPEED, viewValue: "FULL_SPEED" },
 ];

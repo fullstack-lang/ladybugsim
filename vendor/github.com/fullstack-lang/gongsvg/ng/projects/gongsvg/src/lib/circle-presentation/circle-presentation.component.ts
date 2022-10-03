@@ -8,6 +8,8 @@ import { FrontRepoService, FrontRepo } from '../front-repo.service'
 
 import { Router, RouterState, ActivatedRoute } from '@angular/router';
 
+// insertion point for additional imports
+
 export interface circleDummyElement {
 }
 
@@ -21,7 +23,8 @@ const ELEMENT_DATA: circleDummyElement[] = [
 })
 export class CirclePresentationComponent implements OnInit {
 
-	// insertion point for declarations
+	// insertion point for additionnal time duration declarations
+	// insertion point for additionnal enum int field declarations
 
 	displayedColumns: string[] = []
 	dataSource = ELEMENT_DATA
@@ -64,6 +67,7 @@ export class CirclePresentationComponent implements OnInit {
 				this.circle = this.frontRepo.Circles.get(id)!
 
 				// insertion point for recovery of durations
+				// insertion point for recovery of enum tint
 			}
 		);
 	}

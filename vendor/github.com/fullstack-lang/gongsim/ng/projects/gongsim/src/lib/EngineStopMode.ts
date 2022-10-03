@@ -1,16 +1,16 @@
 // generated from ng_file_enum.ts.go
 export enum EngineStopMode {
 	// insertion point	
-	STATE_CHANGED = 1,
 	TEN_MINUTES = 0,
+	STATE_CHANGED = 1,
 }
 
 export interface EngineStopModeSelect {
-	value: string;
+	value: number;
 	viewValue: string;
 }
 
 export const EngineStopModeList: EngineStopModeSelect[] = [ // insertion point	
-	{ value: 'STATE_CHANGED', viewValue: '1' },
-	{ value: 'TEN_MINUTES', viewValue: '0' },
+	{ value: EngineStopMode.TEN_MINUTES, viewValue: "TEN_MINUTES" },
+	{ value: EngineStopMode.STATE_CHANGED, viewValue: "STATE_CHANGED" },
 ];

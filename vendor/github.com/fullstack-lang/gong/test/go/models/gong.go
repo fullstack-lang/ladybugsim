@@ -12,27 +12,35 @@ import (
 )
 
 // swagger:ignore
-type __void struct{}
+type __void any
 
 // needed for creating set of instances in the stage
 var __member __void
 
+// GongStructInterface is the interface met by GongStructs
+// It allows runtime reflexion of instances (without the hassle of the "reflect" package)
+type GongStructInterface interface {
+	GetName() (res string)
+	GetFields() (res []string)
+	GetFieldStringValue(fieldName string) (res string)
+}
+
 // StageStruct enables storage of staged instances
 // swagger:ignore
 type StageStruct struct { // insertion point for definition of arrays registering instances
-	Astructs           map[*Astruct]struct{}
+	Astructs           map[*Astruct]any
 	Astructs_mapString map[string]*Astruct
 
-	AstructBstruct2Uses           map[*AstructBstruct2Use]struct{}
+	AstructBstruct2Uses           map[*AstructBstruct2Use]any
 	AstructBstruct2Uses_mapString map[string]*AstructBstruct2Use
 
-	AstructBstructUses           map[*AstructBstructUse]struct{}
+	AstructBstructUses           map[*AstructBstructUse]any
 	AstructBstructUses_mapString map[string]*AstructBstructUse
 
-	Bstructs           map[*Bstruct]struct{}
+	Bstructs           map[*Bstruct]any
 	Bstructs_mapString map[string]*Bstruct
 
-	Dstructs           map[*Dstruct]struct{}
+	Dstructs           map[*Dstruct]any
 	Dstructs_mapString map[string]*Dstruct
 
 	AllModelsStructCreateCallback AllModelsStructCreateInterface
@@ -78,19 +86,19 @@ type BackRepoInterface interface {
 
 // swagger:ignore instructs the gong compiler (gongc) to avoid this particular struct
 var Stage StageStruct = StageStruct{ // insertion point for array initiatialisation
-	Astructs:           make(map[*Astruct]struct{}),
+	Astructs:           make(map[*Astruct]any),
 	Astructs_mapString: make(map[string]*Astruct),
 
-	AstructBstruct2Uses:           make(map[*AstructBstruct2Use]struct{}),
+	AstructBstruct2Uses:           make(map[*AstructBstruct2Use]any),
 	AstructBstruct2Uses_mapString: make(map[string]*AstructBstruct2Use),
 
-	AstructBstructUses:           make(map[*AstructBstructUse]struct{}),
+	AstructBstructUses:           make(map[*AstructBstructUse]any),
 	AstructBstructUses_mapString: make(map[string]*AstructBstructUse),
 
-	Bstructs:           make(map[*Bstruct]struct{}),
+	Bstructs:           make(map[*Bstruct]any),
 	Bstructs_mapString: make(map[string]*Bstruct),
 
-	Dstructs:           make(map[*Dstruct]struct{}),
+	Dstructs:           make(map[*Dstruct]any),
 	Dstructs_mapString: make(map[string]*Dstruct),
 
 	// end of insertion point
@@ -115,6 +123,14 @@ func (stage *StageStruct) Checkout() {
 	if stage.BackRepo != nil {
 		stage.BackRepo.Checkout(stage)
 	}
+
+	// insertion point for computing the map of number of instances per gongstruct
+	stage.Map_GongStructName_InstancesNb["Astruct"] = len(stage.Astructs)
+	stage.Map_GongStructName_InstancesNb["AstructBstruct2Use"] = len(stage.AstructBstruct2Uses)
+	stage.Map_GongStructName_InstancesNb["AstructBstructUse"] = len(stage.AstructBstructUses)
+	stage.Map_GongStructName_InstancesNb["Bstruct"] = len(stage.Bstructs)
+	stage.Map_GongStructName_InstancesNb["Dstruct"] = len(stage.Dstructs)
+
 }
 
 // backup generates backup files in the dirPath
@@ -146,18 +162,6 @@ func (stage *StageStruct) RestoreXL(dirPath string) {
 }
 
 // insertion point for cumulative sub template with model space calls
-func (stage *StageStruct) getAstructOrderedStructWithNameField() []*Astruct {
-	// have alphabetical order generation
-	astructOrdered := []*Astruct{}
-	for astruct := range stage.Astructs {
-		astructOrdered = append(astructOrdered, astruct)
-	}
-	sort.Slice(astructOrdered[:], func(i, j int) bool {
-		return astructOrdered[i].Name < astructOrdered[j].Name
-	})
-	return astructOrdered
-}
-
 // Stage puts astruct to the model stage
 func (astruct *Astruct) Stage() *Astruct {
 	Stage.Astructs[astruct] = __member
@@ -248,16 +252,9 @@ func DeleteORMAstruct(astruct *Astruct) {
 	}
 }
 
-func (stage *StageStruct) getAstructBstruct2UseOrderedStructWithNameField() []*AstructBstruct2Use {
-	// have alphabetical order generation
-	astructbstruct2useOrdered := []*AstructBstruct2Use{}
-	for astructbstruct2use := range stage.AstructBstruct2Uses {
-		astructbstruct2useOrdered = append(astructbstruct2useOrdered, astructbstruct2use)
-	}
-	sort.Slice(astructbstruct2useOrdered[:], func(i, j int) bool {
-		return astructbstruct2useOrdered[i].Name < astructbstruct2useOrdered[j].Name
-	})
-	return astructbstruct2useOrdered
+// for satisfaction of GongStruct interface
+func (astruct *Astruct) GetName() (res string) {
+	return astruct.Name
 }
 
 // Stage puts astructbstruct2use to the model stage
@@ -350,16 +347,9 @@ func DeleteORMAstructBstruct2Use(astructbstruct2use *AstructBstruct2Use) {
 	}
 }
 
-func (stage *StageStruct) getAstructBstructUseOrderedStructWithNameField() []*AstructBstructUse {
-	// have alphabetical order generation
-	astructbstructuseOrdered := []*AstructBstructUse{}
-	for astructbstructuse := range stage.AstructBstructUses {
-		astructbstructuseOrdered = append(astructbstructuseOrdered, astructbstructuse)
-	}
-	sort.Slice(astructbstructuseOrdered[:], func(i, j int) bool {
-		return astructbstructuseOrdered[i].Name < astructbstructuseOrdered[j].Name
-	})
-	return astructbstructuseOrdered
+// for satisfaction of GongStruct interface
+func (astructbstruct2use *AstructBstruct2Use) GetName() (res string) {
+	return astructbstruct2use.Name
 }
 
 // Stage puts astructbstructuse to the model stage
@@ -452,16 +442,9 @@ func DeleteORMAstructBstructUse(astructbstructuse *AstructBstructUse) {
 	}
 }
 
-func (stage *StageStruct) getBstructOrderedStructWithNameField() []*Bstruct {
-	// have alphabetical order generation
-	bstructOrdered := []*Bstruct{}
-	for bstruct := range stage.Bstructs {
-		bstructOrdered = append(bstructOrdered, bstruct)
-	}
-	sort.Slice(bstructOrdered[:], func(i, j int) bool {
-		return bstructOrdered[i].Name < bstructOrdered[j].Name
-	})
-	return bstructOrdered
+// for satisfaction of GongStruct interface
+func (astructbstructuse *AstructBstructUse) GetName() (res string) {
+	return astructbstructuse.Name
 }
 
 // Stage puts bstruct to the model stage
@@ -554,16 +537,9 @@ func DeleteORMBstruct(bstruct *Bstruct) {
 	}
 }
 
-func (stage *StageStruct) getDstructOrderedStructWithNameField() []*Dstruct {
-	// have alphabetical order generation
-	dstructOrdered := []*Dstruct{}
-	for dstruct := range stage.Dstructs {
-		dstructOrdered = append(dstructOrdered, dstruct)
-	}
-	sort.Slice(dstructOrdered[:], func(i, j int) bool {
-		return dstructOrdered[i].Name < dstructOrdered[j].Name
-	})
-	return dstructOrdered
+// for satisfaction of GongStruct interface
+func (bstruct *Bstruct) GetName() (res string) {
+	return bstruct.Name
 }
 
 // Stage puts dstruct to the model stage
@@ -656,6 +632,11 @@ func DeleteORMDstruct(dstruct *Dstruct) {
 	}
 }
 
+// for satisfaction of GongStruct interface
+func (dstruct *Dstruct) GetName() (res string) {
+	return dstruct.Name
+}
+
 // swagger:ignore
 type AllModelsStructCreateInterface interface { // insertion point for Callbacks on creation
 	CreateORMAstruct(Astruct *Astruct)
@@ -674,19 +655,19 @@ type AllModelsStructDeleteInterface interface { // insertion point for Callbacks
 }
 
 func (stage *StageStruct) Reset() { // insertion point for array reset
-	stage.Astructs = make(map[*Astruct]struct{})
+	stage.Astructs = make(map[*Astruct]any)
 	stage.Astructs_mapString = make(map[string]*Astruct)
 
-	stage.AstructBstruct2Uses = make(map[*AstructBstruct2Use]struct{})
+	stage.AstructBstruct2Uses = make(map[*AstructBstruct2Use]any)
 	stage.AstructBstruct2Uses_mapString = make(map[string]*AstructBstruct2Use)
 
-	stage.AstructBstructUses = make(map[*AstructBstructUse]struct{})
+	stage.AstructBstructUses = make(map[*AstructBstructUse]any)
 	stage.AstructBstructUses_mapString = make(map[string]*AstructBstructUse)
 
-	stage.Bstructs = make(map[*Bstruct]struct{})
+	stage.Bstructs = make(map[*Bstruct]any)
 	stage.Bstructs_mapString = make(map[string]*Bstruct)
 
-	stage.Dstructs = make(map[*Dstruct]struct{})
+	stage.Dstructs = make(map[*Dstruct]any)
 	stage.Dstructs_mapString = make(map[string]*Dstruct)
 
 }
@@ -739,7 +720,10 @@ const IdentifiersDecls = `
 	{{Identifier}} := (&models.{{GeneratedStructName}}{Name: "{{GeneratedFieldNameValue}}"}).Stage()`
 
 const StringInitStatement = `
-	{{Identifier}}.{{GeneratedFieldName}} = "{{GeneratedFieldNameValue}}"`
+	{{Identifier}}.{{GeneratedFieldName}} = ` + "`" + `{{GeneratedFieldNameValue}}` + "`"
+
+const StringEnumInitStatement = `
+	{{Identifier}}.{{GeneratedFieldName}} = {{GeneratedFieldNameValue}}`
 
 const NumberInitStatement = `
 	{{Identifier}}.{{GeneratedFieldName}} = {{GeneratedFieldNameValue}}`
@@ -790,7 +774,7 @@ func (stage *StageStruct) Marshall(file *os.File, modelsPackageName, packageName
 	sort.Slice(astructOrdered[:], func(i, j int) bool {
 		return astructOrdered[i].Name < astructOrdered[j].Name
 	})
-	identifiersDecl += fmt.Sprintf("\n\n	// Declarations of staged instances of Astruct")
+	identifiersDecl += "\n\n	// Declarations of staged instances of Astruct"
 	for idx, astruct := range astructOrdered {
 
 		id = generatesIdentifier("Astruct", idx, astruct.Name)
@@ -816,29 +800,40 @@ func (stage *StageStruct) Marshall(file *os.File, modelsPackageName, packageName
 		setValueField = strings.ReplaceAll(setValueField, "{{GeneratedFieldNameValue}}", astruct.Date.String())
 		initializerStatements += setValueField
 
-
 		setValueField = NumberInitStatement
 		setValueField = strings.ReplaceAll(setValueField, "{{Identifier}}", id)
 		setValueField = strings.ReplaceAll(setValueField, "{{GeneratedFieldName}}", "Booleanfield")
 		setValueField = strings.ReplaceAll(setValueField, "{{GeneratedFieldNameValue}}", fmt.Sprintf("%t", astruct.Booleanfield))
 		initializerStatements += setValueField
 
-		setValueField = StringInitStatement
-		setValueField = strings.ReplaceAll(setValueField, "{{Identifier}}", id)
-		setValueField = strings.ReplaceAll(setValueField, "{{GeneratedFieldName}}", "Aenum")
-		setValueField = strings.ReplaceAll(setValueField, "{{GeneratedFieldNameValue}}", string(astruct.Aenum))
-		initializerStatements += setValueField
+		if astruct.Aenum != "" {
+			setValueField = StringEnumInitStatement
+			setValueField = strings.ReplaceAll(setValueField, "{{Identifier}}", id)
+			setValueField = strings.ReplaceAll(setValueField, "{{GeneratedFieldName}}", "Aenum")
+			setValueField = strings.ReplaceAll(setValueField, "{{GeneratedFieldNameValue}}", "models."+astruct.Aenum.ToCodeString())
+			initializerStatements += setValueField
+		}
 
-		setValueField = StringInitStatement
-		setValueField = strings.ReplaceAll(setValueField, "{{Identifier}}", id)
-		setValueField = strings.ReplaceAll(setValueField, "{{GeneratedFieldName}}", "Aenum_2")
-		setValueField = strings.ReplaceAll(setValueField, "{{GeneratedFieldNameValue}}", string(astruct.Aenum_2))
-		initializerStatements += setValueField
+		if astruct.Aenum_2 != "" {
+			setValueField = StringEnumInitStatement
+			setValueField = strings.ReplaceAll(setValueField, "{{Identifier}}", id)
+			setValueField = strings.ReplaceAll(setValueField, "{{GeneratedFieldName}}", "Aenum_2")
+			setValueField = strings.ReplaceAll(setValueField, "{{GeneratedFieldNameValue}}", "models."+astruct.Aenum_2.ToCodeString())
+			initializerStatements += setValueField
+		}
 
-		setValueField = StringInitStatement
+		if astruct.Benum != "" {
+			setValueField = StringEnumInitStatement
+			setValueField = strings.ReplaceAll(setValueField, "{{Identifier}}", id)
+			setValueField = strings.ReplaceAll(setValueField, "{{GeneratedFieldName}}", "Benum")
+			setValueField = strings.ReplaceAll(setValueField, "{{GeneratedFieldNameValue}}", "models."+astruct.Benum.ToCodeString())
+			initializerStatements += setValueField
+		}
+
+		setValueField = NumberInitStatement
 		setValueField = strings.ReplaceAll(setValueField, "{{Identifier}}", id)
-		setValueField = strings.ReplaceAll(setValueField, "{{GeneratedFieldName}}", "Benum")
-		setValueField = strings.ReplaceAll(setValueField, "{{GeneratedFieldNameValue}}", string(astruct.Benum))
+		setValueField = strings.ReplaceAll(setValueField, "{{GeneratedFieldName}}", "CEnum")
+		setValueField = strings.ReplaceAll(setValueField, "{{GeneratedFieldNameValue}}", "models."+astruct.CEnum.ToCodeString())
 		initializerStatements += setValueField
 
 		setValueField = StringInitStatement
@@ -889,7 +884,7 @@ func (stage *StageStruct) Marshall(file *os.File, modelsPackageName, packageName
 	sort.Slice(astructbstruct2useOrdered[:], func(i, j int) bool {
 		return astructbstruct2useOrdered[i].Name < astructbstruct2useOrdered[j].Name
 	})
-	identifiersDecl += fmt.Sprintf("\n\n	// Declarations of staged instances of AstructBstruct2Use")
+	identifiersDecl += "\n\n	// Declarations of staged instances of AstructBstruct2Use"
 	for idx, astructbstruct2use := range astructbstruct2useOrdered {
 
 		id = generatesIdentifier("AstructBstruct2Use", idx, astructbstruct2use.Name)
@@ -921,7 +916,7 @@ func (stage *StageStruct) Marshall(file *os.File, modelsPackageName, packageName
 	sort.Slice(astructbstructuseOrdered[:], func(i, j int) bool {
 		return astructbstructuseOrdered[i].Name < astructbstructuseOrdered[j].Name
 	})
-	identifiersDecl += fmt.Sprintf("\n\n	// Declarations of staged instances of AstructBstructUse")
+	identifiersDecl += "\n\n	// Declarations of staged instances of AstructBstructUse"
 	for idx, astructbstructuse := range astructbstructuseOrdered {
 
 		id = generatesIdentifier("AstructBstructUse", idx, astructbstructuse.Name)
@@ -953,7 +948,7 @@ func (stage *StageStruct) Marshall(file *os.File, modelsPackageName, packageName
 	sort.Slice(bstructOrdered[:], func(i, j int) bool {
 		return bstructOrdered[i].Name < bstructOrdered[j].Name
 	})
-	identifiersDecl += fmt.Sprintf("\n\n	// Declarations of staged instances of Bstruct")
+	identifiersDecl += "\n\n	// Declarations of staged instances of Bstruct"
 	for idx, bstruct := range bstructOrdered {
 
 		id = generatesIdentifier("Bstruct", idx, bstruct.Name)
@@ -981,6 +976,12 @@ func (stage *StageStruct) Marshall(file *os.File, modelsPackageName, packageName
 
 		setValueField = NumberInitStatement
 		setValueField = strings.ReplaceAll(setValueField, "{{Identifier}}", id)
+		setValueField = strings.ReplaceAll(setValueField, "{{GeneratedFieldName}}", "Floatfield2")
+		setValueField = strings.ReplaceAll(setValueField, "{{GeneratedFieldNameValue}}", fmt.Sprintf("%f", bstruct.Floatfield2))
+		initializerStatements += setValueField
+
+		setValueField = NumberInitStatement
+		setValueField = strings.ReplaceAll(setValueField, "{{Identifier}}", id)
 		setValueField = strings.ReplaceAll(setValueField, "{{GeneratedFieldName}}", "Intfield")
 		setValueField = strings.ReplaceAll(setValueField, "{{GeneratedFieldNameValue}}", fmt.Sprintf("%d", bstruct.Intfield))
 		initializerStatements += setValueField
@@ -997,7 +998,7 @@ func (stage *StageStruct) Marshall(file *os.File, modelsPackageName, packageName
 	sort.Slice(dstructOrdered[:], func(i, j int) bool {
 		return dstructOrdered[i].Name < dstructOrdered[j].Name
 	})
-	identifiersDecl += fmt.Sprintf("\n\n	// Declarations of staged instances of Dstruct")
+	identifiersDecl += "\n\n	// Declarations of staged instances of Dstruct"
 	for idx, dstruct := range dstructOrdered {
 
 		id = generatesIdentifier("Dstruct", idx, dstruct.Name)
@@ -1019,7 +1020,6 @@ func (stage *StageStruct) Marshall(file *os.File, modelsPackageName, packageName
 
 	}
 
-
 	// insertion initialization of objects to stage
 	for idx, astruct := range astructOrdered {
 		var setPointerField string
@@ -1029,6 +1029,14 @@ func (stage *StageStruct) Marshall(file *os.File, modelsPackageName, packageName
 		map_Astruct_Identifiers[astruct] = id
 
 		// Initialisation of values
+		if astruct.Bstruct != nil {
+			setPointerField = PointerFieldInitStatement
+			setPointerField = strings.ReplaceAll(setPointerField, "{{Identifier}}", id)
+			setPointerField = strings.ReplaceAll(setPointerField, "{{GeneratedFieldName}}", "Bstruct")
+			setPointerField = strings.ReplaceAll(setPointerField, "{{GeneratedFieldNameValue}}", map_Bstruct_Identifiers[astruct.Bstruct])
+			pointersInitializesStatements += setPointerField
+		}
+
 		if astruct.Associationtob != nil {
 			setPointerField = PointerFieldInitStatement
 			setPointerField = strings.ReplaceAll(setPointerField, "{{Identifier}}", id)
@@ -1082,6 +1090,14 @@ func (stage *StageStruct) Marshall(file *os.File, modelsPackageName, packageName
 			setPointerField = strings.ReplaceAll(setPointerField, "{{Identifier}}", id)
 			setPointerField = strings.ReplaceAll(setPointerField, "{{GeneratedFieldName}}", "Anarrayofb2Use")
 			setPointerField = strings.ReplaceAll(setPointerField, "{{GeneratedFieldNameValue}}", map_AstructBstruct2Use_Identifiers[_astructbstruct2use])
+			pointersInitializesStatements += setPointerField
+		}
+
+		if astruct.AnAstruct != nil {
+			setPointerField = PointerFieldInitStatement
+			setPointerField = strings.ReplaceAll(setPointerField, "{{Identifier}}", id)
+			setPointerField = strings.ReplaceAll(setPointerField, "{{GeneratedFieldName}}", "AnAstruct")
+			setPointerField = strings.ReplaceAll(setPointerField, "{{GeneratedFieldNameValue}}", map_Astruct_Identifiers[astruct.AnAstruct])
 			pointersInitializesStatements += setPointerField
 		}
 
@@ -1143,7 +1159,6 @@ func (stage *StageStruct) Marshall(file *os.File, modelsPackageName, packageName
 		// Initialisation of values
 	}
 
-
 	res = strings.ReplaceAll(res, "{{Identifiers}}", identifiersDecl)
 	res = strings.ReplaceAll(res, "{{ValueInitializers}}", initializerStatements)
 	res = strings.ReplaceAll(res, "{{PointersInitializers}}", pointersInitializesStatements)
@@ -1166,3 +1181,900 @@ func generatesIdentifier(gongStructName string, idx int, instanceName string) (i
 
 	return
 }
+
+// insertion point of functions that provide maps for reverse associations
+
+// generate function for reverse association maps of Astruct
+func (stageStruct *StageStruct) CreateReverseMap_Astruct_Bstruct() (res map[*Bstruct][]*Astruct) {
+	res = make(map[*Bstruct][]*Astruct)
+
+	for astruct := range stageStruct.Astructs {
+		if astruct.Bstruct != nil {
+			bstruct_ := astruct.Bstruct
+			var astructs []*Astruct
+			_, ok := res[bstruct_]
+			if ok {
+				astructs = res[bstruct_]
+			} else {
+				astructs = make([]*Astruct, 0)
+			}
+			astructs = append(astructs, astruct)
+			res[bstruct_] = astructs
+		}
+	}
+
+	return
+}
+func (stageStruct *StageStruct) CreateReverseMap_Astruct_Associationtob() (res map[*Bstruct][]*Astruct) {
+	res = make(map[*Bstruct][]*Astruct)
+
+	for astruct := range stageStruct.Astructs {
+		if astruct.Associationtob != nil {
+			bstruct_ := astruct.Associationtob
+			var astructs []*Astruct
+			_, ok := res[bstruct_]
+			if ok {
+				astructs = res[bstruct_]
+			} else {
+				astructs = make([]*Astruct, 0)
+			}
+			astructs = append(astructs, astruct)
+			res[bstruct_] = astructs
+		}
+	}
+
+	return
+}
+func (stageStruct *StageStruct) CreateReverseMap_Astruct_Anotherassociationtob_2() (res map[*Bstruct][]*Astruct) {
+	res = make(map[*Bstruct][]*Astruct)
+
+	for astruct := range stageStruct.Astructs {
+		if astruct.Anotherassociationtob_2 != nil {
+			bstruct_ := astruct.Anotherassociationtob_2
+			var astructs []*Astruct
+			_, ok := res[bstruct_]
+			if ok {
+				astructs = res[bstruct_]
+			} else {
+				astructs = make([]*Astruct, 0)
+			}
+			astructs = append(astructs, astruct)
+			res[bstruct_] = astructs
+		}
+	}
+
+	return
+}
+func (stageStruct *StageStruct) CreateReverseMap_Astruct_Anarrayofb() (res map[*Bstruct]*Astruct) {
+	res = make(map[*Bstruct]*Astruct)
+
+	for astruct := range stageStruct.Astructs {
+		for _, bstruct_ := range astruct.Anarrayofb {
+			res[bstruct_] = astruct
+		}
+	}
+
+	return
+}
+
+func (stageStruct *StageStruct) CreateReverseMap_Astruct_Anotherarrayofb() (res map[*Bstruct]*Astruct) {
+	res = make(map[*Bstruct]*Astruct)
+
+	for astruct := range stageStruct.Astructs {
+		for _, bstruct_ := range astruct.Anotherarrayofb {
+			res[bstruct_] = astruct
+		}
+	}
+
+	return
+}
+
+func (stageStruct *StageStruct) CreateReverseMap_Astruct_Anarrayofa() (res map[*Astruct]*Astruct) {
+	res = make(map[*Astruct]*Astruct)
+
+	for astruct := range stageStruct.Astructs {
+		for _, astruct_ := range astruct.Anarrayofa {
+			res[astruct_] = astruct
+		}
+	}
+
+	return
+}
+
+func (stageStruct *StageStruct) CreateReverseMap_Astruct_AnarrayofbUse() (res map[*AstructBstructUse]*Astruct) {
+	res = make(map[*AstructBstructUse]*Astruct)
+
+	for astruct := range stageStruct.Astructs {
+		for _, astructbstructuse_ := range astruct.AnarrayofbUse {
+			res[astructbstructuse_] = astruct
+		}
+	}
+
+	return
+}
+
+func (stageStruct *StageStruct) CreateReverseMap_Astruct_Anarrayofb2Use() (res map[*AstructBstruct2Use]*Astruct) {
+	res = make(map[*AstructBstruct2Use]*Astruct)
+
+	for astruct := range stageStruct.Astructs {
+		for _, astructbstruct2use_ := range astruct.Anarrayofb2Use {
+			res[astructbstruct2use_] = astruct
+		}
+	}
+
+	return
+}
+
+func (stageStruct *StageStruct) CreateReverseMap_Astruct_AnAstruct() (res map[*Astruct][]*Astruct) {
+	res = make(map[*Astruct][]*Astruct)
+
+	for astruct := range stageStruct.Astructs {
+		if astruct.AnAstruct != nil {
+			astruct_ := astruct.AnAstruct
+			var astructs []*Astruct
+			_, ok := res[astruct_]
+			if ok {
+				astructs = res[astruct_]
+			} else {
+				astructs = make([]*Astruct, 0)
+			}
+			astructs = append(astructs, astruct)
+			res[astruct_] = astructs
+		}
+	}
+
+	return
+}
+
+// generate function for reverse association maps of AstructBstruct2Use
+func (stageStruct *StageStruct) CreateReverseMap_AstructBstruct2Use_Bstrcut2() (res map[*Bstruct][]*AstructBstruct2Use) {
+	res = make(map[*Bstruct][]*AstructBstruct2Use)
+
+	for astructbstruct2use := range stageStruct.AstructBstruct2Uses {
+		if astructbstruct2use.Bstrcut2 != nil {
+			bstruct_ := astructbstruct2use.Bstrcut2
+			var astructbstruct2uses []*AstructBstruct2Use
+			_, ok := res[bstruct_]
+			if ok {
+				astructbstruct2uses = res[bstruct_]
+			} else {
+				astructbstruct2uses = make([]*AstructBstruct2Use, 0)
+			}
+			astructbstruct2uses = append(astructbstruct2uses, astructbstruct2use)
+			res[bstruct_] = astructbstruct2uses
+		}
+	}
+
+	return
+}
+
+// generate function for reverse association maps of AstructBstructUse
+func (stageStruct *StageStruct) CreateReverseMap_AstructBstructUse_Bstruct2() (res map[*Bstruct][]*AstructBstructUse) {
+	res = make(map[*Bstruct][]*AstructBstructUse)
+
+	for astructbstructuse := range stageStruct.AstructBstructUses {
+		if astructbstructuse.Bstruct2 != nil {
+			bstruct_ := astructbstructuse.Bstruct2
+			var astructbstructuses []*AstructBstructUse
+			_, ok := res[bstruct_]
+			if ok {
+				astructbstructuses = res[bstruct_]
+			} else {
+				astructbstructuses = make([]*AstructBstructUse, 0)
+			}
+			astructbstructuses = append(astructbstructuses, astructbstructuse)
+			res[bstruct_] = astructbstructuses
+		}
+	}
+
+	return
+}
+
+// generate function for reverse association maps of Bstruct
+
+// generate function for reverse association maps of Dstruct
+
+// Gongstruct is the type parameter for generated generic function that allows
+// - access to staged instances
+// - navigation between staged instances by going backward association links between gongstruct
+// - full refactoring of Gongstruct identifiers / fields
+type Gongstruct interface {
+	// insertion point for generic types
+	Astruct | AstructBstruct2Use | AstructBstructUse | Bstruct | Dstruct
+}
+
+// Gongstruct is the type parameter for generated generic function that allows
+// - access to staged instances
+// - navigation between staged instances by going backward association links between gongstruct
+// - full refactoring of Gongstruct identifiers / fields
+type PointerToGongstruct interface {
+	// insertion point for generic types
+	*Astruct | *AstructBstruct2Use | *AstructBstructUse | *Bstruct | *Dstruct
+	GetName() string
+}
+
+type GongstructSet interface {
+	map[any]any |
+		// insertion point for generic types
+		map[*Astruct]any |
+		map[*AstructBstruct2Use]any |
+		map[*AstructBstructUse]any |
+		map[*Bstruct]any |
+		map[*Dstruct]any |
+		map[*any]any // because go does not support an extra "|" at the end of type specifications
+}
+
+type GongstructMapString interface {
+	map[any]any |
+		// insertion point for generic types
+		map[string]*Astruct |
+		map[string]*AstructBstruct2Use |
+		map[string]*AstructBstructUse |
+		map[string]*Bstruct |
+		map[string]*Dstruct |
+		map[*any]any // because go does not support an extra "|" at the end of type specifications
+}
+
+// GongGetSet returns the set staged GongstructType instances
+// it is usefull because it allows refactoring of gong struct identifier
+func GongGetSet[Type GongstructSet]() *Type {
+	var ret Type
+
+	switch any(ret).(type) {
+	// insertion point for generic get functions
+	case map[*Astruct]any:
+		return any(&Stage.Astructs).(*Type)
+	case map[*AstructBstruct2Use]any:
+		return any(&Stage.AstructBstruct2Uses).(*Type)
+	case map[*AstructBstructUse]any:
+		return any(&Stage.AstructBstructUses).(*Type)
+	case map[*Bstruct]any:
+		return any(&Stage.Bstructs).(*Type)
+	case map[*Dstruct]any:
+		return any(&Stage.Dstructs).(*Type)
+	default:
+		return nil
+	}
+}
+
+// GongGetMap returns the map of staged GongstructType instances
+// it is usefull because it allows refactoring of gong struct identifier
+func GongGetMap[Type GongstructMapString]() *Type {
+	var ret Type
+
+	switch any(ret).(type) {
+	// insertion point for generic get functions
+	case map[string]*Astruct:
+		return any(&Stage.Astructs_mapString).(*Type)
+	case map[string]*AstructBstruct2Use:
+		return any(&Stage.AstructBstruct2Uses_mapString).(*Type)
+	case map[string]*AstructBstructUse:
+		return any(&Stage.AstructBstructUses_mapString).(*Type)
+	case map[string]*Bstruct:
+		return any(&Stage.Bstructs_mapString).(*Type)
+	case map[string]*Dstruct:
+		return any(&Stage.Dstructs_mapString).(*Type)
+	default:
+		return nil
+	}
+}
+
+// GetGongstructInstancesSet returns the set staged GongstructType instances
+// it is usefull because it allows refactoring of gongstruct identifier
+func GetGongstructInstancesSet[Type Gongstruct]() *map[*Type]any {
+	var ret Type
+
+	switch any(ret).(type) {
+	// insertion point for generic get functions
+	case Astruct:
+		return any(&Stage.Astructs).(*map[*Type]any)
+	case AstructBstruct2Use:
+		return any(&Stage.AstructBstruct2Uses).(*map[*Type]any)
+	case AstructBstructUse:
+		return any(&Stage.AstructBstructUses).(*map[*Type]any)
+	case Bstruct:
+		return any(&Stage.Bstructs).(*map[*Type]any)
+	case Dstruct:
+		return any(&Stage.Dstructs).(*map[*Type]any)
+	default:
+		return nil
+	}
+}
+
+// GetGongstructInstancesMap returns the map of staged GongstructType instances
+// it is usefull because it allows refactoring of gong struct identifier
+func GetGongstructInstancesMap[Type Gongstruct]() *map[string]*Type {
+	var ret Type
+
+	switch any(ret).(type) {
+	// insertion point for generic get functions
+	case Astruct:
+		return any(&Stage.Astructs_mapString).(*map[string]*Type)
+	case AstructBstruct2Use:
+		return any(&Stage.AstructBstruct2Uses_mapString).(*map[string]*Type)
+	case AstructBstructUse:
+		return any(&Stage.AstructBstructUses_mapString).(*map[string]*Type)
+	case Bstruct:
+		return any(&Stage.Bstructs_mapString).(*map[string]*Type)
+	case Dstruct:
+		return any(&Stage.Dstructs_mapString).(*map[string]*Type)
+	default:
+		return nil
+	}
+}
+
+// GetAssociationName is a generic function that returns an instance of Type
+// where each association is filled with an instance whose name is the name of the association
+//
+// This function can be handy for generating navigation function that are refactorable
+func GetAssociationName[Type Gongstruct]() *Type {
+	var ret Type
+
+	switch any(ret).(type) {
+	// insertion point for instance with special fields
+	case Astruct:
+		return any(&Astruct{
+			// Initialisation of associations
+			// field is initialized with an instance of Bstruct (Cstruct as it is a composite) with the name of the field
+			Cstruct: Cstruct{
+				Bstruct: &Bstruct{Name: "Bstruct"},
+			},
+			// field is initialized with an instance of Bstruct with the name of the field
+			Associationtob: &Bstruct{Name: "Associationtob"},
+			// field is initialized with an instance of Bstruct with the name of the field
+			Anotherassociationtob_2: &Bstruct{Name: "Anotherassociationtob_2"},
+			// field is initialized with an instance of Bstruct with the name of the field
+			Anarrayofb: []*Bstruct{{Name: "Anarrayofb"}},
+			// field is initialized with an instance of Bstruct with the name of the field
+			Anotherarrayofb: []*Bstruct{{Name: "Anotherarrayofb"}},
+			// field is initialized with an instance of Astruct with the name of the field
+			Anarrayofa: []*Astruct{{Name: "Anarrayofa"}},
+			// field is initialized with an instance of AstructBstructUse with the name of the field
+			AnarrayofbUse: []*AstructBstructUse{{Name: "AnarrayofbUse"}},
+			// field is initialized with an instance of AstructBstruct2Use with the name of the field
+			Anarrayofb2Use: []*AstructBstruct2Use{{Name: "Anarrayofb2Use"}},
+			// field is initialized with an instance of Astruct with the name of the field
+			AnAstruct: &Astruct{Name: "AnAstruct"},
+		}).(*Type)
+	case AstructBstruct2Use:
+		return any(&AstructBstruct2Use{
+			// Initialisation of associations
+			// field is initialized with an instance of Bstruct with the name of the field
+			Bstrcut2: &Bstruct{Name: "Bstrcut2"},
+		}).(*Type)
+	case AstructBstructUse:
+		return any(&AstructBstructUse{
+			// Initialisation of associations
+			// field is initialized with an instance of Bstruct with the name of the field
+			Bstruct2: &Bstruct{Name: "Bstruct2"},
+		}).(*Type)
+	case Bstruct:
+		return any(&Bstruct{
+			// Initialisation of associations
+		}).(*Type)
+	case Dstruct:
+		return any(&Dstruct{
+			// Initialisation of associations
+		}).(*Type)
+	default:
+		return nil
+	}
+}
+
+// GetPointerReverseMap allows backtrack navigation of any Start.Fieldname
+// associations (0..1) that is a pointer from one staged Gongstruct (type Start)
+// instances to another (type End)
+//
+// The function provides a map with keys as instances of End and values to arrays of *Start
+// the map is construed by iterating over all Start instances and populationg keys with End instances
+// and values with slice of Start instances
+func GetPointerReverseMap[Start, End Gongstruct](fieldname string) map[*End][]*Start {
+	var ret Start
+
+	switch any(ret).(type) {
+	// insertion point of functions that provide maps for reverse associations
+	// reverse maps of direct associations of Astruct
+	case Astruct:
+		switch fieldname {
+		// insertion point for per direct association field
+		case "Bstruct":
+			res := make(map[*Bstruct][]*Astruct)
+			for astruct := range Stage.Astructs {
+				if astruct.Bstruct != nil {
+					bstruct_ := astruct.Bstruct
+					var astructs []*Astruct
+					_, ok := res[bstruct_]
+					if ok {
+						astructs = res[bstruct_]
+					} else {
+						astructs = make([]*Astruct, 0)
+					}
+					astructs = append(astructs, astruct)
+					res[bstruct_] = astructs
+				}
+			}
+			return any(res).(map[*End][]*Start)
+		case "Associationtob":
+			res := make(map[*Bstruct][]*Astruct)
+			for astruct := range Stage.Astructs {
+				if astruct.Associationtob != nil {
+					bstruct_ := astruct.Associationtob
+					var astructs []*Astruct
+					_, ok := res[bstruct_]
+					if ok {
+						astructs = res[bstruct_]
+					} else {
+						astructs = make([]*Astruct, 0)
+					}
+					astructs = append(astructs, astruct)
+					res[bstruct_] = astructs
+				}
+			}
+			return any(res).(map[*End][]*Start)
+		case "Anotherassociationtob_2":
+			res := make(map[*Bstruct][]*Astruct)
+			for astruct := range Stage.Astructs {
+				if astruct.Anotherassociationtob_2 != nil {
+					bstruct_ := astruct.Anotherassociationtob_2
+					var astructs []*Astruct
+					_, ok := res[bstruct_]
+					if ok {
+						astructs = res[bstruct_]
+					} else {
+						astructs = make([]*Astruct, 0)
+					}
+					astructs = append(astructs, astruct)
+					res[bstruct_] = astructs
+				}
+			}
+			return any(res).(map[*End][]*Start)
+		case "AnAstruct":
+			res := make(map[*Astruct][]*Astruct)
+			for astruct := range Stage.Astructs {
+				if astruct.AnAstruct != nil {
+					astruct_ := astruct.AnAstruct
+					var astructs []*Astruct
+					_, ok := res[astruct_]
+					if ok {
+						astructs = res[astruct_]
+					} else {
+						astructs = make([]*Astruct, 0)
+					}
+					astructs = append(astructs, astruct)
+					res[astruct_] = astructs
+				}
+			}
+			return any(res).(map[*End][]*Start)
+		}
+	// reverse maps of direct associations of AstructBstruct2Use
+	case AstructBstruct2Use:
+		switch fieldname {
+		// insertion point for per direct association field
+		case "Bstrcut2":
+			res := make(map[*Bstruct][]*AstructBstruct2Use)
+			for astructbstruct2use := range Stage.AstructBstruct2Uses {
+				if astructbstruct2use.Bstrcut2 != nil {
+					bstruct_ := astructbstruct2use.Bstrcut2
+					var astructbstruct2uses []*AstructBstruct2Use
+					_, ok := res[bstruct_]
+					if ok {
+						astructbstruct2uses = res[bstruct_]
+					} else {
+						astructbstruct2uses = make([]*AstructBstruct2Use, 0)
+					}
+					astructbstruct2uses = append(astructbstruct2uses, astructbstruct2use)
+					res[bstruct_] = astructbstruct2uses
+				}
+			}
+			return any(res).(map[*End][]*Start)
+		}
+	// reverse maps of direct associations of AstructBstructUse
+	case AstructBstructUse:
+		switch fieldname {
+		// insertion point for per direct association field
+		case "Bstruct2":
+			res := make(map[*Bstruct][]*AstructBstructUse)
+			for astructbstructuse := range Stage.AstructBstructUses {
+				if astructbstructuse.Bstruct2 != nil {
+					bstruct_ := astructbstructuse.Bstruct2
+					var astructbstructuses []*AstructBstructUse
+					_, ok := res[bstruct_]
+					if ok {
+						astructbstructuses = res[bstruct_]
+					} else {
+						astructbstructuses = make([]*AstructBstructUse, 0)
+					}
+					astructbstructuses = append(astructbstructuses, astructbstructuse)
+					res[bstruct_] = astructbstructuses
+				}
+			}
+			return any(res).(map[*End][]*Start)
+		}
+	// reverse maps of direct associations of Bstruct
+	case Bstruct:
+		switch fieldname {
+		// insertion point for per direct association field
+		}
+	// reverse maps of direct associations of Dstruct
+	case Dstruct:
+		switch fieldname {
+		// insertion point for per direct association field
+		}
+	}
+	return nil
+}
+
+// GetSliceOfPointersReverseMap allows backtrack navigation of any Start.Fieldname
+// associations (0..N) between one staged Gongstruct instances and many others
+//
+// The function provides a map with keys as instances of End and values to *Start instances
+// the map is construed by iterating over all Start instances and populating keys with End instances
+// and values with the Start instances
+func GetSliceOfPointersReverseMap[Start, End Gongstruct](fieldname string) map[*End]*Start {
+	var ret Start
+
+	switch any(ret).(type) {
+	// insertion point of functions that provide maps for reverse associations
+	// reverse maps of direct associations of Astruct
+	case Astruct:
+		switch fieldname {
+		// insertion point for per direct association field
+		case "Anarrayofb":
+			res := make(map[*Bstruct]*Astruct)
+			for astruct := range Stage.Astructs {
+				for _, bstruct_ := range astruct.Anarrayofb {
+					res[bstruct_] = astruct
+				}
+			}
+			return any(res).(map[*End]*Start)
+		case "Anotherarrayofb":
+			res := make(map[*Bstruct]*Astruct)
+			for astruct := range Stage.Astructs {
+				for _, bstruct_ := range astruct.Anotherarrayofb {
+					res[bstruct_] = astruct
+				}
+			}
+			return any(res).(map[*End]*Start)
+		case "Anarrayofa":
+			res := make(map[*Astruct]*Astruct)
+			for astruct := range Stage.Astructs {
+				for _, astruct_ := range astruct.Anarrayofa {
+					res[astruct_] = astruct
+				}
+			}
+			return any(res).(map[*End]*Start)
+		case "AnarrayofbUse":
+			res := make(map[*AstructBstructUse]*Astruct)
+			for astruct := range Stage.Astructs {
+				for _, astructbstructuse_ := range astruct.AnarrayofbUse {
+					res[astructbstructuse_] = astruct
+				}
+			}
+			return any(res).(map[*End]*Start)
+		case "Anarrayofb2Use":
+			res := make(map[*AstructBstruct2Use]*Astruct)
+			for astruct := range Stage.Astructs {
+				for _, astructbstruct2use_ := range astruct.Anarrayofb2Use {
+					res[astructbstruct2use_] = astruct
+				}
+			}
+			return any(res).(map[*End]*Start)
+		}
+	// reverse maps of direct associations of AstructBstruct2Use
+	case AstructBstruct2Use:
+		switch fieldname {
+		// insertion point for per direct association field
+		}
+	// reverse maps of direct associations of AstructBstructUse
+	case AstructBstructUse:
+		switch fieldname {
+		// insertion point for per direct association field
+		}
+	// reverse maps of direct associations of Bstruct
+	case Bstruct:
+		switch fieldname {
+		// insertion point for per direct association field
+		}
+	// reverse maps of direct associations of Dstruct
+	case Dstruct:
+		switch fieldname {
+		// insertion point for per direct association field
+		}
+	}
+	return nil
+}
+
+// GetGongstructName returns the name of the Gongstruct
+// this can be usefull if one want program robust to refactoring
+func GetGongstructName[Type Gongstruct]() (res string) {
+
+	var ret Type
+
+	switch any(ret).(type) {
+	// insertion point for generic get gongstruct name
+	case Astruct:
+		res = "Astruct"
+	case AstructBstruct2Use:
+		res = "AstructBstruct2Use"
+	case AstructBstructUse:
+		res = "AstructBstructUse"
+	case Bstruct:
+		res = "Bstruct"
+	case Dstruct:
+		res = "Dstruct"
+	}
+	return res
+}
+
+// GetFields return the array of the fields
+func GetFields[Type Gongstruct]() (res []string) {
+
+	var ret Type
+
+	switch any(ret).(type) {
+	// insertion point for generic get gongstruct name
+	case Astruct:
+		res = []string{"Name", "Date", "Booleanfield", "Aenum", "Aenum_2", "Benum", "CEnum", "CName", "CFloatfield", "Bstruct", "Floatfield", "Intfield", "Anotherbooleanfield", "Duration1", "Associationtob", "Anotherassociationtob_2", "Anarrayofb", "Anotherarrayofb", "Anarrayofa", "AnarrayofbUse", "Anarrayofb2Use", "AnAstruct"}
+	case AstructBstruct2Use:
+		res = []string{"Name", "Bstrcut2"}
+	case AstructBstructUse:
+		res = []string{"Name", "Bstruct2"}
+	case Bstruct:
+		res = []string{"Name", "Floatfield", "Floatfield2", "Intfield"}
+	case Dstruct:
+		res = []string{"Name"}
+	}
+	return
+}
+
+func GetFieldStringValue[Type Gongstruct](instance Type, fieldName string) (res string) {
+	var ret Type
+
+	switch any(ret).(type) {
+	// insertion point for generic get gongstruct field value
+	case Astruct:
+		switch fieldName {
+		// string value of fields
+		case "Name":
+			res = any(instance).(Astruct).Name
+		case "Date":
+			res = any(instance).(Astruct).Date.String()
+		case "Booleanfield":
+			res = fmt.Sprintf("%t", any(instance).(Astruct).Booleanfield)
+		case "Aenum":
+			enum := any(instance).(Astruct).Aenum
+			res = enum.ToCodeString()
+		case "Aenum_2":
+			enum := any(instance).(Astruct).Aenum_2
+			res = enum.ToCodeString()
+		case "Benum":
+			enum := any(instance).(Astruct).Benum
+			res = enum.ToCodeString()
+		case "CEnum":
+			enum := any(instance).(Astruct).CEnum
+			res = enum.ToCodeString()
+		case "CName":
+			res = any(instance).(Astruct).CName
+		case "CFloatfield":
+			res = fmt.Sprintf("%f", any(instance).(Astruct).CFloatfield)
+		case "Bstruct":
+			if any(instance).(Astruct).Bstruct != nil {
+				res = any(instance).(Astruct).Bstruct.Name
+			}
+		case "Floatfield":
+			res = fmt.Sprintf("%f", any(instance).(Astruct).Floatfield)
+		case "Intfield":
+			res = fmt.Sprintf("%d", any(instance).(Astruct).Intfield)
+		case "Anotherbooleanfield":
+			res = fmt.Sprintf("%t", any(instance).(Astruct).Anotherbooleanfield)
+		case "Duration1":
+			res = fmt.Sprintf("%d", any(instance).(Astruct).Duration1)
+		case "Associationtob":
+			if any(instance).(Astruct).Associationtob != nil {
+				res = any(instance).(Astruct).Associationtob.Name
+			}
+		case "Anotherassociationtob_2":
+			if any(instance).(Astruct).Anotherassociationtob_2 != nil {
+				res = any(instance).(Astruct).Anotherassociationtob_2.Name
+			}
+		case "Anarrayofb":
+			for idx, __instance__ := range any(instance).(Astruct).Anarrayofb {
+				if idx > 0 {
+					res += "\n"
+				}
+				res += __instance__.Name
+			}
+		case "Anotherarrayofb":
+			for idx, __instance__ := range any(instance).(Astruct).Anotherarrayofb {
+				if idx > 0 {
+					res += "\n"
+				}
+				res += __instance__.Name
+			}
+		case "Anarrayofa":
+			for idx, __instance__ := range any(instance).(Astruct).Anarrayofa {
+				if idx > 0 {
+					res += "\n"
+				}
+				res += __instance__.Name
+			}
+		case "AnarrayofbUse":
+			for idx, __instance__ := range any(instance).(Astruct).AnarrayofbUse {
+				if idx > 0 {
+					res += "\n"
+				}
+				res += __instance__.Name
+			}
+		case "Anarrayofb2Use":
+			for idx, __instance__ := range any(instance).(Astruct).Anarrayofb2Use {
+				if idx > 0 {
+					res += "\n"
+				}
+				res += __instance__.Name
+			}
+		case "AnAstruct":
+			if any(instance).(Astruct).AnAstruct != nil {
+				res = any(instance).(Astruct).AnAstruct.Name
+			}
+		}
+	case AstructBstruct2Use:
+		switch fieldName {
+		// string value of fields
+		case "Name":
+			res = any(instance).(AstructBstruct2Use).Name
+		case "Bstrcut2":
+			if any(instance).(AstructBstruct2Use).Bstrcut2 != nil {
+				res = any(instance).(AstructBstruct2Use).Bstrcut2.Name
+			}
+		}
+	case AstructBstructUse:
+		switch fieldName {
+		// string value of fields
+		case "Name":
+			res = any(instance).(AstructBstructUse).Name
+		case "Bstruct2":
+			if any(instance).(AstructBstructUse).Bstruct2 != nil {
+				res = any(instance).(AstructBstructUse).Bstruct2.Name
+			}
+		}
+	case Bstruct:
+		switch fieldName {
+		// string value of fields
+		case "Name":
+			res = any(instance).(Bstruct).Name
+		case "Floatfield":
+			res = fmt.Sprintf("%f", any(instance).(Bstruct).Floatfield)
+		case "Floatfield2":
+			res = fmt.Sprintf("%f", any(instance).(Bstruct).Floatfield2)
+		case "Intfield":
+			res = fmt.Sprintf("%d", any(instance).(Bstruct).Intfield)
+		}
+	case Dstruct:
+		switch fieldName {
+		// string value of fields
+		case "Name":
+			res = any(instance).(Dstruct).Name
+		}
+	}
+	return
+}
+
+// insertion point of enum utility functions
+// Utility function for AEnumType
+// if enum values are string, it is stored with the value
+// if enum values are int, they are stored with the code of the value
+func (aenumtype AEnumType) ToString() (res string) {
+
+	// migration of former implementation of enum
+	switch aenumtype {
+	// insertion code per enum code
+	case ENUM_VAL1:
+		res = "ENUM_VAL1_NOT_THE_SAME"
+	case ENUM_VAL2:
+		res = "ENUM_VAL2"
+	}
+	return
+}
+
+func (aenumtype *AEnumType) FromString(input string) {
+
+	switch input {
+	// insertion code per enum code
+	case "ENUM_VAL1_NOT_THE_SAME":
+		*aenumtype = ENUM_VAL1
+	case "ENUM_VAL2":
+		*aenumtype = ENUM_VAL2
+	}
+}
+
+func (aenumtype *AEnumType) ToCodeString() (res string) {
+
+	switch *aenumtype {
+	// insertion code per enum code
+	case ENUM_VAL1:
+		res = "ENUM_VAL1"
+	case ENUM_VAL2:
+		res = "ENUM_VAL2"
+	}
+	return
+}
+
+// Utility function for BEnumType
+// if enum values are string, it is stored with the value
+// if enum values are int, they are stored with the code of the value
+func (benumtype BEnumType) ToString() (res string) {
+
+	// migration of former implementation of enum
+	switch benumtype {
+	// insertion code per enum code
+	case BENUM_VAL1:
+		res = "BENUM_VAL1_NOT_THE_SAME"
+	case BENUM_VAL2:
+		res = "BENUM_VAL2"
+	}
+	return
+}
+
+func (benumtype *BEnumType) FromString(input string) {
+
+	switch input {
+	// insertion code per enum code
+	case "BENUM_VAL1_NOT_THE_SAME":
+		*benumtype = BENUM_VAL1
+	case "BENUM_VAL2":
+		*benumtype = BENUM_VAL2
+	}
+}
+
+func (benumtype *BEnumType) ToCodeString() (res string) {
+
+	switch *benumtype {
+	// insertion code per enum code
+	case BENUM_VAL1:
+		res = "BENUM_VAL1"
+	case BENUM_VAL2:
+		res = "BENUM_VAL2"
+	}
+	return
+}
+
+// Utility function for CEnumTypeInt
+// if enum values are string, it is stored with the value
+// if enum values are int, they are stored with the code of the value
+func (cenumtypeint CEnumTypeInt) ToInt() (res int) {
+
+	// migration of former implementation of enum
+	switch cenumtypeint {
+	// insertion code per enum code
+	case CENUM_VAL1:
+		res = 0
+	case CENUM_VAL2:
+		res = 1
+	}
+	return
+}
+
+func (cenumtypeint *CEnumTypeInt) FromInt(input int) {
+
+	switch input {
+	// insertion code per enum code
+	case 0:
+		*cenumtypeint = CENUM_VAL1
+	case 1:
+		*cenumtypeint = CENUM_VAL2
+	}
+}
+
+func (cenumtypeint *CEnumTypeInt) ToCodeString() (res string) {
+
+	switch *cenumtypeint {
+	// insertion code per enum code
+	case CENUM_VAL1:
+		res = "CENUM_VAL1"
+	case CENUM_VAL2:
+		res = "CENUM_VAL2"
+	}
+	return
+}
+
+// Last line of the template

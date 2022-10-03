@@ -64,28 +64,28 @@ type PolylineDB struct {
 
 	// insertion for basic fields declaration
 
-	// Declation for basic field polylineDB.Name {{BasicKind}} (to be completed)
+	// Declation for basic field polylineDB.Name
 	Name_Data sql.NullString
 
-	// Declation for basic field polylineDB.Points {{BasicKind}} (to be completed)
+	// Declation for basic field polylineDB.Points
 	Points_Data sql.NullString
 
-	// Declation for basic field polylineDB.Color {{BasicKind}} (to be completed)
+	// Declation for basic field polylineDB.Color
 	Color_Data sql.NullString
 
-	// Declation for basic field polylineDB.FillOpacity {{BasicKind}} (to be completed)
+	// Declation for basic field polylineDB.FillOpacity
 	FillOpacity_Data sql.NullFloat64
 
-	// Declation for basic field polylineDB.Stroke {{BasicKind}} (to be completed)
+	// Declation for basic field polylineDB.Stroke
 	Stroke_Data sql.NullString
 
-	// Declation for basic field polylineDB.StrokeWidth {{BasicKind}} (to be completed)
+	// Declation for basic field polylineDB.StrokeWidth
 	StrokeWidth_Data sql.NullFloat64
 
-	// Declation for basic field polylineDB.StrokeDashArray {{BasicKind}} (to be completed)
+	// Declation for basic field polylineDB.StrokeDashArray
 	StrokeDashArray_Data sql.NullString
 
-	// Declation for basic field polylineDB.Transform {{BasicKind}} (to be completed)
+	// Declation for basic field polylineDB.Transform
 	Transform_Data sql.NullString
 	// encoding of pointers
 	PolylinePointersEnconding
@@ -328,7 +328,7 @@ func (backRepoPolyline *BackRepoPolylineStruct) CheckoutPhaseOne() (Error error)
 
 	// list of instances to be removed
 	// start from the initial map on the stage and remove instances that have been checked out
-	polylineInstancesToBeRemovedFromTheStage := make(map[*models.Polyline]struct{})
+	polylineInstancesToBeRemovedFromTheStage := make(map[*models.Polyline]any)
 	for key, value := range models.Stage.Polylines {
 		polylineInstancesToBeRemovedFromTheStage[key] = value
 	}

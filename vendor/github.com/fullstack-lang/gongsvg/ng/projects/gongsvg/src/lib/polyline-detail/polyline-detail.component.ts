@@ -262,7 +262,7 @@ export class PolylineDetailComponent implements OnInit {
 	}
 
 	fillUpNameIfEmpty(event: { value: { Name: string; }; }) {
-		if (this.polyline.Name == undefined) {
+		if (this.polyline.Name == "") {
 			this.polyline.Name = event.value.Name
 		}
 	}

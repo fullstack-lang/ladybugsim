@@ -134,16 +134,6 @@ export class DummyAgentDetailComponent implements OnInit {
 		// pointers fields, after the translation, are nulled in order to perform serialization
 
 		// insertion point for translation/nullation of each field
-		if (this.dummyagent.EngineID == undefined) {
-			this.dummyagent.EngineID = new NullInt64
-		}
-		if (this.dummyagent.Engine != undefined) {
-			this.dummyagent.EngineID.Int64 = this.dummyagent.Engine.ID
-			this.dummyagent.EngineID.Valid = true
-		} else {
-			this.dummyagent.EngineID.Int64 = 0
-			this.dummyagent.EngineID.Valid = true
-		}
 
 		// save from the front pointer space to the non pointer space for serialization
 
@@ -250,7 +240,7 @@ export class DummyAgentDetailComponent implements OnInit {
 	}
 
 	fillUpNameIfEmpty(event: { value: { Name: string; }; }) {
-		if (this.dummyagent.Name == undefined) {
+		if (this.dummyagent.Name == "") {
 			this.dummyagent.Name = event.value.Name
 		}
 	}

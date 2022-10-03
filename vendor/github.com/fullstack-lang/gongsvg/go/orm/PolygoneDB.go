@@ -64,28 +64,28 @@ type PolygoneDB struct {
 
 	// insertion for basic fields declaration
 
-	// Declation for basic field polygoneDB.Name {{BasicKind}} (to be completed)
+	// Declation for basic field polygoneDB.Name
 	Name_Data sql.NullString
 
-	// Declation for basic field polygoneDB.Points {{BasicKind}} (to be completed)
+	// Declation for basic field polygoneDB.Points
 	Points_Data sql.NullString
 
-	// Declation for basic field polygoneDB.Color {{BasicKind}} (to be completed)
+	// Declation for basic field polygoneDB.Color
 	Color_Data sql.NullString
 
-	// Declation for basic field polygoneDB.FillOpacity {{BasicKind}} (to be completed)
+	// Declation for basic field polygoneDB.FillOpacity
 	FillOpacity_Data sql.NullFloat64
 
-	// Declation for basic field polygoneDB.Stroke {{BasicKind}} (to be completed)
+	// Declation for basic field polygoneDB.Stroke
 	Stroke_Data sql.NullString
 
-	// Declation for basic field polygoneDB.StrokeWidth {{BasicKind}} (to be completed)
+	// Declation for basic field polygoneDB.StrokeWidth
 	StrokeWidth_Data sql.NullFloat64
 
-	// Declation for basic field polygoneDB.StrokeDashArray {{BasicKind}} (to be completed)
+	// Declation for basic field polygoneDB.StrokeDashArray
 	StrokeDashArray_Data sql.NullString
 
-	// Declation for basic field polygoneDB.Transform {{BasicKind}} (to be completed)
+	// Declation for basic field polygoneDB.Transform
 	Transform_Data sql.NullString
 	// encoding of pointers
 	PolygonePointersEnconding
@@ -328,7 +328,7 @@ func (backRepoPolygone *BackRepoPolygoneStruct) CheckoutPhaseOne() (Error error)
 
 	// list of instances to be removed
 	// start from the initial map on the stage and remove instances that have been checked out
-	polygoneInstancesToBeRemovedFromTheStage := make(map[*models.Polygone]struct{})
+	polygoneInstancesToBeRemovedFromTheStage := make(map[*models.Polygone]any)
 	for key, value := range models.Stage.Polygones {
 		polygoneInstancesToBeRemovedFromTheStage[key] = value
 	}

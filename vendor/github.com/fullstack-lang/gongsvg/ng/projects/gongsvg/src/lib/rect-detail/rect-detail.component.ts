@@ -262,7 +262,7 @@ export class RectDetailComponent implements OnInit {
 	}
 
 	fillUpNameIfEmpty(event: { value: { Name: string; }; }) {
-		if (this.rect.Name == undefined) {
+		if (this.rect.Name == "") {
 			this.rect.Name = event.value.Name
 		}
 	}

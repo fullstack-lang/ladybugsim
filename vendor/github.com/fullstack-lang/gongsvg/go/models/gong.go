@@ -12,42 +12,50 @@ import (
 )
 
 // swagger:ignore
-type __void struct{}
+type __void any
 
 // needed for creating set of instances in the stage
 var __member __void
 
+// GongStructInterface is the interface met by GongStructs
+// It allows runtime reflexion of instances (without the hassle of the "reflect" package)
+type GongStructInterface interface {
+	GetName() (res string)
+	GetFields() (res []string)
+	GetFieldStringValue(fieldName string) (res string)
+}
+
 // StageStruct enables storage of staged instances
 // swagger:ignore
 type StageStruct struct { // insertion point for definition of arrays registering instances
-	Animates           map[*Animate]struct{}
+	Animates           map[*Animate]any
 	Animates_mapString map[string]*Animate
 
-	Circles           map[*Circle]struct{}
+	Circles           map[*Circle]any
 	Circles_mapString map[string]*Circle
 
-	Ellipses           map[*Ellipse]struct{}
+	Ellipses           map[*Ellipse]any
 	Ellipses_mapString map[string]*Ellipse
 
-	Lines           map[*Line]struct{}
+	Lines           map[*Line]any
 	Lines_mapString map[string]*Line
 
-	Paths           map[*Path]struct{}
+	Paths           map[*Path]any
 	Paths_mapString map[string]*Path
 
-	Polygones           map[*Polygone]struct{}
+	Polygones           map[*Polygone]any
 	Polygones_mapString map[string]*Polygone
 
-	Polylines           map[*Polyline]struct{}
+	Polylines           map[*Polyline]any
 	Polylines_mapString map[string]*Polyline
 
-	Rects           map[*Rect]struct{}
+	Rects           map[*Rect]any
 	Rects_mapString map[string]*Rect
 
-	SVGs           map[*SVG]struct{}
+	SVGs           map[*SVG]any
 	SVGs_mapString map[string]*SVG
 
-	Texts           map[*Text]struct{}
+	Texts           map[*Text]any
 	Texts_mapString map[string]*Text
 
 	AllModelsStructCreateCallback AllModelsStructCreateInterface
@@ -103,34 +111,34 @@ type BackRepoInterface interface {
 
 // swagger:ignore instructs the gong compiler (gongc) to avoid this particular struct
 var Stage StageStruct = StageStruct{ // insertion point for array initiatialisation
-	Animates:           make(map[*Animate]struct{}),
+	Animates:           make(map[*Animate]any),
 	Animates_mapString: make(map[string]*Animate),
 
-	Circles:           make(map[*Circle]struct{}),
+	Circles:           make(map[*Circle]any),
 	Circles_mapString: make(map[string]*Circle),
 
-	Ellipses:           make(map[*Ellipse]struct{}),
+	Ellipses:           make(map[*Ellipse]any),
 	Ellipses_mapString: make(map[string]*Ellipse),
 
-	Lines:           make(map[*Line]struct{}),
+	Lines:           make(map[*Line]any),
 	Lines_mapString: make(map[string]*Line),
 
-	Paths:           make(map[*Path]struct{}),
+	Paths:           make(map[*Path]any),
 	Paths_mapString: make(map[string]*Path),
 
-	Polygones:           make(map[*Polygone]struct{}),
+	Polygones:           make(map[*Polygone]any),
 	Polygones_mapString: make(map[string]*Polygone),
 
-	Polylines:           make(map[*Polyline]struct{}),
+	Polylines:           make(map[*Polyline]any),
 	Polylines_mapString: make(map[string]*Polyline),
 
-	Rects:           make(map[*Rect]struct{}),
+	Rects:           make(map[*Rect]any),
 	Rects_mapString: make(map[string]*Rect),
 
-	SVGs:           make(map[*SVG]struct{}),
+	SVGs:           make(map[*SVG]any),
 	SVGs_mapString: make(map[string]*SVG),
 
-	Texts:           make(map[*Text]struct{}),
+	Texts:           make(map[*Text]any),
 	Texts_mapString: make(map[string]*Text),
 
 	// end of insertion point
@@ -160,6 +168,19 @@ func (stage *StageStruct) Checkout() {
 	if stage.BackRepo != nil {
 		stage.BackRepo.Checkout(stage)
 	}
+
+	// insertion point for computing the map of number of instances per gongstruct
+	stage.Map_GongStructName_InstancesNb["Animate"] = len(stage.Animates)
+	stage.Map_GongStructName_InstancesNb["Circle"] = len(stage.Circles)
+	stage.Map_GongStructName_InstancesNb["Ellipse"] = len(stage.Ellipses)
+	stage.Map_GongStructName_InstancesNb["Line"] = len(stage.Lines)
+	stage.Map_GongStructName_InstancesNb["Path"] = len(stage.Paths)
+	stage.Map_GongStructName_InstancesNb["Polygone"] = len(stage.Polygones)
+	stage.Map_GongStructName_InstancesNb["Polyline"] = len(stage.Polylines)
+	stage.Map_GongStructName_InstancesNb["Rect"] = len(stage.Rects)
+	stage.Map_GongStructName_InstancesNb["SVG"] = len(stage.SVGs)
+	stage.Map_GongStructName_InstancesNb["Text"] = len(stage.Texts)
+
 }
 
 // backup generates backup files in the dirPath
@@ -191,18 +212,6 @@ func (stage *StageStruct) RestoreXL(dirPath string) {
 }
 
 // insertion point for cumulative sub template with model space calls
-func (stage *StageStruct) getAnimateOrderedStructWithNameField() []*Animate {
-	// have alphabetical order generation
-	animateOrdered := []*Animate{}
-	for animate := range stage.Animates {
-		animateOrdered = append(animateOrdered, animate)
-	}
-	sort.Slice(animateOrdered[:], func(i, j int) bool {
-		return animateOrdered[i].Name < animateOrdered[j].Name
-	})
-	return animateOrdered
-}
-
 // Stage puts animate to the model stage
 func (animate *Animate) Stage() *Animate {
 	Stage.Animates[animate] = __member
@@ -293,16 +302,9 @@ func DeleteORMAnimate(animate *Animate) {
 	}
 }
 
-func (stage *StageStruct) getCircleOrderedStructWithNameField() []*Circle {
-	// have alphabetical order generation
-	circleOrdered := []*Circle{}
-	for circle := range stage.Circles {
-		circleOrdered = append(circleOrdered, circle)
-	}
-	sort.Slice(circleOrdered[:], func(i, j int) bool {
-		return circleOrdered[i].Name < circleOrdered[j].Name
-	})
-	return circleOrdered
+// for satisfaction of GongStruct interface
+func (animate *Animate) GetName() (res string) {
+	return animate.Name
 }
 
 // Stage puts circle to the model stage
@@ -395,16 +397,9 @@ func DeleteORMCircle(circle *Circle) {
 	}
 }
 
-func (stage *StageStruct) getEllipseOrderedStructWithNameField() []*Ellipse {
-	// have alphabetical order generation
-	ellipseOrdered := []*Ellipse{}
-	for ellipse := range stage.Ellipses {
-		ellipseOrdered = append(ellipseOrdered, ellipse)
-	}
-	sort.Slice(ellipseOrdered[:], func(i, j int) bool {
-		return ellipseOrdered[i].Name < ellipseOrdered[j].Name
-	})
-	return ellipseOrdered
+// for satisfaction of GongStruct interface
+func (circle *Circle) GetName() (res string) {
+	return circle.Name
 }
 
 // Stage puts ellipse to the model stage
@@ -497,16 +492,9 @@ func DeleteORMEllipse(ellipse *Ellipse) {
 	}
 }
 
-func (stage *StageStruct) getLineOrderedStructWithNameField() []*Line {
-	// have alphabetical order generation
-	lineOrdered := []*Line{}
-	for line := range stage.Lines {
-		lineOrdered = append(lineOrdered, line)
-	}
-	sort.Slice(lineOrdered[:], func(i, j int) bool {
-		return lineOrdered[i].Name < lineOrdered[j].Name
-	})
-	return lineOrdered
+// for satisfaction of GongStruct interface
+func (ellipse *Ellipse) GetName() (res string) {
+	return ellipse.Name
 }
 
 // Stage puts line to the model stage
@@ -599,16 +587,9 @@ func DeleteORMLine(line *Line) {
 	}
 }
 
-func (stage *StageStruct) getPathOrderedStructWithNameField() []*Path {
-	// have alphabetical order generation
-	pathOrdered := []*Path{}
-	for path := range stage.Paths {
-		pathOrdered = append(pathOrdered, path)
-	}
-	sort.Slice(pathOrdered[:], func(i, j int) bool {
-		return pathOrdered[i].Name < pathOrdered[j].Name
-	})
-	return pathOrdered
+// for satisfaction of GongStruct interface
+func (line *Line) GetName() (res string) {
+	return line.Name
 }
 
 // Stage puts path to the model stage
@@ -701,16 +682,9 @@ func DeleteORMPath(path *Path) {
 	}
 }
 
-func (stage *StageStruct) getPolygoneOrderedStructWithNameField() []*Polygone {
-	// have alphabetical order generation
-	polygoneOrdered := []*Polygone{}
-	for polygone := range stage.Polygones {
-		polygoneOrdered = append(polygoneOrdered, polygone)
-	}
-	sort.Slice(polygoneOrdered[:], func(i, j int) bool {
-		return polygoneOrdered[i].Name < polygoneOrdered[j].Name
-	})
-	return polygoneOrdered
+// for satisfaction of GongStruct interface
+func (path *Path) GetName() (res string) {
+	return path.Name
 }
 
 // Stage puts polygone to the model stage
@@ -803,16 +777,9 @@ func DeleteORMPolygone(polygone *Polygone) {
 	}
 }
 
-func (stage *StageStruct) getPolylineOrderedStructWithNameField() []*Polyline {
-	// have alphabetical order generation
-	polylineOrdered := []*Polyline{}
-	for polyline := range stage.Polylines {
-		polylineOrdered = append(polylineOrdered, polyline)
-	}
-	sort.Slice(polylineOrdered[:], func(i, j int) bool {
-		return polylineOrdered[i].Name < polylineOrdered[j].Name
-	})
-	return polylineOrdered
+// for satisfaction of GongStruct interface
+func (polygone *Polygone) GetName() (res string) {
+	return polygone.Name
 }
 
 // Stage puts polyline to the model stage
@@ -905,16 +872,9 @@ func DeleteORMPolyline(polyline *Polyline) {
 	}
 }
 
-func (stage *StageStruct) getRectOrderedStructWithNameField() []*Rect {
-	// have alphabetical order generation
-	rectOrdered := []*Rect{}
-	for rect := range stage.Rects {
-		rectOrdered = append(rectOrdered, rect)
-	}
-	sort.Slice(rectOrdered[:], func(i, j int) bool {
-		return rectOrdered[i].Name < rectOrdered[j].Name
-	})
-	return rectOrdered
+// for satisfaction of GongStruct interface
+func (polyline *Polyline) GetName() (res string) {
+	return polyline.Name
 }
 
 // Stage puts rect to the model stage
@@ -1007,16 +967,9 @@ func DeleteORMRect(rect *Rect) {
 	}
 }
 
-func (stage *StageStruct) getSVGOrderedStructWithNameField() []*SVG {
-	// have alphabetical order generation
-	svgOrdered := []*SVG{}
-	for svg := range stage.SVGs {
-		svgOrdered = append(svgOrdered, svg)
-	}
-	sort.Slice(svgOrdered[:], func(i, j int) bool {
-		return svgOrdered[i].Name < svgOrdered[j].Name
-	})
-	return svgOrdered
+// for satisfaction of GongStruct interface
+func (rect *Rect) GetName() (res string) {
+	return rect.Name
 }
 
 // Stage puts svg to the model stage
@@ -1109,16 +1062,9 @@ func DeleteORMSVG(svg *SVG) {
 	}
 }
 
-func (stage *StageStruct) getTextOrderedStructWithNameField() []*Text {
-	// have alphabetical order generation
-	textOrdered := []*Text{}
-	for text := range stage.Texts {
-		textOrdered = append(textOrdered, text)
-	}
-	sort.Slice(textOrdered[:], func(i, j int) bool {
-		return textOrdered[i].Name < textOrdered[j].Name
-	})
-	return textOrdered
+// for satisfaction of GongStruct interface
+func (svg *SVG) GetName() (res string) {
+	return svg.Name
 }
 
 // Stage puts text to the model stage
@@ -1211,6 +1157,11 @@ func DeleteORMText(text *Text) {
 	}
 }
 
+// for satisfaction of GongStruct interface
+func (text *Text) GetName() (res string) {
+	return text.Name
+}
+
 // swagger:ignore
 type AllModelsStructCreateInterface interface { // insertion point for Callbacks on creation
 	CreateORMAnimate(Animate *Animate)
@@ -1239,34 +1190,34 @@ type AllModelsStructDeleteInterface interface { // insertion point for Callbacks
 }
 
 func (stage *StageStruct) Reset() { // insertion point for array reset
-	stage.Animates = make(map[*Animate]struct{})
+	stage.Animates = make(map[*Animate]any)
 	stage.Animates_mapString = make(map[string]*Animate)
 
-	stage.Circles = make(map[*Circle]struct{})
+	stage.Circles = make(map[*Circle]any)
 	stage.Circles_mapString = make(map[string]*Circle)
 
-	stage.Ellipses = make(map[*Ellipse]struct{})
+	stage.Ellipses = make(map[*Ellipse]any)
 	stage.Ellipses_mapString = make(map[string]*Ellipse)
 
-	stage.Lines = make(map[*Line]struct{})
+	stage.Lines = make(map[*Line]any)
 	stage.Lines_mapString = make(map[string]*Line)
 
-	stage.Paths = make(map[*Path]struct{})
+	stage.Paths = make(map[*Path]any)
 	stage.Paths_mapString = make(map[string]*Path)
 
-	stage.Polygones = make(map[*Polygone]struct{})
+	stage.Polygones = make(map[*Polygone]any)
 	stage.Polygones_mapString = make(map[string]*Polygone)
 
-	stage.Polylines = make(map[*Polyline]struct{})
+	stage.Polylines = make(map[*Polyline]any)
 	stage.Polylines_mapString = make(map[string]*Polyline)
 
-	stage.Rects = make(map[*Rect]struct{})
+	stage.Rects = make(map[*Rect]any)
 	stage.Rects_mapString = make(map[string]*Rect)
 
-	stage.SVGs = make(map[*SVG]struct{})
+	stage.SVGs = make(map[*SVG]any)
 	stage.SVGs_mapString = make(map[string]*SVG)
 
-	stage.Texts = make(map[*Text]struct{})
+	stage.Texts = make(map[*Text]any)
 	stage.Texts_mapString = make(map[string]*Text)
 
 }
@@ -1334,7 +1285,10 @@ const IdentifiersDecls = `
 	{{Identifier}} := (&models.{{GeneratedStructName}}{Name: "{{GeneratedFieldNameValue}}"}).Stage()`
 
 const StringInitStatement = `
-	{{Identifier}}.{{GeneratedFieldName}} = "{{GeneratedFieldNameValue}}"`
+	{{Identifier}}.{{GeneratedFieldName}} = ` + "`" + `{{GeneratedFieldNameValue}}` + "`"
+
+const StringEnumInitStatement = `
+	{{Identifier}}.{{GeneratedFieldName}} = {{GeneratedFieldNameValue}}`
 
 const NumberInitStatement = `
 	{{Identifier}}.{{GeneratedFieldName}} = {{GeneratedFieldNameValue}}`
@@ -1385,7 +1339,7 @@ func (stage *StageStruct) Marshall(file *os.File, modelsPackageName, packageName
 	sort.Slice(animateOrdered[:], func(i, j int) bool {
 		return animateOrdered[i].Name < animateOrdered[j].Name
 	})
-	identifiersDecl += fmt.Sprintf("\n\n	// Declarations of staged instances of Animate")
+	identifiersDecl += "\n\n	// Declarations of staged instances of Animate"
 	for idx, animate := range animateOrdered {
 
 		id = generatesIdentifier("Animate", idx, animate.Name)
@@ -1441,7 +1395,7 @@ func (stage *StageStruct) Marshall(file *os.File, modelsPackageName, packageName
 	sort.Slice(circleOrdered[:], func(i, j int) bool {
 		return circleOrdered[i].Name < circleOrdered[j].Name
 	})
-	identifiersDecl += fmt.Sprintf("\n\n	// Declarations of staged instances of Circle")
+	identifiersDecl += "\n\n	// Declarations of staged instances of Circle"
 	for idx, circle := range circleOrdered {
 
 		id = generatesIdentifier("Circle", idx, circle.Name)
@@ -1527,7 +1481,7 @@ func (stage *StageStruct) Marshall(file *os.File, modelsPackageName, packageName
 	sort.Slice(ellipseOrdered[:], func(i, j int) bool {
 		return ellipseOrdered[i].Name < ellipseOrdered[j].Name
 	})
-	identifiersDecl += fmt.Sprintf("\n\n	// Declarations of staged instances of Ellipse")
+	identifiersDecl += "\n\n	// Declarations of staged instances of Ellipse"
 	for idx, ellipse := range ellipseOrdered {
 
 		id = generatesIdentifier("Ellipse", idx, ellipse.Name)
@@ -1619,7 +1573,7 @@ func (stage *StageStruct) Marshall(file *os.File, modelsPackageName, packageName
 	sort.Slice(lineOrdered[:], func(i, j int) bool {
 		return lineOrdered[i].Name < lineOrdered[j].Name
 	})
-	identifiersDecl += fmt.Sprintf("\n\n	// Declarations of staged instances of Line")
+	identifiersDecl += "\n\n	// Declarations of staged instances of Line"
 	for idx, line := range lineOrdered {
 
 		id = generatesIdentifier("Line", idx, line.Name)
@@ -1711,7 +1665,7 @@ func (stage *StageStruct) Marshall(file *os.File, modelsPackageName, packageName
 	sort.Slice(pathOrdered[:], func(i, j int) bool {
 		return pathOrdered[i].Name < pathOrdered[j].Name
 	})
-	identifiersDecl += fmt.Sprintf("\n\n	// Declarations of staged instances of Path")
+	identifiersDecl += "\n\n	// Declarations of staged instances of Path"
 	for idx, path := range pathOrdered {
 
 		id = generatesIdentifier("Path", idx, path.Name)
@@ -1785,7 +1739,7 @@ func (stage *StageStruct) Marshall(file *os.File, modelsPackageName, packageName
 	sort.Slice(polygoneOrdered[:], func(i, j int) bool {
 		return polygoneOrdered[i].Name < polygoneOrdered[j].Name
 	})
-	identifiersDecl += fmt.Sprintf("\n\n	// Declarations of staged instances of Polygone")
+	identifiersDecl += "\n\n	// Declarations of staged instances of Polygone"
 	for idx, polygone := range polygoneOrdered {
 
 		id = generatesIdentifier("Polygone", idx, polygone.Name)
@@ -1859,7 +1813,7 @@ func (stage *StageStruct) Marshall(file *os.File, modelsPackageName, packageName
 	sort.Slice(polylineOrdered[:], func(i, j int) bool {
 		return polylineOrdered[i].Name < polylineOrdered[j].Name
 	})
-	identifiersDecl += fmt.Sprintf("\n\n	// Declarations of staged instances of Polyline")
+	identifiersDecl += "\n\n	// Declarations of staged instances of Polyline"
 	for idx, polyline := range polylineOrdered {
 
 		id = generatesIdentifier("Polyline", idx, polyline.Name)
@@ -1933,7 +1887,7 @@ func (stage *StageStruct) Marshall(file *os.File, modelsPackageName, packageName
 	sort.Slice(rectOrdered[:], func(i, j int) bool {
 		return rectOrdered[i].Name < rectOrdered[j].Name
 	})
-	identifiersDecl += fmt.Sprintf("\n\n	// Declarations of staged instances of Rect")
+	identifiersDecl += "\n\n	// Declarations of staged instances of Rect"
 	for idx, rect := range rectOrdered {
 
 		id = generatesIdentifier("Rect", idx, rect.Name)
@@ -2031,7 +1985,7 @@ func (stage *StageStruct) Marshall(file *os.File, modelsPackageName, packageName
 	sort.Slice(svgOrdered[:], func(i, j int) bool {
 		return svgOrdered[i].Name < svgOrdered[j].Name
 	})
-	identifiersDecl += fmt.Sprintf("\n\n	// Declarations of staged instances of SVG")
+	identifiersDecl += "\n\n	// Declarations of staged instances of SVG"
 	for idx, svg := range svgOrdered {
 
 		id = generatesIdentifier("SVG", idx, svg.Name)
@@ -2069,7 +2023,7 @@ func (stage *StageStruct) Marshall(file *os.File, modelsPackageName, packageName
 	sort.Slice(textOrdered[:], func(i, j int) bool {
 		return textOrdered[i].Name < textOrdered[j].Name
 	})
-	identifiersDecl += fmt.Sprintf("\n\n	// Declarations of staged instances of Text")
+	identifiersDecl += "\n\n	// Declarations of staged instances of Text"
 	for idx, text := range textOrdered {
 
 		id = generatesIdentifier("Text", idx, text.Name)
@@ -2144,7 +2098,6 @@ func (stage *StageStruct) Marshall(file *os.File, modelsPackageName, packageName
 		initializerStatements += setValueField
 
 	}
-
 
 	// insertion initialization of objects to stage
 	for idx, animate := range animateOrdered {
@@ -2375,7 +2328,6 @@ func (stage *StageStruct) Marshall(file *os.File, modelsPackageName, packageName
 
 	}
 
-
 	res = strings.ReplaceAll(res, "{{Identifiers}}", identifiersDecl)
 	res = strings.ReplaceAll(res, "{{ValueInitializers}}", initializerStatements)
 	res = strings.ReplaceAll(res, "{{PointersInitializers}}", pointersInitializesStatements)
@@ -2398,3 +2350,2047 @@ func generatesIdentifier(gongStructName string, idx int, instanceName string) (i
 
 	return
 }
+
+// insertion point of functions that provide maps for reverse associations
+
+// generate function for reverse association maps of Animate
+
+// generate function for reverse association maps of Circle
+func (stageStruct *StageStruct) CreateReverseMap_Circle_Animations() (res map[*Animate]*Circle) {
+	res = make(map[*Animate]*Circle)
+
+	for circle := range stageStruct.Circles {
+		for _, animate_ := range circle.Animations {
+			res[animate_] = circle
+		}
+	}
+
+	return
+}
+
+
+// generate function for reverse association maps of Ellipse
+func (stageStruct *StageStruct) CreateReverseMap_Ellipse_Animates() (res map[*Animate]*Ellipse) {
+	res = make(map[*Animate]*Ellipse)
+
+	for ellipse := range stageStruct.Ellipses {
+		for _, animate_ := range ellipse.Animates {
+			res[animate_] = ellipse
+		}
+	}
+
+	return
+}
+
+
+// generate function for reverse association maps of Line
+func (stageStruct *StageStruct) CreateReverseMap_Line_Animates() (res map[*Animate]*Line) {
+	res = make(map[*Animate]*Line)
+
+	for line := range stageStruct.Lines {
+		for _, animate_ := range line.Animates {
+			res[animate_] = line
+		}
+	}
+
+	return
+}
+
+
+// generate function for reverse association maps of Path
+func (stageStruct *StageStruct) CreateReverseMap_Path_Animates() (res map[*Animate]*Path) {
+	res = make(map[*Animate]*Path)
+
+	for path := range stageStruct.Paths {
+		for _, animate_ := range path.Animates {
+			res[animate_] = path
+		}
+	}
+
+	return
+}
+
+
+// generate function for reverse association maps of Polygone
+func (stageStruct *StageStruct) CreateReverseMap_Polygone_Animates() (res map[*Animate]*Polygone) {
+	res = make(map[*Animate]*Polygone)
+
+	for polygone := range stageStruct.Polygones {
+		for _, animate_ := range polygone.Animates {
+			res[animate_] = polygone
+		}
+	}
+
+	return
+}
+
+
+// generate function for reverse association maps of Polyline
+func (stageStruct *StageStruct) CreateReverseMap_Polyline_Animates() (res map[*Animate]*Polyline) {
+	res = make(map[*Animate]*Polyline)
+
+	for polyline := range stageStruct.Polylines {
+		for _, animate_ := range polyline.Animates {
+			res[animate_] = polyline
+		}
+	}
+
+	return
+}
+
+
+// generate function for reverse association maps of Rect
+func (stageStruct *StageStruct) CreateReverseMap_Rect_Animations() (res map[*Animate]*Rect) {
+	res = make(map[*Animate]*Rect)
+
+	for rect := range stageStruct.Rects {
+		for _, animate_ := range rect.Animations {
+			res[animate_] = rect
+		}
+	}
+
+	return
+}
+
+
+// generate function for reverse association maps of SVG
+func (stageStruct *StageStruct) CreateReverseMap_SVG_Rects() (res map[*Rect]*SVG) {
+	res = make(map[*Rect]*SVG)
+
+	for svg := range stageStruct.SVGs {
+		for _, rect_ := range svg.Rects {
+			res[rect_] = svg
+		}
+	}
+
+	return
+}
+
+func (stageStruct *StageStruct) CreateReverseMap_SVG_Texts() (res map[*Text]*SVG) {
+	res = make(map[*Text]*SVG)
+
+	for svg := range stageStruct.SVGs {
+		for _, text_ := range svg.Texts {
+			res[text_] = svg
+		}
+	}
+
+	return
+}
+
+func (stageStruct *StageStruct) CreateReverseMap_SVG_Circles() (res map[*Circle]*SVG) {
+	res = make(map[*Circle]*SVG)
+
+	for svg := range stageStruct.SVGs {
+		for _, circle_ := range svg.Circles {
+			res[circle_] = svg
+		}
+	}
+
+	return
+}
+
+func (stageStruct *StageStruct) CreateReverseMap_SVG_Lines() (res map[*Line]*SVG) {
+	res = make(map[*Line]*SVG)
+
+	for svg := range stageStruct.SVGs {
+		for _, line_ := range svg.Lines {
+			res[line_] = svg
+		}
+	}
+
+	return
+}
+
+func (stageStruct *StageStruct) CreateReverseMap_SVG_Ellipses() (res map[*Ellipse]*SVG) {
+	res = make(map[*Ellipse]*SVG)
+
+	for svg := range stageStruct.SVGs {
+		for _, ellipse_ := range svg.Ellipses {
+			res[ellipse_] = svg
+		}
+	}
+
+	return
+}
+
+func (stageStruct *StageStruct) CreateReverseMap_SVG_Polylines() (res map[*Polyline]*SVG) {
+	res = make(map[*Polyline]*SVG)
+
+	for svg := range stageStruct.SVGs {
+		for _, polyline_ := range svg.Polylines {
+			res[polyline_] = svg
+		}
+	}
+
+	return
+}
+
+func (stageStruct *StageStruct) CreateReverseMap_SVG_Polygones() (res map[*Polygone]*SVG) {
+	res = make(map[*Polygone]*SVG)
+
+	for svg := range stageStruct.SVGs {
+		for _, polygone_ := range svg.Polygones {
+			res[polygone_] = svg
+		}
+	}
+
+	return
+}
+
+func (stageStruct *StageStruct) CreateReverseMap_SVG_Paths() (res map[*Path]*SVG) {
+	res = make(map[*Path]*SVG)
+
+	for svg := range stageStruct.SVGs {
+		for _, path_ := range svg.Paths {
+			res[path_] = svg
+		}
+	}
+
+	return
+}
+
+
+// generate function for reverse association maps of Text
+func (stageStruct *StageStruct) CreateReverseMap_Text_Animates() (res map[*Animate]*Text) {
+	res = make(map[*Animate]*Text)
+
+	for text := range stageStruct.Texts {
+		for _, animate_ := range text.Animates {
+			res[animate_] = text
+		}
+	}
+
+	return
+}
+
+
+// Gongstruct is the type parameter for generated generic function that allows
+// - access to staged instances
+// - navigation between staged instances by going backward association links between gongstruct
+// - full refactoring of Gongstruct identifiers / fields
+type Gongstruct interface {
+	// insertion point for generic types
+	Animate | Circle | Ellipse | Line | Path | Polygone | Polyline | Rect | SVG | Text
+}
+
+// Gongstruct is the type parameter for generated generic function that allows
+// - access to staged instances
+// - navigation between staged instances by going backward association links between gongstruct
+// - full refactoring of Gongstruct identifiers / fields
+type PointerToGongstruct interface {
+	// insertion point for generic types
+	*Animate | *Circle | *Ellipse | *Line | *Path | *Polygone | *Polyline | *Rect | *SVG | *Text
+	GetName() string
+}
+
+type GongstructSet interface {
+	map[any]any |
+		// insertion point for generic types
+		map[*Animate]any |
+		map[*Circle]any |
+		map[*Ellipse]any |
+		map[*Line]any |
+		map[*Path]any |
+		map[*Polygone]any |
+		map[*Polyline]any |
+		map[*Rect]any |
+		map[*SVG]any |
+		map[*Text]any |
+		map[*any]any // because go does not support an extra "|" at the end of type specifications
+}
+
+type GongstructMapString interface {
+	map[any]any |
+		// insertion point for generic types
+		map[string]*Animate |
+		map[string]*Circle |
+		map[string]*Ellipse |
+		map[string]*Line |
+		map[string]*Path |
+		map[string]*Polygone |
+		map[string]*Polyline |
+		map[string]*Rect |
+		map[string]*SVG |
+		map[string]*Text |
+		map[*any]any // because go does not support an extra "|" at the end of type specifications
+}
+
+// GongGetSet returns the set staged GongstructType instances
+// it is usefull because it allows refactoring of gong struct identifier
+func GongGetSet[Type GongstructSet]() *Type {
+	var ret Type
+
+	switch any(ret).(type) {
+	// insertion point for generic get functions
+	case map[*Animate]any:
+		return any(&Stage.Animates).(*Type)
+	case map[*Circle]any:
+		return any(&Stage.Circles).(*Type)
+	case map[*Ellipse]any:
+		return any(&Stage.Ellipses).(*Type)
+	case map[*Line]any:
+		return any(&Stage.Lines).(*Type)
+	case map[*Path]any:
+		return any(&Stage.Paths).(*Type)
+	case map[*Polygone]any:
+		return any(&Stage.Polygones).(*Type)
+	case map[*Polyline]any:
+		return any(&Stage.Polylines).(*Type)
+	case map[*Rect]any:
+		return any(&Stage.Rects).(*Type)
+	case map[*SVG]any:
+		return any(&Stage.SVGs).(*Type)
+	case map[*Text]any:
+		return any(&Stage.Texts).(*Type)
+	default:
+		return nil
+	}
+}
+
+// GongGetMap returns the map of staged GongstructType instances
+// it is usefull because it allows refactoring of gong struct identifier
+func GongGetMap[Type GongstructMapString]() *Type {
+	var ret Type
+
+	switch any(ret).(type) {
+	// insertion point for generic get functions
+	case map[string]*Animate:
+		return any(&Stage.Animates_mapString).(*Type)
+	case map[string]*Circle:
+		return any(&Stage.Circles_mapString).(*Type)
+	case map[string]*Ellipse:
+		return any(&Stage.Ellipses_mapString).(*Type)
+	case map[string]*Line:
+		return any(&Stage.Lines_mapString).(*Type)
+	case map[string]*Path:
+		return any(&Stage.Paths_mapString).(*Type)
+	case map[string]*Polygone:
+		return any(&Stage.Polygones_mapString).(*Type)
+	case map[string]*Polyline:
+		return any(&Stage.Polylines_mapString).(*Type)
+	case map[string]*Rect:
+		return any(&Stage.Rects_mapString).(*Type)
+	case map[string]*SVG:
+		return any(&Stage.SVGs_mapString).(*Type)
+	case map[string]*Text:
+		return any(&Stage.Texts_mapString).(*Type)
+	default:
+		return nil
+	}
+}
+
+// GetGongstructInstancesSet returns the set staged GongstructType instances
+// it is usefull because it allows refactoring of gongstruct identifier
+func GetGongstructInstancesSet[Type Gongstruct]() *map[*Type]any {
+	var ret Type
+
+	switch any(ret).(type) {
+	// insertion point for generic get functions
+	case Animate:
+		return any(&Stage.Animates).(*map[*Type]any)
+	case Circle:
+		return any(&Stage.Circles).(*map[*Type]any)
+	case Ellipse:
+		return any(&Stage.Ellipses).(*map[*Type]any)
+	case Line:
+		return any(&Stage.Lines).(*map[*Type]any)
+	case Path:
+		return any(&Stage.Paths).(*map[*Type]any)
+	case Polygone:
+		return any(&Stage.Polygones).(*map[*Type]any)
+	case Polyline:
+		return any(&Stage.Polylines).(*map[*Type]any)
+	case Rect:
+		return any(&Stage.Rects).(*map[*Type]any)
+	case SVG:
+		return any(&Stage.SVGs).(*map[*Type]any)
+	case Text:
+		return any(&Stage.Texts).(*map[*Type]any)
+	default:
+		return nil
+	}
+}
+
+// GetGongstructInstancesMap returns the map of staged GongstructType instances
+// it is usefull because it allows refactoring of gong struct identifier
+func GetGongstructInstancesMap[Type Gongstruct]() *map[string]*Type {
+	var ret Type
+
+	switch any(ret).(type) {
+	// insertion point for generic get functions
+	case Animate:
+		return any(&Stage.Animates_mapString).(*map[string]*Type)
+	case Circle:
+		return any(&Stage.Circles_mapString).(*map[string]*Type)
+	case Ellipse:
+		return any(&Stage.Ellipses_mapString).(*map[string]*Type)
+	case Line:
+		return any(&Stage.Lines_mapString).(*map[string]*Type)
+	case Path:
+		return any(&Stage.Paths_mapString).(*map[string]*Type)
+	case Polygone:
+		return any(&Stage.Polygones_mapString).(*map[string]*Type)
+	case Polyline:
+		return any(&Stage.Polylines_mapString).(*map[string]*Type)
+	case Rect:
+		return any(&Stage.Rects_mapString).(*map[string]*Type)
+	case SVG:
+		return any(&Stage.SVGs_mapString).(*map[string]*Type)
+	case Text:
+		return any(&Stage.Texts_mapString).(*map[string]*Type)
+	default:
+		return nil
+	}
+}
+
+// GetAssociationName is a generic function that returns an instance of Type
+// where each association is filled with an instance whose name is the name of the association
+//
+// This function can be handy for generating navigation function that are refactorable
+func GetAssociationName[Type Gongstruct]() *Type {
+	var ret Type
+
+	switch any(ret).(type) {
+	// insertion point for instance with special fields
+	case Animate:
+		return any(&Animate{
+			// Initialisation of associations
+		}).(*Type)
+	case Circle:
+		return any(&Circle{
+			// Initialisation of associations
+			// field is initialized with an instance of Animate with the name of the field
+			Animations: []*Animate{{Name: "Animations"}},
+		}).(*Type)
+	case Ellipse:
+		return any(&Ellipse{
+			// Initialisation of associations
+			// field is initialized with an instance of Animate with the name of the field
+			Animates: []*Animate{{Name: "Animates"}},
+		}).(*Type)
+	case Line:
+		return any(&Line{
+			// Initialisation of associations
+			// field is initialized with an instance of Animate with the name of the field
+			Animates: []*Animate{{Name: "Animates"}},
+		}).(*Type)
+	case Path:
+		return any(&Path{
+			// Initialisation of associations
+			// field is initialized with an instance of Animate with the name of the field
+			Animates: []*Animate{{Name: "Animates"}},
+		}).(*Type)
+	case Polygone:
+		return any(&Polygone{
+			// Initialisation of associations
+			// field is initialized with an instance of Animate with the name of the field
+			Animates: []*Animate{{Name: "Animates"}},
+		}).(*Type)
+	case Polyline:
+		return any(&Polyline{
+			// Initialisation of associations
+			// field is initialized with an instance of Animate with the name of the field
+			Animates: []*Animate{{Name: "Animates"}},
+		}).(*Type)
+	case Rect:
+		return any(&Rect{
+			// Initialisation of associations
+			// field is initialized with an instance of Animate with the name of the field
+			Animations: []*Animate{{Name: "Animations"}},
+		}).(*Type)
+	case SVG:
+		return any(&SVG{
+			// Initialisation of associations
+			// field is initialized with an instance of Rect with the name of the field
+			Rects: []*Rect{{Name: "Rects"}},
+			// field is initialized with an instance of Text with the name of the field
+			Texts: []*Text{{Name: "Texts"}},
+			// field is initialized with an instance of Circle with the name of the field
+			Circles: []*Circle{{Name: "Circles"}},
+			// field is initialized with an instance of Line with the name of the field
+			Lines: []*Line{{Name: "Lines"}},
+			// field is initialized with an instance of Ellipse with the name of the field
+			Ellipses: []*Ellipse{{Name: "Ellipses"}},
+			// field is initialized with an instance of Polyline with the name of the field
+			Polylines: []*Polyline{{Name: "Polylines"}},
+			// field is initialized with an instance of Polygone with the name of the field
+			Polygones: []*Polygone{{Name: "Polygones"}},
+			// field is initialized with an instance of Path with the name of the field
+			Paths: []*Path{{Name: "Paths"}},
+		}).(*Type)
+	case Text:
+		return any(&Text{
+			// Initialisation of associations
+			// field is initialized with an instance of Animate with the name of the field
+			Animates: []*Animate{{Name: "Animates"}},
+		}).(*Type)
+	default:
+		return nil
+	}
+}
+
+// GetPointerReverseMap allows backtrack navigation of any Start.Fieldname
+// associations (0..1) that is a pointer from one staged Gongstruct (type Start)
+// instances to another (type End)
+//
+// The function provides a map with keys as instances of End and values to arrays of *Start
+// the map is construed by iterating over all Start instances and populationg keys with End instances
+// and values with slice of Start instances
+func GetPointerReverseMap[Start, End Gongstruct](fieldname string) map[*End][]*Start {
+	var ret Start
+
+	switch any(ret).(type) {
+	// insertion point of functions that provide maps for reverse associations
+	// reverse maps of direct associations of Animate
+	case Animate:
+		switch fieldname {
+		// insertion point for per direct association field
+		}
+	// reverse maps of direct associations of Circle
+	case Circle:
+		switch fieldname {
+		// insertion point for per direct association field
+		}
+	// reverse maps of direct associations of Ellipse
+	case Ellipse:
+		switch fieldname {
+		// insertion point for per direct association field
+		}
+	// reverse maps of direct associations of Line
+	case Line:
+		switch fieldname {
+		// insertion point for per direct association field
+		}
+	// reverse maps of direct associations of Path
+	case Path:
+		switch fieldname {
+		// insertion point for per direct association field
+		}
+	// reverse maps of direct associations of Polygone
+	case Polygone:
+		switch fieldname {
+		// insertion point for per direct association field
+		}
+	// reverse maps of direct associations of Polyline
+	case Polyline:
+		switch fieldname {
+		// insertion point for per direct association field
+		}
+	// reverse maps of direct associations of Rect
+	case Rect:
+		switch fieldname {
+		// insertion point for per direct association field
+		}
+	// reverse maps of direct associations of SVG
+	case SVG:
+		switch fieldname {
+		// insertion point for per direct association field
+		}
+	// reverse maps of direct associations of Text
+	case Text:
+		switch fieldname {
+		// insertion point for per direct association field
+		}
+	}
+	return nil
+}
+
+// GetSliceOfPointersReverseMap allows backtrack navigation of any Start.Fieldname
+// associations (0..N) between one staged Gongstruct instances and many others
+//
+// The function provides a map with keys as instances of End and values to *Start instances
+// the map is construed by iterating over all Start instances and populating keys with End instances
+// and values with the Start instances
+func GetSliceOfPointersReverseMap[Start, End Gongstruct](fieldname string) map[*End]*Start {
+	var ret Start
+
+	switch any(ret).(type) {
+	// insertion point of functions that provide maps for reverse associations
+	// reverse maps of direct associations of Animate
+	case Animate:
+		switch fieldname {
+		// insertion point for per direct association field
+		}
+	// reverse maps of direct associations of Circle
+	case Circle:
+		switch fieldname {
+		// insertion point for per direct association field
+		case "Animations":
+			res := make(map[*Animate]*Circle)
+			for circle := range Stage.Circles {
+				for _, animate_ := range circle.Animations {
+					res[animate_] = circle
+				}
+			}
+			return any(res).(map[*End]*Start)
+		}
+	// reverse maps of direct associations of Ellipse
+	case Ellipse:
+		switch fieldname {
+		// insertion point for per direct association field
+		case "Animates":
+			res := make(map[*Animate]*Ellipse)
+			for ellipse := range Stage.Ellipses {
+				for _, animate_ := range ellipse.Animates {
+					res[animate_] = ellipse
+				}
+			}
+			return any(res).(map[*End]*Start)
+		}
+	// reverse maps of direct associations of Line
+	case Line:
+		switch fieldname {
+		// insertion point for per direct association field
+		case "Animates":
+			res := make(map[*Animate]*Line)
+			for line := range Stage.Lines {
+				for _, animate_ := range line.Animates {
+					res[animate_] = line
+				}
+			}
+			return any(res).(map[*End]*Start)
+		}
+	// reverse maps of direct associations of Path
+	case Path:
+		switch fieldname {
+		// insertion point for per direct association field
+		case "Animates":
+			res := make(map[*Animate]*Path)
+			for path := range Stage.Paths {
+				for _, animate_ := range path.Animates {
+					res[animate_] = path
+				}
+			}
+			return any(res).(map[*End]*Start)
+		}
+	// reverse maps of direct associations of Polygone
+	case Polygone:
+		switch fieldname {
+		// insertion point for per direct association field
+		case "Animates":
+			res := make(map[*Animate]*Polygone)
+			for polygone := range Stage.Polygones {
+				for _, animate_ := range polygone.Animates {
+					res[animate_] = polygone
+				}
+			}
+			return any(res).(map[*End]*Start)
+		}
+	// reverse maps of direct associations of Polyline
+	case Polyline:
+		switch fieldname {
+		// insertion point for per direct association field
+		case "Animates":
+			res := make(map[*Animate]*Polyline)
+			for polyline := range Stage.Polylines {
+				for _, animate_ := range polyline.Animates {
+					res[animate_] = polyline
+				}
+			}
+			return any(res).(map[*End]*Start)
+		}
+	// reverse maps of direct associations of Rect
+	case Rect:
+		switch fieldname {
+		// insertion point for per direct association field
+		case "Animations":
+			res := make(map[*Animate]*Rect)
+			for rect := range Stage.Rects {
+				for _, animate_ := range rect.Animations {
+					res[animate_] = rect
+				}
+			}
+			return any(res).(map[*End]*Start)
+		}
+	// reverse maps of direct associations of SVG
+	case SVG:
+		switch fieldname {
+		// insertion point for per direct association field
+		case "Rects":
+			res := make(map[*Rect]*SVG)
+			for svg := range Stage.SVGs {
+				for _, rect_ := range svg.Rects {
+					res[rect_] = svg
+				}
+			}
+			return any(res).(map[*End]*Start)
+		case "Texts":
+			res := make(map[*Text]*SVG)
+			for svg := range Stage.SVGs {
+				for _, text_ := range svg.Texts {
+					res[text_] = svg
+				}
+			}
+			return any(res).(map[*End]*Start)
+		case "Circles":
+			res := make(map[*Circle]*SVG)
+			for svg := range Stage.SVGs {
+				for _, circle_ := range svg.Circles {
+					res[circle_] = svg
+				}
+			}
+			return any(res).(map[*End]*Start)
+		case "Lines":
+			res := make(map[*Line]*SVG)
+			for svg := range Stage.SVGs {
+				for _, line_ := range svg.Lines {
+					res[line_] = svg
+				}
+			}
+			return any(res).(map[*End]*Start)
+		case "Ellipses":
+			res := make(map[*Ellipse]*SVG)
+			for svg := range Stage.SVGs {
+				for _, ellipse_ := range svg.Ellipses {
+					res[ellipse_] = svg
+				}
+			}
+			return any(res).(map[*End]*Start)
+		case "Polylines":
+			res := make(map[*Polyline]*SVG)
+			for svg := range Stage.SVGs {
+				for _, polyline_ := range svg.Polylines {
+					res[polyline_] = svg
+				}
+			}
+			return any(res).(map[*End]*Start)
+		case "Polygones":
+			res := make(map[*Polygone]*SVG)
+			for svg := range Stage.SVGs {
+				for _, polygone_ := range svg.Polygones {
+					res[polygone_] = svg
+				}
+			}
+			return any(res).(map[*End]*Start)
+		case "Paths":
+			res := make(map[*Path]*SVG)
+			for svg := range Stage.SVGs {
+				for _, path_ := range svg.Paths {
+					res[path_] = svg
+				}
+			}
+			return any(res).(map[*End]*Start)
+		}
+	// reverse maps of direct associations of Text
+	case Text:
+		switch fieldname {
+		// insertion point for per direct association field
+		case "Animates":
+			res := make(map[*Animate]*Text)
+			for text := range Stage.Texts {
+				for _, animate_ := range text.Animates {
+					res[animate_] = text
+				}
+			}
+			return any(res).(map[*End]*Start)
+		}
+	}
+	return nil
+}
+
+// GetGongstructName returns the name of the Gongstruct
+// this can be usefull if one want program robust to refactoring
+func GetGongstructName[Type Gongstruct]() (res string) {
+
+	var ret Type
+
+	switch any(ret).(type) {
+	// insertion point for generic get gongstruct name
+	case Animate:
+		res = "Animate"
+	case Circle:
+		res = "Circle"
+	case Ellipse:
+		res = "Ellipse"
+	case Line:
+		res = "Line"
+	case Path:
+		res = "Path"
+	case Polygone:
+		res = "Polygone"
+	case Polyline:
+		res = "Polyline"
+	case Rect:
+		res = "Rect"
+	case SVG:
+		res = "SVG"
+	case Text:
+		res = "Text"
+	}
+	return res
+}
+
+// GetFields return the array of the fields
+func GetFields[Type Gongstruct]() (res []string) {
+
+	var ret Type
+
+	switch any(ret).(type) {
+	// insertion point for generic get gongstruct name
+	case Animate:
+		res = []string{"Name", "AttributeName", "Values", "Dur", "RepeatCount"}
+	case Circle:
+		res = []string{"Name", "CX", "CY", "Radius", "Color", "FillOpacity", "Stroke", "StrokeWidth", "StrokeDashArray", "Transform", "Animations"}
+	case Ellipse:
+		res = []string{"Name", "CX", "CY", "RX", "RY", "Color", "FillOpacity", "Stroke", "StrokeWidth", "StrokeDashArray", "Transform", "Animates"}
+	case Line:
+		res = []string{"Name", "X1", "Y1", "X2", "Y2", "Color", "FillOpacity", "Stroke", "StrokeWidth", "StrokeDashArray", "Transform", "Animates"}
+	case Path:
+		res = []string{"Name", "Definition", "Color", "FillOpacity", "Stroke", "StrokeWidth", "StrokeDashArray", "Transform", "Animates"}
+	case Polygone:
+		res = []string{"Name", "Points", "Color", "FillOpacity", "Stroke", "StrokeWidth", "StrokeDashArray", "Transform", "Animates"}
+	case Polyline:
+		res = []string{"Name", "Points", "Color", "FillOpacity", "Stroke", "StrokeWidth", "StrokeDashArray", "Transform", "Animates"}
+	case Rect:
+		res = []string{"Name", "X", "Y", "Width", "Height", "RX", "Color", "FillOpacity", "Stroke", "StrokeWidth", "StrokeDashArray", "Transform", "Animations"}
+	case SVG:
+		res = []string{"Display", "Name", "Rects", "Texts", "Circles", "Lines", "Ellipses", "Polylines", "Polygones", "Paths"}
+	case Text:
+		res = []string{"Name", "X", "Y", "Content", "Color", "FillOpacity", "Stroke", "StrokeWidth", "StrokeDashArray", "Transform", "Animates"}
+	}
+	return
+}
+
+func GetFieldStringValue[Type Gongstruct](instance Type, fieldName string) (res string) {
+	var ret Type
+
+	switch any(ret).(type) {
+	// insertion point for generic get gongstruct field value
+	case Animate:
+		switch fieldName {
+		// string value of fields
+		case "Name":
+			res = any(instance).(Animate).Name
+		case "AttributeName":
+			res = any(instance).(Animate).AttributeName
+		case "Values":
+			res = any(instance).(Animate).Values
+		case "Dur":
+			res = any(instance).(Animate).Dur
+		case "RepeatCount":
+			res = any(instance).(Animate).RepeatCount
+		}
+	case Circle:
+		switch fieldName {
+		// string value of fields
+		case "Name":
+			res = any(instance).(Circle).Name
+		case "CX":
+			res = fmt.Sprintf("%f", any(instance).(Circle).CX)
+		case "CY":
+			res = fmt.Sprintf("%f", any(instance).(Circle).CY)
+		case "Radius":
+			res = fmt.Sprintf("%f", any(instance).(Circle).Radius)
+		case "Color":
+			res = any(instance).(Circle).Color
+		case "FillOpacity":
+			res = fmt.Sprintf("%f", any(instance).(Circle).FillOpacity)
+		case "Stroke":
+			res = any(instance).(Circle).Stroke
+		case "StrokeWidth":
+			res = fmt.Sprintf("%f", any(instance).(Circle).StrokeWidth)
+		case "StrokeDashArray":
+			res = any(instance).(Circle).StrokeDashArray
+		case "Transform":
+			res = any(instance).(Circle).Transform
+		case "Animations":
+			for idx, __instance__ := range any(instance).(Circle).Animations {
+				if idx > 0 {
+					res += "\n"
+				}
+				res += __instance__.Name
+			}
+		}
+	case Ellipse:
+		switch fieldName {
+		// string value of fields
+		case "Name":
+			res = any(instance).(Ellipse).Name
+		case "CX":
+			res = fmt.Sprintf("%f", any(instance).(Ellipse).CX)
+		case "CY":
+			res = fmt.Sprintf("%f", any(instance).(Ellipse).CY)
+		case "RX":
+			res = fmt.Sprintf("%f", any(instance).(Ellipse).RX)
+		case "RY":
+			res = fmt.Sprintf("%f", any(instance).(Ellipse).RY)
+		case "Color":
+			res = any(instance).(Ellipse).Color
+		case "FillOpacity":
+			res = fmt.Sprintf("%f", any(instance).(Ellipse).FillOpacity)
+		case "Stroke":
+			res = any(instance).(Ellipse).Stroke
+		case "StrokeWidth":
+			res = fmt.Sprintf("%f", any(instance).(Ellipse).StrokeWidth)
+		case "StrokeDashArray":
+			res = any(instance).(Ellipse).StrokeDashArray
+		case "Transform":
+			res = any(instance).(Ellipse).Transform
+		case "Animates":
+			for idx, __instance__ := range any(instance).(Ellipse).Animates {
+				if idx > 0 {
+					res += "\n"
+				}
+				res += __instance__.Name
+			}
+		}
+	case Line:
+		switch fieldName {
+		// string value of fields
+		case "Name":
+			res = any(instance).(Line).Name
+		case "X1":
+			res = fmt.Sprintf("%f", any(instance).(Line).X1)
+		case "Y1":
+			res = fmt.Sprintf("%f", any(instance).(Line).Y1)
+		case "X2":
+			res = fmt.Sprintf("%f", any(instance).(Line).X2)
+		case "Y2":
+			res = fmt.Sprintf("%f", any(instance).(Line).Y2)
+		case "Color":
+			res = any(instance).(Line).Color
+		case "FillOpacity":
+			res = fmt.Sprintf("%f", any(instance).(Line).FillOpacity)
+		case "Stroke":
+			res = any(instance).(Line).Stroke
+		case "StrokeWidth":
+			res = fmt.Sprintf("%f", any(instance).(Line).StrokeWidth)
+		case "StrokeDashArray":
+			res = any(instance).(Line).StrokeDashArray
+		case "Transform":
+			res = any(instance).(Line).Transform
+		case "Animates":
+			for idx, __instance__ := range any(instance).(Line).Animates {
+				if idx > 0 {
+					res += "\n"
+				}
+				res += __instance__.Name
+			}
+		}
+	case Path:
+		switch fieldName {
+		// string value of fields
+		case "Name":
+			res = any(instance).(Path).Name
+		case "Definition":
+			res = any(instance).(Path).Definition
+		case "Color":
+			res = any(instance).(Path).Color
+		case "FillOpacity":
+			res = fmt.Sprintf("%f", any(instance).(Path).FillOpacity)
+		case "Stroke":
+			res = any(instance).(Path).Stroke
+		case "StrokeWidth":
+			res = fmt.Sprintf("%f", any(instance).(Path).StrokeWidth)
+		case "StrokeDashArray":
+			res = any(instance).(Path).StrokeDashArray
+		case "Transform":
+			res = any(instance).(Path).Transform
+		case "Animates":
+			for idx, __instance__ := range any(instance).(Path).Animates {
+				if idx > 0 {
+					res += "\n"
+				}
+				res += __instance__.Name
+			}
+		}
+	case Polygone:
+		switch fieldName {
+		// string value of fields
+		case "Name":
+			res = any(instance).(Polygone).Name
+		case "Points":
+			res = any(instance).(Polygone).Points
+		case "Color":
+			res = any(instance).(Polygone).Color
+		case "FillOpacity":
+			res = fmt.Sprintf("%f", any(instance).(Polygone).FillOpacity)
+		case "Stroke":
+			res = any(instance).(Polygone).Stroke
+		case "StrokeWidth":
+			res = fmt.Sprintf("%f", any(instance).(Polygone).StrokeWidth)
+		case "StrokeDashArray":
+			res = any(instance).(Polygone).StrokeDashArray
+		case "Transform":
+			res = any(instance).(Polygone).Transform
+		case "Animates":
+			for idx, __instance__ := range any(instance).(Polygone).Animates {
+				if idx > 0 {
+					res += "\n"
+				}
+				res += __instance__.Name
+			}
+		}
+	case Polyline:
+		switch fieldName {
+		// string value of fields
+		case "Name":
+			res = any(instance).(Polyline).Name
+		case "Points":
+			res = any(instance).(Polyline).Points
+		case "Color":
+			res = any(instance).(Polyline).Color
+		case "FillOpacity":
+			res = fmt.Sprintf("%f", any(instance).(Polyline).FillOpacity)
+		case "Stroke":
+			res = any(instance).(Polyline).Stroke
+		case "StrokeWidth":
+			res = fmt.Sprintf("%f", any(instance).(Polyline).StrokeWidth)
+		case "StrokeDashArray":
+			res = any(instance).(Polyline).StrokeDashArray
+		case "Transform":
+			res = any(instance).(Polyline).Transform
+		case "Animates":
+			for idx, __instance__ := range any(instance).(Polyline).Animates {
+				if idx > 0 {
+					res += "\n"
+				}
+				res += __instance__.Name
+			}
+		}
+	case Rect:
+		switch fieldName {
+		// string value of fields
+		case "Name":
+			res = any(instance).(Rect).Name
+		case "X":
+			res = fmt.Sprintf("%f", any(instance).(Rect).X)
+		case "Y":
+			res = fmt.Sprintf("%f", any(instance).(Rect).Y)
+		case "Width":
+			res = fmt.Sprintf("%f", any(instance).(Rect).Width)
+		case "Height":
+			res = fmt.Sprintf("%f", any(instance).(Rect).Height)
+		case "RX":
+			res = fmt.Sprintf("%f", any(instance).(Rect).RX)
+		case "Color":
+			res = any(instance).(Rect).Color
+		case "FillOpacity":
+			res = fmt.Sprintf("%f", any(instance).(Rect).FillOpacity)
+		case "Stroke":
+			res = any(instance).(Rect).Stroke
+		case "StrokeWidth":
+			res = fmt.Sprintf("%f", any(instance).(Rect).StrokeWidth)
+		case "StrokeDashArray":
+			res = any(instance).(Rect).StrokeDashArray
+		case "Transform":
+			res = any(instance).(Rect).Transform
+		case "Animations":
+			for idx, __instance__ := range any(instance).(Rect).Animations {
+				if idx > 0 {
+					res += "\n"
+				}
+				res += __instance__.Name
+			}
+		}
+	case SVG:
+		switch fieldName {
+		// string value of fields
+		case "Display":
+			res = fmt.Sprintf("%t", any(instance).(SVG).Display)
+		case "Name":
+			res = any(instance).(SVG).Name
+		case "Rects":
+			for idx, __instance__ := range any(instance).(SVG).Rects {
+				if idx > 0 {
+					res += "\n"
+				}
+				res += __instance__.Name
+			}
+		case "Texts":
+			for idx, __instance__ := range any(instance).(SVG).Texts {
+				if idx > 0 {
+					res += "\n"
+				}
+				res += __instance__.Name
+			}
+		case "Circles":
+			for idx, __instance__ := range any(instance).(SVG).Circles {
+				if idx > 0 {
+					res += "\n"
+				}
+				res += __instance__.Name
+			}
+		case "Lines":
+			for idx, __instance__ := range any(instance).(SVG).Lines {
+				if idx > 0 {
+					res += "\n"
+				}
+				res += __instance__.Name
+			}
+		case "Ellipses":
+			for idx, __instance__ := range any(instance).(SVG).Ellipses {
+				if idx > 0 {
+					res += "\n"
+				}
+				res += __instance__.Name
+			}
+		case "Polylines":
+			for idx, __instance__ := range any(instance).(SVG).Polylines {
+				if idx > 0 {
+					res += "\n"
+				}
+				res += __instance__.Name
+			}
+		case "Polygones":
+			for idx, __instance__ := range any(instance).(SVG).Polygones {
+				if idx > 0 {
+					res += "\n"
+				}
+				res += __instance__.Name
+			}
+		case "Paths":
+			for idx, __instance__ := range any(instance).(SVG).Paths {
+				if idx > 0 {
+					res += "\n"
+				}
+				res += __instance__.Name
+			}
+		}
+	case Text:
+		switch fieldName {
+		// string value of fields
+		case "Name":
+			res = any(instance).(Text).Name
+		case "X":
+			res = fmt.Sprintf("%f", any(instance).(Text).X)
+		case "Y":
+			res = fmt.Sprintf("%f", any(instance).(Text).Y)
+		case "Content":
+			res = any(instance).(Text).Content
+		case "Color":
+			res = any(instance).(Text).Color
+		case "FillOpacity":
+			res = fmt.Sprintf("%f", any(instance).(Text).FillOpacity)
+		case "Stroke":
+			res = any(instance).(Text).Stroke
+		case "StrokeWidth":
+			res = fmt.Sprintf("%f", any(instance).(Text).StrokeWidth)
+		case "StrokeDashArray":
+			res = any(instance).(Text).StrokeDashArray
+		case "Transform":
+			res = any(instance).(Text).Transform
+		case "Animates":
+			for idx, __instance__ := range any(instance).(Text).Animates {
+				if idx > 0 {
+					res += "\n"
+				}
+				res += __instance__.Name
+			}
+		}
+	}
+	return
+}
+
+// insertion point of enum utility functions
+// Utility function for ColorType
+// if enum values are string, it is stored with the value
+// if enum values are int, they are stored with the code of the value
+func (colortype ColorType) ToString() (res string) {
+
+	// migration of former implementation of enum
+	switch colortype {
+	// insertion code per enum code
+	case Aliceblue:
+		res = "aliceblue"
+	case Antiquewhite:
+		res = "antiquewhite"
+	case Aqua:
+		res = "aqua"
+	case Aquamarine:
+		res = "aquamarine "
+	case Azure:
+		res = "azure"
+	case Beige:
+		res = "beige"
+	case Bisque:
+		res = "bisque "
+	case Black:
+		res = "black"
+	case Blanchedalmond:
+		res = "blanchedalmond "
+	case Blue:
+		res = "blue"
+	case Blueviolet:
+		res = "blueviolet "
+	case Brown:
+		res = "brown"
+	case Burlywood:
+		res = "burlywood"
+	case Cadetblue:
+		res = "cadetblue"
+	case Chartreuse:
+		res = "chartreuse "
+	case Chocolate:
+		res = "chocolate"
+	case Coral:
+		res = "coral"
+	case Cornflowerblue:
+		res = "cornflowerblue "
+	case Cornsilk:
+		res = "cornsilk"
+	case Crimson:
+		res = "crimson"
+	case Cyan:
+		res = "cyan"
+	case Darkblue:
+		res = "darkblue"
+	case Darkcyan:
+		res = "darkcyan"
+	case Darkgoldenrod:
+		res = "darkgoldenrod"
+	case Darkgray:
+		res = "darkgray"
+	case Darkgreen:
+		res = "darkgreen"
+	case Darkgrey:
+		res = "darkgrey"
+	case Darkkhaki:
+		res = "darkkhaki"
+	case Darkmagenta:
+		res = "darkmagenta"
+	case Darkolivegreen:
+		res = "darkolivegreen "
+	case Darkorange:
+		res = "darkorange "
+	case Darkorchid:
+		res = "darkorchid "
+	case Darkred:
+		res = "darkred"
+	case Darksalmon:
+		res = "darksalmon "
+	case Darkseagreen:
+		res = "darkseagreen"
+	case Darkslateblue:
+		res = "darkslateblue"
+	case Darkslategray:
+		res = "darkslategray"
+	case Darkslategrey:
+		res = "darkslategrey"
+	case Darkturquoise:
+		res = "darkturquoise"
+	case Darkviolet:
+		res = "darkviolet "
+	case Deeppink:
+		res = "deeppink"
+	case Deepskyblue:
+		res = "deepskyblue"
+	case Dimgray:
+		res = "dimgray"
+	case Dimgrey:
+		res = "dimgrey"
+	case Dodgerblue:
+		res = "dodgerblue "
+	case Firebrick:
+		res = "firebrick"
+	case Floralwhite:
+		res = "floralwhite"
+	case Forestgreen:
+		res = "forestgreen"
+	case Fuchsia:
+		res = "fuchsia"
+	case Gainsboro:
+		res = "gainsboro"
+	case Ghostwhite:
+		res = "ghostwhite "
+	case Gold:
+		res = "gold"
+	case Goldenrod:
+		res = "goldenrod"
+	case Gray:
+		res = "gray"
+	case Green:
+		res = "green"
+	case Greenyellow:
+		res = "greenyellow"
+	case Grey:
+		res = "grey"
+	case Honeydew:
+		res = "honeydew"
+	case Hotpink:
+		res = "hotpink"
+	case Indianred:
+		res = "indianred"
+	case Indigo:
+		res = "indigo "
+	case Ivory:
+		res = "ivory"
+	case Khaki:
+		res = "khaki"
+	case Lavender:
+		res = "lavender"
+	case Lavenderblush:
+		res = "lavenderblush"
+	case Lawngreen:
+		res = "lawngreen"
+	case Lemonchiffon:
+		res = "lemonchiffon"
+	case Lightblue:
+		res = "lightblue"
+	case Lightcoral:
+		res = "lightcoral "
+	case Lightcyan:
+		res = "lightcyan"
+	case Lightgoldenrodyellow:
+		res = "lightgoldenrodyellow"
+	case Lightgray:
+		res = "lightgray"
+	case Lightgreen:
+		res = "lightgreen "
+	case Lightgrey:
+		res = "lightgrey"
+	case Lightpink:
+		res = "lightpink"
+	case Lightsalmon:
+		res = "lightsalmon"
+	case Lightseagreen:
+		res = "lightseagreen"
+	case Lightskyblue:
+		res = "lightskyblue"
+	case Lightslategray:
+		res = "lightslategray "
+	case Lightslategrey:
+		res = "lightslategrey "
+	case Lightsteelblue:
+		res = "lightsteelblue "
+	case Lightyellow:
+		res = "lightyellow"
+	case Lime:
+		res = "lime"
+	case Limegreen:
+		res = "limegreen"
+	case Linen:
+		res = "linen"
+	case Magenta:
+		res = "magenta"
+	case Maroon:
+		res = "maroon "
+	case Mediumaquamarine:
+		res = "mediumaquamarine"
+	case Mediumblue:
+		res = "mediumblue "
+	case Mediumorchid:
+		res = "mediumorchid"
+	case Mediumpurple:
+		res = "mediumpurple"
+	case Mediumseagreen:
+		res = "mediumseagreen "
+	case Mediumslateblue:
+		res = "mediumslateblue"
+	case Mediumspringgreen:
+		res = "mediumspringgreen"
+	case Mediumturquoise:
+		res = "mediumturquoise"
+	case Mediumvioletred:
+		res = "mediumvioletred"
+	case Midnightblue:
+		res = "midnightblue"
+	case Mintcream:
+		res = "mintcream"
+	case Mistyrose:
+		res = "mistyrose"
+	case Moccasin:
+		res = "moccasin"
+	case Navajowhite:
+		res = "navajowhite"
+	case Navy:
+		res = "navy"
+	case Oldlace:
+		res = "oldlace"
+	case Olive:
+		res = "olive"
+	case Olivedrab:
+		res = "olivedrab"
+	case Orange:
+		res = "orange "
+	case Orangered:
+		res = "orangered"
+	case Orchid:
+		res = "orchid "
+	case Palegoldenrod:
+		res = "palegoldenrod"
+	case Palegreen:
+		res = "palegreen"
+	case Paleturquoise:
+		res = "paleturquoise"
+	case Palevioletred:
+		res = "palevioletred"
+	case Papayawhip:
+		res = "papayawhip "
+	case Peachpuff:
+		res = "peachpuff"
+	case Peru:
+		res = "peru"
+	case Pink:
+		res = "pink"
+	case Plum:
+		res = "plum"
+	case Powderblue:
+		res = "powderblue "
+	case Purple:
+		res = "purple "
+	case Red:
+		res = "red"
+	case Rosybrown:
+		res = "rosybrown"
+	case Royalblue:
+		res = "royalblue"
+	case Saddlebrown:
+		res = "saddlebrown"
+	case Salmon:
+		res = "salmon "
+	case Sandybrown:
+		res = "sandybrown "
+	case Seagreen:
+		res = "seagreen"
+	case Seashell:
+		res = "seashell"
+	case Sienna:
+		res = "sienna "
+	case Silver:
+		res = "silver "
+	case Skyblue:
+		res = "skyblue"
+	case Slateblue:
+		res = "slateblue"
+	case Slategray:
+		res = "slategray"
+	case Slategrey:
+		res = "slategrey"
+	case Snow:
+		res = "snow"
+	case Springgreen:
+		res = "springgreen"
+	case Steelblue:
+		res = "steelblue"
+	case Tan:
+		res = "tan"
+	case Teal:
+		res = "teal"
+	case Thistle:
+		res = "thistle"
+	case Tomato:
+		res = "tomato "
+	case Turquoise:
+		res = "turquoise"
+	case Violet:
+		res = "violet "
+	case Wheat:
+		res = "wheat"
+	case White:
+		res = "white"
+	case Whitesmoke:
+		res = "whitesmoke "
+	case Yellow:
+		res = "yellow "
+	case Yellowgreen:
+		res = "yellowgreen"
+	}
+	return
+}
+
+func (colortype *ColorType) FromString(input string) {
+
+	switch input {
+	// insertion code per enum code
+	case "aliceblue":
+		*colortype = Aliceblue
+	case "antiquewhite":
+		*colortype = Antiquewhite
+	case "aqua":
+		*colortype = Aqua
+	case "aquamarine ":
+		*colortype = Aquamarine
+	case "azure":
+		*colortype = Azure
+	case "beige":
+		*colortype = Beige
+	case "bisque ":
+		*colortype = Bisque
+	case "black":
+		*colortype = Black
+	case "blanchedalmond ":
+		*colortype = Blanchedalmond
+	case "blue":
+		*colortype = Blue
+	case "blueviolet ":
+		*colortype = Blueviolet
+	case "brown":
+		*colortype = Brown
+	case "burlywood":
+		*colortype = Burlywood
+	case "cadetblue":
+		*colortype = Cadetblue
+	case "chartreuse ":
+		*colortype = Chartreuse
+	case "chocolate":
+		*colortype = Chocolate
+	case "coral":
+		*colortype = Coral
+	case "cornflowerblue ":
+		*colortype = Cornflowerblue
+	case "cornsilk":
+		*colortype = Cornsilk
+	case "crimson":
+		*colortype = Crimson
+	case "cyan":
+		*colortype = Cyan
+	case "darkblue":
+		*colortype = Darkblue
+	case "darkcyan":
+		*colortype = Darkcyan
+	case "darkgoldenrod":
+		*colortype = Darkgoldenrod
+	case "darkgray":
+		*colortype = Darkgray
+	case "darkgreen":
+		*colortype = Darkgreen
+	case "darkgrey":
+		*colortype = Darkgrey
+	case "darkkhaki":
+		*colortype = Darkkhaki
+	case "darkmagenta":
+		*colortype = Darkmagenta
+	case "darkolivegreen ":
+		*colortype = Darkolivegreen
+	case "darkorange ":
+		*colortype = Darkorange
+	case "darkorchid ":
+		*colortype = Darkorchid
+	case "darkred":
+		*colortype = Darkred
+	case "darksalmon ":
+		*colortype = Darksalmon
+	case "darkseagreen":
+		*colortype = Darkseagreen
+	case "darkslateblue":
+		*colortype = Darkslateblue
+	case "darkslategray":
+		*colortype = Darkslategray
+	case "darkslategrey":
+		*colortype = Darkslategrey
+	case "darkturquoise":
+		*colortype = Darkturquoise
+	case "darkviolet ":
+		*colortype = Darkviolet
+	case "deeppink":
+		*colortype = Deeppink
+	case "deepskyblue":
+		*colortype = Deepskyblue
+	case "dimgray":
+		*colortype = Dimgray
+	case "dimgrey":
+		*colortype = Dimgrey
+	case "dodgerblue ":
+		*colortype = Dodgerblue
+	case "firebrick":
+		*colortype = Firebrick
+	case "floralwhite":
+		*colortype = Floralwhite
+	case "forestgreen":
+		*colortype = Forestgreen
+	case "fuchsia":
+		*colortype = Fuchsia
+	case "gainsboro":
+		*colortype = Gainsboro
+	case "ghostwhite ":
+		*colortype = Ghostwhite
+	case "gold":
+		*colortype = Gold
+	case "goldenrod":
+		*colortype = Goldenrod
+	case "gray":
+		*colortype = Gray
+	case "green":
+		*colortype = Green
+	case "greenyellow":
+		*colortype = Greenyellow
+	case "grey":
+		*colortype = Grey
+	case "honeydew":
+		*colortype = Honeydew
+	case "hotpink":
+		*colortype = Hotpink
+	case "indianred":
+		*colortype = Indianred
+	case "indigo ":
+		*colortype = Indigo
+	case "ivory":
+		*colortype = Ivory
+	case "khaki":
+		*colortype = Khaki
+	case "lavender":
+		*colortype = Lavender
+	case "lavenderblush":
+		*colortype = Lavenderblush
+	case "lawngreen":
+		*colortype = Lawngreen
+	case "lemonchiffon":
+		*colortype = Lemonchiffon
+	case "lightblue":
+		*colortype = Lightblue
+	case "lightcoral ":
+		*colortype = Lightcoral
+	case "lightcyan":
+		*colortype = Lightcyan
+	case "lightgoldenrodyellow":
+		*colortype = Lightgoldenrodyellow
+	case "lightgray":
+		*colortype = Lightgray
+	case "lightgreen ":
+		*colortype = Lightgreen
+	case "lightgrey":
+		*colortype = Lightgrey
+	case "lightpink":
+		*colortype = Lightpink
+	case "lightsalmon":
+		*colortype = Lightsalmon
+	case "lightseagreen":
+		*colortype = Lightseagreen
+	case "lightskyblue":
+		*colortype = Lightskyblue
+	case "lightslategray ":
+		*colortype = Lightslategray
+	case "lightslategrey ":
+		*colortype = Lightslategrey
+	case "lightsteelblue ":
+		*colortype = Lightsteelblue
+	case "lightyellow":
+		*colortype = Lightyellow
+	case "lime":
+		*colortype = Lime
+	case "limegreen":
+		*colortype = Limegreen
+	case "linen":
+		*colortype = Linen
+	case "magenta":
+		*colortype = Magenta
+	case "maroon ":
+		*colortype = Maroon
+	case "mediumaquamarine":
+		*colortype = Mediumaquamarine
+	case "mediumblue ":
+		*colortype = Mediumblue
+	case "mediumorchid":
+		*colortype = Mediumorchid
+	case "mediumpurple":
+		*colortype = Mediumpurple
+	case "mediumseagreen ":
+		*colortype = Mediumseagreen
+	case "mediumslateblue":
+		*colortype = Mediumslateblue
+	case "mediumspringgreen":
+		*colortype = Mediumspringgreen
+	case "mediumturquoise":
+		*colortype = Mediumturquoise
+	case "mediumvioletred":
+		*colortype = Mediumvioletred
+	case "midnightblue":
+		*colortype = Midnightblue
+	case "mintcream":
+		*colortype = Mintcream
+	case "mistyrose":
+		*colortype = Mistyrose
+	case "moccasin":
+		*colortype = Moccasin
+	case "navajowhite":
+		*colortype = Navajowhite
+	case "navy":
+		*colortype = Navy
+	case "oldlace":
+		*colortype = Oldlace
+	case "olive":
+		*colortype = Olive
+	case "olivedrab":
+		*colortype = Olivedrab
+	case "orange ":
+		*colortype = Orange
+	case "orangered":
+		*colortype = Orangered
+	case "orchid ":
+		*colortype = Orchid
+	case "palegoldenrod":
+		*colortype = Palegoldenrod
+	case "palegreen":
+		*colortype = Palegreen
+	case "paleturquoise":
+		*colortype = Paleturquoise
+	case "palevioletred":
+		*colortype = Palevioletred
+	case "papayawhip ":
+		*colortype = Papayawhip
+	case "peachpuff":
+		*colortype = Peachpuff
+	case "peru":
+		*colortype = Peru
+	case "pink":
+		*colortype = Pink
+	case "plum":
+		*colortype = Plum
+	case "powderblue ":
+		*colortype = Powderblue
+	case "purple ":
+		*colortype = Purple
+	case "red":
+		*colortype = Red
+	case "rosybrown":
+		*colortype = Rosybrown
+	case "royalblue":
+		*colortype = Royalblue
+	case "saddlebrown":
+		*colortype = Saddlebrown
+	case "salmon ":
+		*colortype = Salmon
+	case "sandybrown ":
+		*colortype = Sandybrown
+	case "seagreen":
+		*colortype = Seagreen
+	case "seashell":
+		*colortype = Seashell
+	case "sienna ":
+		*colortype = Sienna
+	case "silver ":
+		*colortype = Silver
+	case "skyblue":
+		*colortype = Skyblue
+	case "slateblue":
+		*colortype = Slateblue
+	case "slategray":
+		*colortype = Slategray
+	case "slategrey":
+		*colortype = Slategrey
+	case "snow":
+		*colortype = Snow
+	case "springgreen":
+		*colortype = Springgreen
+	case "steelblue":
+		*colortype = Steelblue
+	case "tan":
+		*colortype = Tan
+	case "teal":
+		*colortype = Teal
+	case "thistle":
+		*colortype = Thistle
+	case "tomato ":
+		*colortype = Tomato
+	case "turquoise":
+		*colortype = Turquoise
+	case "violet ":
+		*colortype = Violet
+	case "wheat":
+		*colortype = Wheat
+	case "white":
+		*colortype = White
+	case "whitesmoke ":
+		*colortype = Whitesmoke
+	case "yellow ":
+		*colortype = Yellow
+	case "yellowgreen":
+		*colortype = Yellowgreen
+	}
+}
+
+func (colortype *ColorType) ToCodeString() (res string) {
+
+	switch *colortype {
+	// insertion code per enum code
+	case Aliceblue:
+		res = "Aliceblue"
+	case Antiquewhite:
+		res = "Antiquewhite"
+	case Aqua:
+		res = "Aqua"
+	case Aquamarine:
+		res = "Aquamarine"
+	case Azure:
+		res = "Azure"
+	case Beige:
+		res = "Beige"
+	case Bisque:
+		res = "Bisque"
+	case Black:
+		res = "Black"
+	case Blanchedalmond:
+		res = "Blanchedalmond"
+	case Blue:
+		res = "Blue"
+	case Blueviolet:
+		res = "Blueviolet"
+	case Brown:
+		res = "Brown"
+	case Burlywood:
+		res = "Burlywood"
+	case Cadetblue:
+		res = "Cadetblue"
+	case Chartreuse:
+		res = "Chartreuse"
+	case Chocolate:
+		res = "Chocolate"
+	case Coral:
+		res = "Coral"
+	case Cornflowerblue:
+		res = "Cornflowerblue"
+	case Cornsilk:
+		res = "Cornsilk"
+	case Crimson:
+		res = "Crimson"
+	case Cyan:
+		res = "Cyan"
+	case Darkblue:
+		res = "Darkblue"
+	case Darkcyan:
+		res = "Darkcyan"
+	case Darkgoldenrod:
+		res = "Darkgoldenrod"
+	case Darkgray:
+		res = "Darkgray"
+	case Darkgreen:
+		res = "Darkgreen"
+	case Darkgrey:
+		res = "Darkgrey"
+	case Darkkhaki:
+		res = "Darkkhaki"
+	case Darkmagenta:
+		res = "Darkmagenta"
+	case Darkolivegreen:
+		res = "Darkolivegreen"
+	case Darkorange:
+		res = "Darkorange"
+	case Darkorchid:
+		res = "Darkorchid"
+	case Darkred:
+		res = "Darkred"
+	case Darksalmon:
+		res = "Darksalmon"
+	case Darkseagreen:
+		res = "Darkseagreen"
+	case Darkslateblue:
+		res = "Darkslateblue"
+	case Darkslategray:
+		res = "Darkslategray"
+	case Darkslategrey:
+		res = "Darkslategrey"
+	case Darkturquoise:
+		res = "Darkturquoise"
+	case Darkviolet:
+		res = "Darkviolet"
+	case Deeppink:
+		res = "Deeppink"
+	case Deepskyblue:
+		res = "Deepskyblue"
+	case Dimgray:
+		res = "Dimgray"
+	case Dimgrey:
+		res = "Dimgrey"
+	case Dodgerblue:
+		res = "Dodgerblue"
+	case Firebrick:
+		res = "Firebrick"
+	case Floralwhite:
+		res = "Floralwhite"
+	case Forestgreen:
+		res = "Forestgreen"
+	case Fuchsia:
+		res = "Fuchsia"
+	case Gainsboro:
+		res = "Gainsboro"
+	case Ghostwhite:
+		res = "Ghostwhite"
+	case Gold:
+		res = "Gold"
+	case Goldenrod:
+		res = "Goldenrod"
+	case Gray:
+		res = "Gray"
+	case Green:
+		res = "Green"
+	case Greenyellow:
+		res = "Greenyellow"
+	case Grey:
+		res = "Grey"
+	case Honeydew:
+		res = "Honeydew"
+	case Hotpink:
+		res = "Hotpink"
+	case Indianred:
+		res = "Indianred"
+	case Indigo:
+		res = "Indigo"
+	case Ivory:
+		res = "Ivory"
+	case Khaki:
+		res = "Khaki"
+	case Lavender:
+		res = "Lavender"
+	case Lavenderblush:
+		res = "Lavenderblush"
+	case Lawngreen:
+		res = "Lawngreen"
+	case Lemonchiffon:
+		res = "Lemonchiffon"
+	case Lightblue:
+		res = "Lightblue"
+	case Lightcoral:
+		res = "Lightcoral"
+	case Lightcyan:
+		res = "Lightcyan"
+	case Lightgoldenrodyellow:
+		res = "Lightgoldenrodyellow"
+	case Lightgray:
+		res = "Lightgray"
+	case Lightgreen:
+		res = "Lightgreen"
+	case Lightgrey:
+		res = "Lightgrey"
+	case Lightpink:
+		res = "Lightpink"
+	case Lightsalmon:
+		res = "Lightsalmon"
+	case Lightseagreen:
+		res = "Lightseagreen"
+	case Lightskyblue:
+		res = "Lightskyblue"
+	case Lightslategray:
+		res = "Lightslategray"
+	case Lightslategrey:
+		res = "Lightslategrey"
+	case Lightsteelblue:
+		res = "Lightsteelblue"
+	case Lightyellow:
+		res = "Lightyellow"
+	case Lime:
+		res = "Lime"
+	case Limegreen:
+		res = "Limegreen"
+	case Linen:
+		res = "Linen"
+	case Magenta:
+		res = "Magenta"
+	case Maroon:
+		res = "Maroon"
+	case Mediumaquamarine:
+		res = "Mediumaquamarine"
+	case Mediumblue:
+		res = "Mediumblue"
+	case Mediumorchid:
+		res = "Mediumorchid"
+	case Mediumpurple:
+		res = "Mediumpurple"
+	case Mediumseagreen:
+		res = "Mediumseagreen"
+	case Mediumslateblue:
+		res = "Mediumslateblue"
+	case Mediumspringgreen:
+		res = "Mediumspringgreen"
+	case Mediumturquoise:
+		res = "Mediumturquoise"
+	case Mediumvioletred:
+		res = "Mediumvioletred"
+	case Midnightblue:
+		res = "Midnightblue"
+	case Mintcream:
+		res = "Mintcream"
+	case Mistyrose:
+		res = "Mistyrose"
+	case Moccasin:
+		res = "Moccasin"
+	case Navajowhite:
+		res = "Navajowhite"
+	case Navy:
+		res = "Navy"
+	case Oldlace:
+		res = "Oldlace"
+	case Olive:
+		res = "Olive"
+	case Olivedrab:
+		res = "Olivedrab"
+	case Orange:
+		res = "Orange"
+	case Orangered:
+		res = "Orangered"
+	case Orchid:
+		res = "Orchid"
+	case Palegoldenrod:
+		res = "Palegoldenrod"
+	case Palegreen:
+		res = "Palegreen"
+	case Paleturquoise:
+		res = "Paleturquoise"
+	case Palevioletred:
+		res = "Palevioletred"
+	case Papayawhip:
+		res = "Papayawhip"
+	case Peachpuff:
+		res = "Peachpuff"
+	case Peru:
+		res = "Peru"
+	case Pink:
+		res = "Pink"
+	case Plum:
+		res = "Plum"
+	case Powderblue:
+		res = "Powderblue"
+	case Purple:
+		res = "Purple"
+	case Red:
+		res = "Red"
+	case Rosybrown:
+		res = "Rosybrown"
+	case Royalblue:
+		res = "Royalblue"
+	case Saddlebrown:
+		res = "Saddlebrown"
+	case Salmon:
+		res = "Salmon"
+	case Sandybrown:
+		res = "Sandybrown"
+	case Seagreen:
+		res = "Seagreen"
+	case Seashell:
+		res = "Seashell"
+	case Sienna:
+		res = "Sienna"
+	case Silver:
+		res = "Silver"
+	case Skyblue:
+		res = "Skyblue"
+	case Slateblue:
+		res = "Slateblue"
+	case Slategray:
+		res = "Slategray"
+	case Slategrey:
+		res = "Slategrey"
+	case Snow:
+		res = "Snow"
+	case Springgreen:
+		res = "Springgreen"
+	case Steelblue:
+		res = "Steelblue"
+	case Tan:
+		res = "Tan"
+	case Teal:
+		res = "Teal"
+	case Thistle:
+		res = "Thistle"
+	case Tomato:
+		res = "Tomato"
+	case Turquoise:
+		res = "Turquoise"
+	case Violet:
+		res = "Violet"
+	case Wheat:
+		res = "Wheat"
+	case White:
+		res = "White"
+	case Whitesmoke:
+		res = "Whitesmoke"
+	case Yellow:
+		res = "Yellow"
+	case Yellowgreen:
+		res = "Yellowgreen"
+	}
+	return
+}
+
+// Last line of the template

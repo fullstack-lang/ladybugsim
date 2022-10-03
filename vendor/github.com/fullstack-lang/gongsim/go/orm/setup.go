@@ -3,7 +3,6 @@ package orm
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/glebarez/sqlite"
 	"gorm.io/gorm"
@@ -47,14 +46,13 @@ func AutoMigrate(db *gorm.DB) {
 		&EventDB{},
 		&GongsimCommandDB{},
 		&GongsimStatusDB{},
-		&UpdateStateDB{},
 	)
 
 	if err != nil {
 		msg := err.Error()
 		panic("problem with migration " + msg + " on package github.com/fullstack-lang/gongsim/go")
 	}
-	log.Printf("Database Migration of package github.com/fullstack-lang/gongsim/go is OK")
+	// log.Printf("Database Migration of package github.com/fullstack-lang/gongsim/go is OK")
 
 	BackRepo.init(db)
 }
@@ -65,5 +63,4 @@ func ResetDB(db *gorm.DB) { // insertion point for reference to structs
 	db.Delete(&EventDB{})
 	db.Delete(&GongsimCommandDB{})
 	db.Delete(&GongsimStatusDB{})
-	db.Delete(&UpdateStateDB{})
 }

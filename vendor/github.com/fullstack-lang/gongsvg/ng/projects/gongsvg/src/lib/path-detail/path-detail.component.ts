@@ -262,7 +262,7 @@ export class PathDetailComponent implements OnInit {
 	}
 
 	fillUpNameIfEmpty(event: { value: { Name: string; }; }) {
-		if (this.path.Name == undefined) {
+		if (this.path.Name == "") {
 			this.path.Name = event.value.Name
 		}
 	}

@@ -20,6 +20,7 @@ type Astruct struct {
 	Aenum   AEnumType
 	Aenum_2 AEnumType
 	Benum   BEnumType
+	CEnum   CEnumTypeInt
 
 	// an embedded struct is supported (without a field name)
 	Cstruct
@@ -51,4 +52,7 @@ type Astruct struct {
 	// MANY-MANY association, (because AclassBclassUse ends with "Use")
 	AnarrayofbUse  []*AstructBstructUse
 	Anarrayofb2Use []*AstructBstruct2Use
+
+	// pointer to itself
+	AnAstruct *Astruct
 }

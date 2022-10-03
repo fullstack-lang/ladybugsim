@@ -11,6 +11,7 @@ export * from './lib/sidebar/sidebar.component'
 export * from './lib/front-repo.service'
 export * from './lib/null-int64'
 export * from './lib/commitnb.service'
+export * from './lib/gongstruct-selection.service'
 export * from './lib/push_from_front_nb.service'
 
 
@@ -48,13 +49,6 @@ export * from './lib/gongsimstatus-sorting/gongsimstatus-sorting.component'
 export * from './lib/gongsimstatuss-table/gongsimstatuss-table.component'
 export * from './lib/gongsimstatus-db'
 export * from './lib/gongsimstatus.service'
-
-export * from './lib/updatestate-detail/updatestate-detail.component'
-export * from './lib/updatestate-presentation/updatestate-presentation.component'
-export * from './lib/updatestate-sorting/updatestate-sorting.component'
-export * from './lib/updatestates-table/updatestates-table.component'
-export * from './lib/updatestate-db'
-export * from './lib/updatestate.service'
 
 
 export * from './lib/ControlMode'

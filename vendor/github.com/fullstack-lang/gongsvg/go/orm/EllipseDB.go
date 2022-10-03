@@ -64,37 +64,37 @@ type EllipseDB struct {
 
 	// insertion for basic fields declaration
 
-	// Declation for basic field ellipseDB.Name {{BasicKind}} (to be completed)
+	// Declation for basic field ellipseDB.Name
 	Name_Data sql.NullString
 
-	// Declation for basic field ellipseDB.CX {{BasicKind}} (to be completed)
+	// Declation for basic field ellipseDB.CX
 	CX_Data sql.NullFloat64
 
-	// Declation for basic field ellipseDB.CY {{BasicKind}} (to be completed)
+	// Declation for basic field ellipseDB.CY
 	CY_Data sql.NullFloat64
 
-	// Declation for basic field ellipseDB.RX {{BasicKind}} (to be completed)
+	// Declation for basic field ellipseDB.RX
 	RX_Data sql.NullFloat64
 
-	// Declation for basic field ellipseDB.RY {{BasicKind}} (to be completed)
+	// Declation for basic field ellipseDB.RY
 	RY_Data sql.NullFloat64
 
-	// Declation for basic field ellipseDB.Color {{BasicKind}} (to be completed)
+	// Declation for basic field ellipseDB.Color
 	Color_Data sql.NullString
 
-	// Declation for basic field ellipseDB.FillOpacity {{BasicKind}} (to be completed)
+	// Declation for basic field ellipseDB.FillOpacity
 	FillOpacity_Data sql.NullFloat64
 
-	// Declation for basic field ellipseDB.Stroke {{BasicKind}} (to be completed)
+	// Declation for basic field ellipseDB.Stroke
 	Stroke_Data sql.NullString
 
-	// Declation for basic field ellipseDB.StrokeWidth {{BasicKind}} (to be completed)
+	// Declation for basic field ellipseDB.StrokeWidth
 	StrokeWidth_Data sql.NullFloat64
 
-	// Declation for basic field ellipseDB.StrokeDashArray {{BasicKind}} (to be completed)
+	// Declation for basic field ellipseDB.StrokeDashArray
 	StrokeDashArray_Data sql.NullString
 
-	// Declation for basic field ellipseDB.Transform {{BasicKind}} (to be completed)
+	// Declation for basic field ellipseDB.Transform
 	Transform_Data sql.NullString
 	// encoding of pointers
 	EllipsePointersEnconding
@@ -346,7 +346,7 @@ func (backRepoEllipse *BackRepoEllipseStruct) CheckoutPhaseOne() (Error error) {
 
 	// list of instances to be removed
 	// start from the initial map on the stage and remove instances that have been checked out
-	ellipseInstancesToBeRemovedFromTheStage := make(map[*models.Ellipse]struct{})
+	ellipseInstancesToBeRemovedFromTheStage := make(map[*models.Ellipse]any)
 	for key, value := range models.Stage.Ellipses {
 		ellipseInstancesToBeRemovedFromTheStage[key] = value
 	}

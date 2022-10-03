@@ -64,34 +64,34 @@ type TextDB struct {
 
 	// insertion for basic fields declaration
 
-	// Declation for basic field textDB.Name {{BasicKind}} (to be completed)
+	// Declation for basic field textDB.Name
 	Name_Data sql.NullString
 
-	// Declation for basic field textDB.X {{BasicKind}} (to be completed)
+	// Declation for basic field textDB.X
 	X_Data sql.NullFloat64
 
-	// Declation for basic field textDB.Y {{BasicKind}} (to be completed)
+	// Declation for basic field textDB.Y
 	Y_Data sql.NullFloat64
 
-	// Declation for basic field textDB.Content {{BasicKind}} (to be completed)
+	// Declation for basic field textDB.Content
 	Content_Data sql.NullString
 
-	// Declation for basic field textDB.Color {{BasicKind}} (to be completed)
+	// Declation for basic field textDB.Color
 	Color_Data sql.NullString
 
-	// Declation for basic field textDB.FillOpacity {{BasicKind}} (to be completed)
+	// Declation for basic field textDB.FillOpacity
 	FillOpacity_Data sql.NullFloat64
 
-	// Declation for basic field textDB.Stroke {{BasicKind}} (to be completed)
+	// Declation for basic field textDB.Stroke
 	Stroke_Data sql.NullString
 
-	// Declation for basic field textDB.StrokeWidth {{BasicKind}} (to be completed)
+	// Declation for basic field textDB.StrokeWidth
 	StrokeWidth_Data sql.NullFloat64
 
-	// Declation for basic field textDB.StrokeDashArray {{BasicKind}} (to be completed)
+	// Declation for basic field textDB.StrokeDashArray
 	StrokeDashArray_Data sql.NullString
 
-	// Declation for basic field textDB.Transform {{BasicKind}} (to be completed)
+	// Declation for basic field textDB.Transform
 	Transform_Data sql.NullString
 	// encoding of pointers
 	TextPointersEnconding
@@ -340,7 +340,7 @@ func (backRepoText *BackRepoTextStruct) CheckoutPhaseOne() (Error error) {
 
 	// list of instances to be removed
 	// start from the initial map on the stage and remove instances that have been checked out
-	textInstancesToBeRemovedFromTheStage := make(map[*models.Text]struct{})
+	textInstancesToBeRemovedFromTheStage := make(map[*models.Text]any)
 	for key, value := range models.Stage.Texts {
 		textInstancesToBeRemovedFromTheStage[key] = value
 	}

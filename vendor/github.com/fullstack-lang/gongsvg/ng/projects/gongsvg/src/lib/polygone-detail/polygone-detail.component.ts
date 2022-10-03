@@ -262,7 +262,7 @@ export class PolygoneDetailComponent implements OnInit {
 	}
 
 	fillUpNameIfEmpty(event: { value: { Name: string; }; }) {
-		if (this.polygone.Name == undefined) {
+		if (this.polygone.Name == "") {
 			this.polygone.Name = event.value.Name
 		}
 	}

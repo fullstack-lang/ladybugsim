@@ -17,6 +17,8 @@ import { Router, RouterState } from '@angular/router';
 import { PathDB } from '../path-db'
 import { PathService } from '../path.service'
 
+// insertion point for additional imports
+
 // TableComponent is initilizaed from different routes
 // TableComponentMode detail different cases 
 enum TableComponentMode {
@@ -91,7 +93,11 @@ export class PathsTableComponent implements OnInit {
           return pathDB.Transform;
 
         case 'SVG_Paths':
-          return this.frontRepo.SVGs.get(pathDB.SVG_PathsDBID.Int64)!.Name;
+          if (this.frontRepo.SVGs.get(pathDB.SVG_PathsDBID.Int64) != undefined) {
+            return this.frontRepo.SVGs.get(pathDB.SVG_PathsDBID.Int64)!.Name
+          } else {
+            return ""
+          }
 
         default:
           console.assert(false, "Unknown field")
@@ -208,8 +214,9 @@ export class PathsTableComponent implements OnInit {
 
         this.paths = this.frontRepo.Paths_array;
 
-        // insertion point for variables Recoveries
-
+        // insertion point for time duration Recoveries
+        // insertion point for enum int Recoveries
+        
         // in case the component is called as a selection component
         if (this.mode == TableComponentMode.ONE_MANY_ASSOCIATION_MODE) {
           for (let path of this.paths) {

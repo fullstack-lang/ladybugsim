@@ -17,6 +17,8 @@ import { Router, RouterState } from '@angular/router';
 import { DummyAgentDB } from '../dummyagent-db'
 import { DummyAgentService } from '../dummyagent.service'
 
+// insertion point for additional imports
+
 // TableComponent is initilizaed from different routes
 // TableComponentMode detail different cases 
 enum TableComponentMode {
@@ -69,9 +71,6 @@ export class DummyAgentsTableComponent implements OnInit {
         case 'TechName':
           return dummyagentDB.TechName;
 
-        case 'Engine':
-          return (dummyagentDB.Engine ? dummyagentDB.Engine.Name : '');
-
         case 'Name':
           return dummyagentDB.Name;
 
@@ -90,9 +89,6 @@ export class DummyAgentsTableComponent implements OnInit {
 
       // insertion point for merging of fields
       mergedContent += dummyagentDB.TechName.toLowerCase()
-      if (dummyagentDB.Engine) {
-        mergedContent += dummyagentDB.Engine.Name.toLowerCase()
-      }
       mergedContent += dummyagentDB.Name.toLowerCase()
 
       let isSelected = mergedContent.includes(filter.toLowerCase())
@@ -145,13 +141,11 @@ export class DummyAgentsTableComponent implements OnInit {
     if (this.mode == TableComponentMode.DISPLAY_MODE) {
       this.displayedColumns = ['ID', 'Edit', 'Delete', // insertion point for columns to display
         "TechName",
-        "Engine",
         "Name",
       ]
     } else {
       this.displayedColumns = ['select', 'ID', // insertion point for columns to display
         "TechName",
-        "Engine",
         "Name",
       ]
       this.selection = new SelectionModel<DummyAgentDB>(allowMultiSelect, this.initialSelection);
@@ -171,8 +165,9 @@ export class DummyAgentsTableComponent implements OnInit {
 
         this.dummyagents = this.frontRepo.DummyAgents_array;
 
-        // insertion point for variables Recoveries
-
+        // insertion point for time duration Recoveries
+        // insertion point for enum int Recoveries
+        
         // in case the component is called as a selection component
         if (this.mode == TableComponentMode.ONE_MANY_ASSOCIATION_MODE) {
           for (let dummyagent of this.dummyagents) {

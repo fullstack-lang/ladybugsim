@@ -262,7 +262,7 @@ export class LineDetailComponent implements OnInit {
 	}
 
 	fillUpNameIfEmpty(event: { value: { Name: string; }; }) {
-		if (this.line.Name == undefined) {
+		if (this.line.Name == "") {
 			this.line.Name = event.value.Name
 		}
 	}

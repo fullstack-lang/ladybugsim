@@ -17,6 +17,8 @@ import { Router, RouterState } from '@angular/router';
 import { LineDB } from '../line-db'
 import { LineService } from '../line.service'
 
+// insertion point for additional imports
+
 // TableComponent is initilizaed from different routes
 // TableComponentMode detail different cases 
 enum TableComponentMode {
@@ -100,7 +102,11 @@ export class LinesTableComponent implements OnInit {
           return lineDB.Transform;
 
         case 'SVG_Lines':
-          return this.frontRepo.SVGs.get(lineDB.SVG_LinesDBID.Int64)!.Name;
+          if (this.frontRepo.SVGs.get(lineDB.SVG_LinesDBID.Int64) != undefined) {
+            return this.frontRepo.SVGs.get(lineDB.SVG_LinesDBID.Int64)!.Name
+          } else {
+            return ""
+          }
 
         default:
           console.assert(false, "Unknown field")
@@ -226,8 +232,9 @@ export class LinesTableComponent implements OnInit {
 
         this.lines = this.frontRepo.Lines_array;
 
-        // insertion point for variables Recoveries
-
+        // insertion point for time duration Recoveries
+        // insertion point for enum int Recoveries
+        
         // in case the component is called as a selection component
         if (this.mode == TableComponentMode.ONE_MANY_ASSOCIATION_MODE) {
           for (let line of this.lines) {

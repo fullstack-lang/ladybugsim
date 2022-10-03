@@ -4,23 +4,25 @@ import (
 	"go/types"
 	"log"
 	"strings"
-
-	"golang.org/x/tools/go/packages"
 )
 
 //
-// generateFields appends to modelPkg the fields of the __struct
+// GenerateFields appends to modelPkg the fields of the __struct
 //
+// isCompositeField if it is a field from a composition with another struct
+// compositeTypeStructName is the name of the composite struct if it is the case
 //
-func GenerateFields(structName string, __struct *types.Struct, pkg *packages.Package,
-	modelPkg *ModelPkg) {
+func GenerateFields(structName string, __struct *types.Struct,
+	modelPkg *ModelPkg,
+	isCompositeField bool,
+	compositeTypeStructName string) {
 
 	for fieldIndex := 0; fieldIndex < __struct.NumFields(); fieldIndex++ {
-		log.Printf("field #%d\n", fieldIndex)
+		// log.Printf("field #%d\n", fieldIndex)
 
 		_typesField := __struct.Field(fieldIndex)
-		log.Printf("field name %s\n", _typesField.Name())
-		log.Printf("field type name %s\n", _typesField.Type().String())
+		// log.Printf("field name %s\n", _typesField.Name())
+		// log.Printf("field type name %s\n", _typesField.Type().String())
 
 		// only deal with exported fields
 		if _typesField.Name() != strings.Title(_typesField.Name()) {
@@ -37,7 +39,7 @@ func GenerateFields(structName string, __struct *types.Struct, pkg *packages.Pac
 		switch t2 := fieldUnderlying.(type) {
 		case *types.Basic:
 			var kindAsString string
-			log.Printf("field is a basic pointer of type %s\n", t2.Underlying().String())
+			// log.Printf("field is a basic pointer of type %s\n", t2.Underlying().String())
 			switch t2.Kind() {
 			case types.Bool:
 				kindAsString = "bool"
@@ -58,7 +60,6 @@ func GenerateFields(structName string, __struct *types.Struct, pkg *packages.Pac
 				append(modelPkg.GongStructs[structName].Fields, //
 					&GongBasicField{
 						Name:          _typesField.Name(),
-						Type:          t2,
 						basicKind:     t2.Kind(),
 						BasicKindName: kindAsString,
 						GongEnum:      gongEnum,
@@ -74,7 +75,7 @@ func GenerateFields(structName string, __struct *types.Struct, pkg *packages.Pac
 			if typesBehindPointer == "bool" {
 				log.Fatal("Field is pointer to bool")
 			}
-			log.Printf("field is a pointer of type %s\n", typesBehindPointer)
+			// log.Printf("field is a pointer of type %s\n", typesBehindPointer)
 
 			__struct, ok := modelPkg.GongStructs[t2.Elem().String()]
 
@@ -86,9 +87,10 @@ func GenerateFields(structName string, __struct *types.Struct, pkg *packages.Pac
 			modelPkg.GongStructs[structName].Fields =
 				append(modelPkg.GongStructs[structName].Fields, //
 					&PointerToGongStructField{
-						Name:       _typesField.Name(),
-						GongStruct: __struct,
-						Index:      len(modelPkg.GongStructs[structName].Fields),
+						Name:                _typesField.Name(),
+						GongStruct:          __struct,
+						Index:               len(modelPkg.GongStructs[structName].Fields),
+						CompositeStructName: compositeTypeStructName,
 					},
 				)
 
@@ -102,19 +104,19 @@ func GenerateFields(structName string, __struct *types.Struct, pkg *packages.Pac
 			switch t3 := assocPtr.(type) {
 			case *types.Pointer:
 				assocLongName := t3.Elem().String()
-				log.Printf("field is a slice of type %s\n", assocLongName)
-
+				// log.Printf("field is a slice of type %s\n", assocLongName)
 				modelPkg.GongStructs[structName].Fields =
 					append(modelPkg.GongStructs[structName].Fields, //
 						&SliceOfPointerToGongStructField{
-							Name:       _typesField.Name(),
-							GongStruct: modelPkg.GongStructs[assocLongName],
-							Index:      len(modelPkg.GongStructs[structName].Fields),
+							Name:                _typesField.Name(),
+							GongStruct:          modelPkg.GongStructs[assocLongName],
+							Index:               len(modelPkg.GongStructs[structName].Fields),
+							CompositeStructName: compositeTypeStructName,
 						},
 					)
 
 			default:
-				log.Printf("unkown type in slice" + assocPtr.String())
+				// log.Printf("unkown type in slice" + assocPtr.String())
 			}
 
 		//
@@ -124,7 +126,8 @@ func GenerateFields(structName string, __struct *types.Struct, pkg *packages.Pac
 			compositeTypeStruct := fieldUnderlying.(*types.Struct)
 
 			compositeTypeStructName := _typesField.Type().String()
-			log.Printf("field is a composite struct of type %s\n", compositeTypeStructName)
+			_ = compositeTypeStructName
+			// log.Printf("field is a composite struct of type %s\n", compositeTypeStructName)
 
 			if _typesField.Type().String() == "time.Time" {
 				modelPkg.GongStructs[structName].Fields =
@@ -135,7 +138,8 @@ func GenerateFields(structName string, __struct *types.Struct, pkg *packages.Pac
 						},
 					)
 			} else {
-				GenerateFields(structName, compositeTypeStruct, pkg, modelPkg)
+				localIdentifiers := strings.Split(compositeTypeStructName, ".")
+				GenerateFields(structName, compositeTypeStruct, modelPkg, true, localIdentifiers[len(localIdentifiers)-1])
 			}
 
 		default:

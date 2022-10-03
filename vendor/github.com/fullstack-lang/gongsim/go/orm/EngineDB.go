@@ -58,28 +58,28 @@ type EngineDB struct {
 
 	// insertion for basic fields declaration
 
-	// Declation for basic field engineDB.Name {{BasicKind}} (to be completed)
+	// Declation for basic field engineDB.Name
 	Name_Data sql.NullString
 
-	// Declation for basic field engineDB.EndTime {{BasicKind}} (to be completed)
+	// Declation for basic field engineDB.EndTime
 	EndTime_Data sql.NullString
 
-	// Declation for basic field engineDB.CurrentTime {{BasicKind}} (to be completed)
+	// Declation for basic field engineDB.CurrentTime
 	CurrentTime_Data sql.NullString
 
-	// Declation for basic field engineDB.SecondsSinceStart {{BasicKind}} (to be completed)
+	// Declation for basic field engineDB.SecondsSinceStart
 	SecondsSinceStart_Data sql.NullFloat64
 
-	// Declation for basic field engineDB.Fired {{BasicKind}} (to be completed)
+	// Declation for basic field engineDB.Fired
 	Fired_Data sql.NullInt64
 
-	// Declation for basic field engineDB.ControlMode {{BasicKind}} (to be completed)
+	// Declation for basic field engineDB.ControlMode
 	ControlMode_Data sql.NullString
 
-	// Declation for basic field engineDB.State {{BasicKind}} (to be completed)
+	// Declation for basic field engineDB.State
 	State_Data sql.NullString
 
-	// Declation for basic field engineDB.Speed {{BasicKind}} (to be completed)
+	// Declation for basic field engineDB.Speed
 	Speed_Data sql.NullFloat64
 	// encoding of pointers
 	EnginePointersEnconding
@@ -303,7 +303,7 @@ func (backRepoEngine *BackRepoEngineStruct) CheckoutPhaseOne() (Error error) {
 
 	// list of instances to be removed
 	// start from the initial map on the stage and remove instances that have been checked out
-	engineInstancesToBeRemovedFromTheStage := make(map[*models.Engine]struct{})
+	engineInstancesToBeRemovedFromTheStage := make(map[*models.Engine]any)
 	for key, value := range models.Stage.Engines {
 		engineInstancesToBeRemovedFromTheStage[key] = value
 	}
@@ -427,10 +427,10 @@ func (engineDB *EngineDB) CopyBasicFieldsFromEngine(engine *models.Engine) {
 	engineDB.Fired_Data.Int64 = int64(engine.Fired)
 	engineDB.Fired_Data.Valid = true
 
-	engineDB.ControlMode_Data.String = string(engine.ControlMode)
+	engineDB.ControlMode_Data.String = engine.ControlMode.ToString()
 	engineDB.ControlMode_Data.Valid = true
 
-	engineDB.State_Data.String = string(engine.State)
+	engineDB.State_Data.String = engine.State.ToString()
 	engineDB.State_Data.Valid = true
 
 	engineDB.Speed_Data.Float64 = engine.Speed
@@ -456,10 +456,10 @@ func (engineDB *EngineDB) CopyBasicFieldsFromEngineWOP(engine *EngineWOP) {
 	engineDB.Fired_Data.Int64 = int64(engine.Fired)
 	engineDB.Fired_Data.Valid = true
 
-	engineDB.ControlMode_Data.String = string(engine.ControlMode)
+	engineDB.ControlMode_Data.String = engine.ControlMode.ToString()
 	engineDB.ControlMode_Data.Valid = true
 
-	engineDB.State_Data.String = string(engine.State)
+	engineDB.State_Data.String = engine.State.ToString()
 	engineDB.State_Data.Valid = true
 
 	engineDB.Speed_Data.Float64 = engine.Speed
@@ -474,8 +474,8 @@ func (engineDB *EngineDB) CopyBasicFieldsToEngine(engine *models.Engine) {
 	engine.CurrentTime = engineDB.CurrentTime_Data.String
 	engine.SecondsSinceStart = engineDB.SecondsSinceStart_Data.Float64
 	engine.Fired = int(engineDB.Fired_Data.Int64)
-	engine.ControlMode = models.ControlMode(engineDB.ControlMode_Data.String)
-	engine.State = models.EngineState(engineDB.State_Data.String)
+	engine.ControlMode.FromString(engineDB.ControlMode_Data.String)
+	engine.State.FromString(engineDB.State_Data.String)
 	engine.Speed = engineDB.Speed_Data.Float64
 }
 
@@ -488,8 +488,8 @@ func (engineDB *EngineDB) CopyBasicFieldsToEngineWOP(engine *EngineWOP) {
 	engine.CurrentTime = engineDB.CurrentTime_Data.String
 	engine.SecondsSinceStart = engineDB.SecondsSinceStart_Data.Float64
 	engine.Fired = int(engineDB.Fired_Data.Int64)
-	engine.ControlMode = models.ControlMode(engineDB.ControlMode_Data.String)
-	engine.State = models.EngineState(engineDB.State_Data.String)
+	engine.ControlMode.FromString(engineDB.ControlMode_Data.String)
+	engine.State.FromString(engineDB.State_Data.String)
 	engine.Speed = engineDB.Speed_Data.Float64
 }
 

@@ -1,11 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, RouterState } from '@angular/router';
 
+import { BehaviorSubject, Subscription } from 'rxjs';
+
 import { FlatTreeControl } from '@angular/cdk/tree';
 import { MatTreeFlatDataSource, MatTreeFlattener } from '@angular/material/tree';
 
 import { FrontRepoService, FrontRepo } from '../front-repo.service'
 import { CommitNbService } from '../commitnb.service'
+import { GongstructSelectionService } from '../gongstruct-selection.service'
 
 // insertion point for per struct import code
 import { DummyAgentService } from '../dummyagent.service'
@@ -18,8 +21,6 @@ import { GongsimCommandService } from '../gongsimcommand.service'
 import { getGongsimCommandUniqueID } from '../front-repo.service'
 import { GongsimStatusService } from '../gongsimstatus.service'
 import { getGongsimStatusUniqueID } from '../front-repo.service'
-import { UpdateStateService } from '../updatestate.service'
-import { getUpdateStateUniqueID } from '../front-repo.service'
 
 /**
  * Types of a GongNode / GongFlatNode
@@ -149,10 +150,17 @@ export class SidebarComponent implements OnInit {
   // "data" tree that is constructed during NgInit and is passed to the mat-tree component
   gongNodeTree = new Array<GongNode>();
 
+  // SelectedStructChanged is the behavior subject that will emit
+  // the selected gong struct whose table has to be displayed in the table outlet
+  SelectedStructChanged: BehaviorSubject<string> = new BehaviorSubject("");
+
+  subscription: Subscription = new Subscription
+
   constructor(
     private router: Router,
     private frontRepoService: FrontRepoService,
     private commitNbService: CommitNbService,
+    private gongstructSelectionService: GongstructSelectionService,
 
     // insertion point for per struct service declaration
     private dummyagentService: DummyAgentService,
@@ -160,11 +168,29 @@ export class SidebarComponent implements OnInit {
     private eventService: EventService,
     private gongsimcommandService: GongsimCommandService,
     private gongsimstatusService: GongsimStatusService,
-    private updatestateService: UpdateStateService,
   ) { }
 
+  ngOnDestroy() {
+    // prevent memory leak when component destroyed
+    this.subscription.unsubscribe();
+  }
+
   ngOnInit(): void {
+
+    this.subscription = this.gongstructSelectionService.gongtructSelected$.subscribe(
+      gongstructName => {
+        // console.log("sidebar gongstruct selected " + gongstructName)
+
+        this.setTableRouterOutlet(gongstructName.toLowerCase() + "s")
+      });
+
     this.refresh()
+
+    this.SelectedStructChanged.subscribe(
+      selectedStruct => {
+        this.setTableRouterOutlet(selectedStruct)
+      }
+    )
 
     // insertion point for per struct observable for refresh trigger
     // observable for changes in structs
@@ -207,14 +233,6 @@ export class SidebarComponent implements OnInit {
         }
       }
     )
-    // observable for changes in structs
-    this.updatestateService.UpdateStateServiceChanged.subscribe(
-      message => {
-        if (message == "post" || message == "update" || message == "delete") {
-          this.refresh()
-        }
-      }
-    )
   }
 
   refresh(): void {
@@ -237,7 +255,7 @@ export class SidebarComponent implements OnInit {
 
       // reset the gong node tree
       this.gongNodeTree = new Array<GongNode>();
-      
+
       // insertion point for per struct tree construction
       /**
       * fill up the DummyAgent part of the mat tree
@@ -280,41 +298,6 @@ export class SidebarComponent implements OnInit {
           dummyagentGongNodeStruct.children!.push(dummyagentGongNodeInstance)
 
           // insertion point for per field code
-          /**
-          * let append a node for the association Engine
-          */
-          let EngineGongNodeAssociation: GongNode = {
-            name: "(Engine) Engine",
-            type: GongNodeType.ONE__ZERO_ONE_ASSOCIATION,
-            id: dummyagentDB.ID,
-            uniqueIdPerStack: 17 * nonInstanceNodeId,
-            structName: "DummyAgent",
-            associationField: "Engine",
-            associatedStructName: "Engine",
-            children: new Array<GongNode>()
-          }
-          nonInstanceNodeId = nonInstanceNodeId + 1
-          dummyagentGongNodeInstance.children!.push(EngineGongNodeAssociation)
-
-          /**
-            * let append a node for the instance behind the asssociation Engine
-            */
-          if (dummyagentDB.Engine != undefined) {
-            let dummyagentGongNodeInstance_Engine: GongNode = {
-              name: dummyagentDB.Engine.Name,
-              type: GongNodeType.INSTANCE,
-              id: dummyagentDB.Engine.ID,
-              uniqueIdPerStack: // godel numbering (thank you kurt)
-                3 * getDummyAgentUniqueID(dummyagentDB.ID)
-                + 5 * getEngineUniqueID(dummyagentDB.Engine.ID),
-              structName: "Engine",
-              associationField: "",
-              associatedStructName: "",
-              children: new Array<GongNode>()
-            }
-            EngineGongNodeAssociation.children.push(dummyagentGongNodeInstance_Engine)
-          }
-
         }
       )
 
@@ -489,50 +472,6 @@ export class SidebarComponent implements OnInit {
             children: new Array<GongNode>()
           }
           gongsimstatusGongNodeStruct.children!.push(gongsimstatusGongNodeInstance)
-
-          // insertion point for per field code
-        }
-      )
-
-      /**
-      * fill up the UpdateState part of the mat tree
-      */
-      let updatestateGongNodeStruct: GongNode = {
-        name: "UpdateState",
-        type: GongNodeType.STRUCT,
-        id: 0,
-        uniqueIdPerStack: 13 * nonInstanceNodeId,
-        structName: "UpdateState",
-        associationField: "",
-        associatedStructName: "",
-        children: new Array<GongNode>()
-      }
-      nonInstanceNodeId = nonInstanceNodeId + 1
-      this.gongNodeTree.push(updatestateGongNodeStruct)
-
-      this.frontRepo.UpdateStates_array.sort((t1, t2) => {
-        if (t1.Name > t2.Name) {
-          return 1;
-        }
-        if (t1.Name < t2.Name) {
-          return -1;
-        }
-        return 0;
-      });
-
-      this.frontRepo.UpdateStates_array.forEach(
-        updatestateDB => {
-          let updatestateGongNodeInstance: GongNode = {
-            name: updatestateDB.Name,
-            type: GongNodeType.INSTANCE,
-            id: updatestateDB.ID,
-            uniqueIdPerStack: getUpdateStateUniqueID(updatestateDB.ID),
-            structName: "UpdateState",
-            associationField: "",
-            associatedStructName: "",
-            children: new Array<GongNode>()
-          }
-          updatestateGongNodeStruct.children!.push(updatestateGongNodeInstance)
 
           // insertion point for per field code
         }

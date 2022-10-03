@@ -17,6 +17,8 @@ import { Router, RouterState } from '@angular/router';
 import { PolygoneDB } from '../polygone-db'
 import { PolygoneService } from '../polygone.service'
 
+// insertion point for additional imports
+
 // TableComponent is initilizaed from different routes
 // TableComponentMode detail different cases 
 enum TableComponentMode {
@@ -91,7 +93,11 @@ export class PolygonesTableComponent implements OnInit {
           return polygoneDB.Transform;
 
         case 'SVG_Polygones':
-          return this.frontRepo.SVGs.get(polygoneDB.SVG_PolygonesDBID.Int64)!.Name;
+          if (this.frontRepo.SVGs.get(polygoneDB.SVG_PolygonesDBID.Int64) != undefined) {
+            return this.frontRepo.SVGs.get(polygoneDB.SVG_PolygonesDBID.Int64)!.Name
+          } else {
+            return ""
+          }
 
         default:
           console.assert(false, "Unknown field")
@@ -208,8 +214,9 @@ export class PolygonesTableComponent implements OnInit {
 
         this.polygones = this.frontRepo.Polygones_array;
 
-        // insertion point for variables Recoveries
-
+        // insertion point for time duration Recoveries
+        // insertion point for enum int Recoveries
+        
         // in case the component is called as a selection component
         if (this.mode == TableComponentMode.ONE_MANY_ASSOCIATION_MODE) {
           for (let polygone of this.polygones) {
