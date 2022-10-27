@@ -452,6 +452,7 @@ func (backRepo *BackRepoStruct) CommitLadybugSimulation(ladybugsimulation *model
 	if id, ok := (*backRepo.BackRepoLadybugSimulation.Map_LadybugSimulationPtr_LadybugSimulationDBID)[ladybugsimulation]; ok {
 		backRepo.BackRepoLadybugSimulation.CommitPhaseTwoInstance(backRepo, id, ladybugsimulation)
 	}
+	backRepo.CommitFromBackNb = backRepo.CommitFromBackNb + 1
 }
 
 // CommitLadybugSimulation allows checkout of a single ladybugsimulation (if already staged and with a BackRepo id)

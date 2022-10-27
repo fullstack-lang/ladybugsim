@@ -41,11 +41,12 @@ type LadybugInput struct {
 //
 // swagger:route GET /ladybugs ladybugs getLadybugs
 //
-// Get all ladybugs
+// # Get all ladybugs
 //
 // Responses:
-//    default: genericError
-//        200: ladybugDBsResponse
+// default: genericError
+//
+//	200: ladybugDBResponse
 func GetLadybugs(c *gin.Context) {
 	db := orm.BackRepo.BackRepoLadybug.GetDB()
 
@@ -85,14 +86,15 @@ func GetLadybugs(c *gin.Context) {
 // swagger:route POST /ladybugs ladybugs postLadybug
 //
 // Creates a ladybug
-//     Consumes:
-//     - application/json
 //
-//     Produces:
-//     - application/json
+//	Consumes:
+//	- application/json
 //
-//     Responses:
-//       200: ladybugDBResponse
+//	Produces:
+//	- application/json
+//
+//	Responses:
+//	  200: nodeDBResponse
 func PostLadybug(c *gin.Context) {
 	db := orm.BackRepo.BackRepoLadybug.GetDB()
 
@@ -124,6 +126,14 @@ func PostLadybug(c *gin.Context) {
 		return
 	}
 
+	// get an instance (not staged) from DB instance, and call callback function
+	orm.BackRepo.BackRepoLadybug.CheckoutPhaseOneInstance(&ladybugDB)
+	ladybug := (*orm.BackRepo.BackRepoLadybug.Map_LadybugDBID_LadybugPtr)[ladybugDB.ID]
+
+	if ladybug != nil {
+		models.AfterCreateFromFront(&models.Stage, ladybug)
+	}
+
 	// a POST is equivalent to a back repo commit increase
 	// (this will be improved with implementation of unit of work design pattern)
 	orm.BackRepo.IncrementPushFromFrontNb()
@@ -138,8 +148,9 @@ func PostLadybug(c *gin.Context) {
 // Gets the details for a ladybug.
 //
 // Responses:
-//    default: genericError
-//        200: ladybugDBResponse
+// default: genericError
+//
+//	200: ladybugDBResponse
 func GetLadybug(c *gin.Context) {
 	db := orm.BackRepo.BackRepoLadybug.GetDB()
 
@@ -166,11 +177,12 @@ func GetLadybug(c *gin.Context) {
 //
 // swagger:route PATCH /ladybugs/{ID} ladybugs updateLadybug
 //
-// Update a ladybug
+// # Update a ladybug
 //
 // Responses:
-//    default: genericError
-//        200: ladybugDBResponse
+// default: genericError
+//
+//	200: ladybugDBResponse
 func UpdateLadybug(c *gin.Context) {
 	db := orm.BackRepo.BackRepoLadybug.GetDB()
 
@@ -211,8 +223,20 @@ func UpdateLadybug(c *gin.Context) {
 		return
 	}
 
+	// get an instance (not staged) from DB instance, and call callback function
+	ladybugNew := new(models.Ladybug)
+	ladybugDB.CopyBasicFieldsToLadybug(ladybugNew)
+
+	// get stage instance from DB instance, and call callback function
+	ladybugOld := (*orm.BackRepo.BackRepoLadybug.Map_LadybugDBID_LadybugPtr)[ladybugDB.ID]
+	if ladybugOld != nil {
+		models.AfterUpdateFromFront(&models.Stage, ladybugOld, ladybugNew)
+	}
+
 	// an UPDATE generates a back repo commit increase
 	// (this will be improved with implementation of unit of work design pattern)
+	// in some cases, with the marshalling of the stage, this operation might
+	// generates a checkout
 	orm.BackRepo.IncrementPushFromFrontNb()
 
 	// return status OK with the marshalling of the the ladybugDB
@@ -223,10 +247,11 @@ func UpdateLadybug(c *gin.Context) {
 //
 // swagger:route DELETE /ladybugs/{ID} ladybugs deleteLadybug
 //
-// Delete a ladybug
+// # Delete a ladybug
 //
-// Responses:
-//    default: genericError
+// default: genericError
+//
+//	200: ladybugDBResponse
 func DeleteLadybug(c *gin.Context) {
 	db := orm.BackRepo.BackRepoLadybug.GetDB()
 
@@ -243,6 +268,16 @@ func DeleteLadybug(c *gin.Context) {
 
 	// with gorm.Model field, default delete is a soft delete. Unscoped() force delete
 	db.Unscoped().Delete(&ladybugDB)
+
+	// get an instance (not staged) from DB instance, and call callback function
+	ladybugDeleted := new(models.Ladybug)
+	ladybugDB.CopyBasicFieldsToLadybug(ladybugDeleted)
+
+	// get stage instance from DB instance, and call callback function
+	ladybugStaged := (*orm.BackRepo.BackRepoLadybug.Map_LadybugDBID_LadybugPtr)[ladybugDB.ID]
+	if ladybugStaged != nil {
+		models.AfterDeleteFromFront(&models.Stage, ladybugStaged, ladybugDeleted)
+	}
 
 	// a DELETE generates a back repo commit increase
 	// (this will be improved with implementation of unit of work design pattern)

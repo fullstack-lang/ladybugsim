@@ -2,6 +2,7 @@
 package models
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -10,6 +11,9 @@ import (
 	"sort"
 	"strings"
 )
+
+// errUnkownEnum is returns when a value cannot match enum values
+var errUnkownEnum = errors.New("unkown enum")
 
 // swagger:ignore
 type __void any
@@ -31,8 +35,20 @@ type StageStruct struct { // insertion point for definition of arrays registerin
 	Ladybugs           map[*Ladybug]any
 	Ladybugs_mapString map[string]*Ladybug
 
+	OnAfterLadybugCreateCallback OnAfterCreateInterface[Ladybug]
+	OnAfterLadybugUpdateCallback OnAfterUpdateInterface[Ladybug]
+	OnAfterLadybugDeleteCallback OnAfterDeleteInterface[Ladybug]
+	OnAfterLadybugReadCallback   OnAfterReadInterface[Ladybug]
+
+
 	LadybugSimulations           map[*LadybugSimulation]any
 	LadybugSimulations_mapString map[string]*LadybugSimulation
+
+	OnAfterLadybugSimulationCreateCallback OnAfterCreateInterface[LadybugSimulation]
+	OnAfterLadybugSimulationUpdateCallback OnAfterUpdateInterface[LadybugSimulation]
+	OnAfterLadybugSimulationDeleteCallback OnAfterDeleteInterface[LadybugSimulation]
+	OnAfterLadybugSimulationReadCallback   OnAfterReadInterface[LadybugSimulation]
+
 
 	AllModelsStructCreateCallback AllModelsStructCreateInterface
 
@@ -51,6 +67,29 @@ type StageStruct struct { // insertion point for definition of arrays registerin
 
 type OnInitCommitInterface interface {
 	BeforeCommit(stage *StageStruct)
+}
+
+// OnAfterCreateInterface callback when an instance is updated from the front
+type OnAfterCreateInterface[Type Gongstruct] interface {
+	OnAfterCreate(stage *StageStruct,
+		instance *Type)
+}
+
+// OnAfterReadInterface callback when an instance is updated from the front
+type OnAfterReadInterface[Type Gongstruct] interface {
+	OnAfterRead(stage *StageStruct,
+		instance *Type)
+}
+
+// OnAfterUpdateInterface callback when an instance is updated from the front
+type OnAfterUpdateInterface[Type Gongstruct] interface {
+	OnAfterUpdate(stage *StageStruct, old, new *Type)
+}
+
+// OnAfterDeleteInterface callback when an instance is updated from the front
+type OnAfterDeleteInterface[Type Gongstruct] interface {
+	OnAfterDelete(stage *StageStruct,
+		staged, front *Type)
 }
 
 type BackRepoInterface interface {
@@ -932,7 +971,7 @@ func (ladybugstatus LadybugStatus) ToString() (res string) {
 	return
 }
 
-func (ladybugstatus *LadybugStatus) FromString(input string) {
+func (ladybugstatus *LadybugStatus) FromString(input string) (err error) {
 
 	switch input {
 	// insertion code per enum code
@@ -940,7 +979,10 @@ func (ladybugstatus *LadybugStatus) FromString(input string) {
 		*ladybugstatus = ON_THE_FENCE
 	case "ON_THE_GROUND":
 		*ladybugstatus = ON_THE_GROUND
+	default:
+		return errUnkownEnum
 	}
+	return
 }
 
 func (ladybugstatus *LadybugStatus) ToCodeString() (res string) {

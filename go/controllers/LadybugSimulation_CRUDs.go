@@ -41,11 +41,12 @@ type LadybugSimulationInput struct {
 //
 // swagger:route GET /ladybugsimulations ladybugsimulations getLadybugSimulations
 //
-// Get all ladybugsimulations
+// # Get all ladybugsimulations
 //
 // Responses:
-//    default: genericError
-//        200: ladybugsimulationDBsResponse
+// default: genericError
+//
+//	200: ladybugsimulationDBResponse
 func GetLadybugSimulations(c *gin.Context) {
 	db := orm.BackRepo.BackRepoLadybugSimulation.GetDB()
 
@@ -85,14 +86,15 @@ func GetLadybugSimulations(c *gin.Context) {
 // swagger:route POST /ladybugsimulations ladybugsimulations postLadybugSimulation
 //
 // Creates a ladybugsimulation
-//     Consumes:
-//     - application/json
 //
-//     Produces:
-//     - application/json
+//	Consumes:
+//	- application/json
 //
-//     Responses:
-//       200: ladybugsimulationDBResponse
+//	Produces:
+//	- application/json
+//
+//	Responses:
+//	  200: nodeDBResponse
 func PostLadybugSimulation(c *gin.Context) {
 	db := orm.BackRepo.BackRepoLadybugSimulation.GetDB()
 
@@ -124,6 +126,14 @@ func PostLadybugSimulation(c *gin.Context) {
 		return
 	}
 
+	// get an instance (not staged) from DB instance, and call callback function
+	orm.BackRepo.BackRepoLadybugSimulation.CheckoutPhaseOneInstance(&ladybugsimulationDB)
+	ladybugsimulation := (*orm.BackRepo.BackRepoLadybugSimulation.Map_LadybugSimulationDBID_LadybugSimulationPtr)[ladybugsimulationDB.ID]
+
+	if ladybugsimulation != nil {
+		models.AfterCreateFromFront(&models.Stage, ladybugsimulation)
+	}
+
 	// a POST is equivalent to a back repo commit increase
 	// (this will be improved with implementation of unit of work design pattern)
 	orm.BackRepo.IncrementPushFromFrontNb()
@@ -138,8 +148,9 @@ func PostLadybugSimulation(c *gin.Context) {
 // Gets the details for a ladybugsimulation.
 //
 // Responses:
-//    default: genericError
-//        200: ladybugsimulationDBResponse
+// default: genericError
+//
+//	200: ladybugsimulationDBResponse
 func GetLadybugSimulation(c *gin.Context) {
 	db := orm.BackRepo.BackRepoLadybugSimulation.GetDB()
 
@@ -166,11 +177,12 @@ func GetLadybugSimulation(c *gin.Context) {
 //
 // swagger:route PATCH /ladybugsimulations/{ID} ladybugsimulations updateLadybugSimulation
 //
-// Update a ladybugsimulation
+// # Update a ladybugsimulation
 //
 // Responses:
-//    default: genericError
-//        200: ladybugsimulationDBResponse
+// default: genericError
+//
+//	200: ladybugsimulationDBResponse
 func UpdateLadybugSimulation(c *gin.Context) {
 	db := orm.BackRepo.BackRepoLadybugSimulation.GetDB()
 
@@ -211,8 +223,20 @@ func UpdateLadybugSimulation(c *gin.Context) {
 		return
 	}
 
+	// get an instance (not staged) from DB instance, and call callback function
+	ladybugsimulationNew := new(models.LadybugSimulation)
+	ladybugsimulationDB.CopyBasicFieldsToLadybugSimulation(ladybugsimulationNew)
+
+	// get stage instance from DB instance, and call callback function
+	ladybugsimulationOld := (*orm.BackRepo.BackRepoLadybugSimulation.Map_LadybugSimulationDBID_LadybugSimulationPtr)[ladybugsimulationDB.ID]
+	if ladybugsimulationOld != nil {
+		models.AfterUpdateFromFront(&models.Stage, ladybugsimulationOld, ladybugsimulationNew)
+	}
+
 	// an UPDATE generates a back repo commit increase
 	// (this will be improved with implementation of unit of work design pattern)
+	// in some cases, with the marshalling of the stage, this operation might
+	// generates a checkout
 	orm.BackRepo.IncrementPushFromFrontNb()
 
 	// return status OK with the marshalling of the the ladybugsimulationDB
@@ -223,10 +247,11 @@ func UpdateLadybugSimulation(c *gin.Context) {
 //
 // swagger:route DELETE /ladybugsimulations/{ID} ladybugsimulations deleteLadybugSimulation
 //
-// Delete a ladybugsimulation
+// # Delete a ladybugsimulation
 //
-// Responses:
-//    default: genericError
+// default: genericError
+//
+//	200: ladybugsimulationDBResponse
 func DeleteLadybugSimulation(c *gin.Context) {
 	db := orm.BackRepo.BackRepoLadybugSimulation.GetDB()
 
@@ -243,6 +268,16 @@ func DeleteLadybugSimulation(c *gin.Context) {
 
 	// with gorm.Model field, default delete is a soft delete. Unscoped() force delete
 	db.Unscoped().Delete(&ladybugsimulationDB)
+
+	// get an instance (not staged) from DB instance, and call callback function
+	ladybugsimulationDeleted := new(models.LadybugSimulation)
+	ladybugsimulationDB.CopyBasicFieldsToLadybugSimulation(ladybugsimulationDeleted)
+
+	// get stage instance from DB instance, and call callback function
+	ladybugsimulationStaged := (*orm.BackRepo.BackRepoLadybugSimulation.Map_LadybugSimulationDBID_LadybugSimulationPtr)[ladybugsimulationDB.ID]
+	if ladybugsimulationStaged != nil {
+		models.AfterDeleteFromFront(&models.Stage, ladybugsimulationStaged, ladybugsimulationDeleted)
+	}
 
 	// a DELETE generates a back repo commit increase
 	// (this will be improved with implementation of unit of work design pattern)

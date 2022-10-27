@@ -376,6 +376,7 @@ func (backRepo *BackRepoStruct) CommitLadybug(ladybug *models.Ladybug) {
 	if id, ok := (*backRepo.BackRepoLadybug.Map_LadybugPtr_LadybugDBID)[ladybug]; ok {
 		backRepo.BackRepoLadybug.CommitPhaseTwoInstance(backRepo, id, ladybug)
 	}
+	backRepo.CommitFromBackNb = backRepo.CommitFromBackNb + 1
 }
 
 // CommitLadybug allows checkout of a single ladybug (if already staged and with a BackRepo id)
