@@ -8,7 +8,6 @@
     "declaration": false,
     "downlevelIteration": true,
     "strict": true,
-    "skipLibCheck": true,
     "paths": {
       // 
       // https://angular.io/guide/creating-libraries#use-typescript-path-mapping-for-peer-dependencies
