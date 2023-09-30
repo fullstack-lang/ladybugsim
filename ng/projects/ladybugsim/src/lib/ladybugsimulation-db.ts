@@ -5,6 +5,9 @@ import { LadybugDB } from './ladybug-db'
 import { NullInt64 } from './null-int64'
 
 export class LadybugSimulationDB {
+
+	static GONGSTRUCT_NAME = "LadybugSimulation"
+
 	CreatedAt?: string
 	DeletedAt?: string
 	ID: number = 0

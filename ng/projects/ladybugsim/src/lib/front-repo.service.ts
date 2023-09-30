@@ -1,9 +1,9 @@
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Injectable } from '@angular/core'
+import { HttpClient, HttpHeaders } from '@angular/common/http'
 
-import { Observable, combineLatest, BehaviorSubject } from 'rxjs';
+import { Observable, combineLatest, BehaviorSubject, of } from 'rxjs'
 
-// insertion point sub template for services imports 
+// insertion point sub template for services imports
 import { LadybugDB } from './ladybug-db'
 import { LadybugService } from './ladybug.service'
 
@@ -12,19 +12,44 @@ import { LadybugSimulationService } from './ladybugsimulation.service'
 
 
 // FrontRepo stores all instances in a front repository (design pattern repository)
-export class FrontRepo { // insertion point sub template 
-  Ladybugs_array = new Array<LadybugDB>(); // array of repo instances
-  Ladybugs = new Map<number, LadybugDB>(); // map of repo instances
-  Ladybugs_batch = new Map<number, LadybugDB>(); // same but only in last GET (for finding repo instances to delete)
-  LadybugSimulations_array = new Array<LadybugSimulationDB>(); // array of repo instances
-  LadybugSimulations = new Map<number, LadybugSimulationDB>(); // map of repo instances
-  LadybugSimulations_batch = new Map<number, LadybugSimulationDB>(); // same but only in last GET (for finding repo instances to delete)
-}
+export class FrontRepo { // insertion point sub template
+  Ladybugs_array = new Array<LadybugDB>() // array of repo instances
+  Ladybugs = new Map<number, LadybugDB>() // map of repo instances
+  Ladybugs_batch = new Map<number, LadybugDB>() // same but only in last GET (for finding repo instances to delete)
 
-//
-// Store of all instances of the stack
-//
-export const FrontRepoSingloton = new (FrontRepo)
+  LadybugSimulations_array = new Array<LadybugSimulationDB>() // array of repo instances
+  LadybugSimulations = new Map<number, LadybugSimulationDB>() // map of repo instances
+  LadybugSimulations_batch = new Map<number, LadybugSimulationDB>() // same but only in last GET (for finding repo instances to delete)
+
+
+  // getArray allows for a get function that is robust to refactoring of the named struct name
+  // for instance frontRepo.getArray<Astruct>( Astruct.GONGSTRUCT_NAME), is robust to a refactoring of Astruct identifier
+  // contrary to frontRepo.Astructs_array which is not refactored when Astruct identifier is modified
+  getArray<Type>(gongStructName: string): Array<Type> {
+    switch (gongStructName) {
+      // insertion point
+      case 'Ladybug':
+        return this.Ladybugs_array as unknown as Array<Type>
+      case 'LadybugSimulation':
+        return this.LadybugSimulations_array as unknown as Array<Type>
+      default:
+        throw new Error("Type not recognized");
+    }
+  }
+
+  // getMap allows for a get function that is robust to refactoring of the named struct name
+  getMap<Type>(gongStructName: string): Map<number, Type> {
+    switch (gongStructName) {
+      // insertion point
+      case 'Ladybug':
+        return this.Ladybugs_array as unknown as Map<number, Type>
+      case 'LadybugSimulation':
+        return this.LadybugSimulations_array as unknown as Map<number, Type>
+      default:
+        throw new Error("Type not recognized");
+    }
+  }
+}
 
 // the table component is called in different ways
 //
@@ -56,6 +81,8 @@ export class DialogData {
   IntermediateStruct: string = "" // the "AclassBclassUse" 
   IntermediateStructField: string = "" // the "Bclass" as field
   NextAssociationStruct: string = "" // the "Bclass"
+
+  GONG__StackPath: string = ""
 }
 
 export enum SelectionMode {
@@ -71,9 +98,16 @@ export enum SelectionMode {
 })
 export class FrontRepoService {
 
+  GONG__StackPath: string = ""
+
   httpOptions = {
     headers: new HttpHeaders({ 'Content-Type': 'application/json' })
   };
+
+  //
+  // Store of all instances of the stack
+  //
+  frontRepo = new (FrontRepo)
 
   constructor(
     private http: HttpClient, // insertion point sub template 
@@ -108,12 +142,23 @@ export class FrontRepoService {
   }
 
   // typing of observable can be messy in typescript. Therefore, one force the type
-  observableFrontRepo: [ // insertion point sub template 
+  observableFrontRepo: [
+    Observable<null>, // see below for the of(null) observable
+    // insertion point sub template 
     Observable<LadybugDB[]>,
     Observable<LadybugSimulationDB[]>,
-  ] = [ // insertion point sub template 
-      this.ladybugService.getLadybugs(),
-      this.ladybugsimulationService.getLadybugSimulations(),
+  ] = [
+      // Using "combineLatest" with a placeholder observable.
+      //
+      // This allows the typescript compiler to pass when no GongStruct is present in the front API
+      //
+      // The "of(null)" is a "meaningless" observable that emits a single value (null) and completes.
+      // This is used as a workaround to satisfy TypeScript requirements and the "combineLatest" 
+      // expectation for a non-empty array of observables.
+      of(null), // 
+      // insertion point sub template
+      this.ladybugService.getLadybugs(this.GONG__StackPath),
+      this.ladybugsimulationService.getLadybugSimulations(this.GONG__StackPath),
     ];
 
   //
@@ -122,13 +167,25 @@ export class FrontRepoService {
   // This is an observable. Therefore, the control flow forks with
   // - pull() return immediatly the observable
   // - the observable observer, if it subscribe, is called when all GET calls are performs
-  pull(): Observable<FrontRepo> {
+  pull(GONG__StackPath: string = ""): Observable<FrontRepo> {
+
+    this.GONG__StackPath = GONG__StackPath
+
+    this.observableFrontRepo = [
+      of(null), // see above for justification
+      // insertion point sub template
+      this.ladybugService.getLadybugs(this.GONG__StackPath),
+      this.ladybugsimulationService.getLadybugSimulations(this.GONG__StackPath),
+    ]
+
     return new Observable<FrontRepo>(
       (observer) => {
         combineLatest(
           this.observableFrontRepo
         ).subscribe(
-          ([ // insertion point sub template for declarations 
+          ([
+            ___of_null, // see above for the explanation about of
+            // insertion point sub template for declarations 
             ladybugs_,
             ladybugsimulations_,
           ]) => {
@@ -143,29 +200,29 @@ export class FrontRepoService {
             // First Step: init map of instances
             // insertion point sub template for init 
             // init the array
-            FrontRepoSingloton.Ladybugs_array = ladybugs
+            this.frontRepo.Ladybugs_array = ladybugs
 
             // clear the map that counts Ladybug in the GET
-            FrontRepoSingloton.Ladybugs_batch.clear()
+            this.frontRepo.Ladybugs_batch.clear()
 
             ladybugs.forEach(
               ladybug => {
-                FrontRepoSingloton.Ladybugs.set(ladybug.ID, ladybug)
-                FrontRepoSingloton.Ladybugs_batch.set(ladybug.ID, ladybug)
+                this.frontRepo.Ladybugs.set(ladybug.ID, ladybug)
+                this.frontRepo.Ladybugs_batch.set(ladybug.ID, ladybug)
               }
             )
 
             // clear ladybugs that are absent from the batch
-            FrontRepoSingloton.Ladybugs.forEach(
+            this.frontRepo.Ladybugs.forEach(
               ladybug => {
-                if (FrontRepoSingloton.Ladybugs_batch.get(ladybug.ID) == undefined) {
-                  FrontRepoSingloton.Ladybugs.delete(ladybug.ID)
+                if (this.frontRepo.Ladybugs_batch.get(ladybug.ID) == undefined) {
+                  this.frontRepo.Ladybugs.delete(ladybug.ID)
                 }
               }
             )
 
             // sort Ladybugs_array array
-            FrontRepoSingloton.Ladybugs_array.sort((t1, t2) => {
+            this.frontRepo.Ladybugs_array.sort((t1, t2) => {
               if (t1.Name > t2.Name) {
                 return 1;
               }
@@ -176,29 +233,29 @@ export class FrontRepoService {
             });
 
             // init the array
-            FrontRepoSingloton.LadybugSimulations_array = ladybugsimulations
+            this.frontRepo.LadybugSimulations_array = ladybugsimulations
 
             // clear the map that counts LadybugSimulation in the GET
-            FrontRepoSingloton.LadybugSimulations_batch.clear()
+            this.frontRepo.LadybugSimulations_batch.clear()
 
             ladybugsimulations.forEach(
               ladybugsimulation => {
-                FrontRepoSingloton.LadybugSimulations.set(ladybugsimulation.ID, ladybugsimulation)
-                FrontRepoSingloton.LadybugSimulations_batch.set(ladybugsimulation.ID, ladybugsimulation)
+                this.frontRepo.LadybugSimulations.set(ladybugsimulation.ID, ladybugsimulation)
+                this.frontRepo.LadybugSimulations_batch.set(ladybugsimulation.ID, ladybugsimulation)
               }
             )
 
             // clear ladybugsimulations that are absent from the batch
-            FrontRepoSingloton.LadybugSimulations.forEach(
+            this.frontRepo.LadybugSimulations.forEach(
               ladybugsimulation => {
-                if (FrontRepoSingloton.LadybugSimulations_batch.get(ladybugsimulation.ID) == undefined) {
-                  FrontRepoSingloton.LadybugSimulations.delete(ladybugsimulation.ID)
+                if (this.frontRepo.LadybugSimulations_batch.get(ladybugsimulation.ID) == undefined) {
+                  this.frontRepo.LadybugSimulations.delete(ladybugsimulation.ID)
                 }
               }
             )
 
             // sort LadybugSimulations_array array
-            FrontRepoSingloton.LadybugSimulations_array.sort((t1, t2) => {
+            this.frontRepo.LadybugSimulations_array.sort((t1, t2) => {
               if (t1.Name > t2.Name) {
                 return 1;
               }
@@ -219,7 +276,7 @@ export class FrontRepoService {
                 // insertion point for redeeming ONE-MANY associations
                 // insertion point for slice of pointer field LadybugSimulation.Ladybugs redeeming
                 {
-                  let _ladybugsimulation = FrontRepoSingloton.LadybugSimulations.get(ladybug.LadybugSimulation_LadybugsDBID.Int64)
+                  let _ladybugsimulation = this.frontRepo.LadybugSimulations.get(ladybug.LadybugSimulation_LadybugsDBID.Int64)
                   if (_ladybugsimulation) {
                     if (_ladybugsimulation.Ladybugs == undefined) {
                       _ladybugsimulation.Ladybugs = new Array<LadybugDB>()
@@ -240,8 +297,32 @@ export class FrontRepoService {
               }
             )
 
+            // 
+            // Third Step: sort arrays (slices in go) according to their index
+            // insertion point sub template for redeem 
+            ladybugs.forEach(
+              ladybug => {
+                // insertion point for sorting
+              }
+            )
+            ladybugsimulations.forEach(
+              ladybugsimulation => {
+                // insertion point for sorting
+                ladybugsimulation.Ladybugs?.sort((t1, t2) => {
+                  if (t1.LadybugSimulation_LadybugsDBID_Index.Int64 > t2.LadybugSimulation_LadybugsDBID_Index.Int64) {
+                    return 1;
+                  }
+                  if (t1.LadybugSimulation_LadybugsDBID_Index.Int64 < t2.LadybugSimulation_LadybugsDBID_Index.Int64) {
+                    return -1;
+                  }
+                  return 0;
+                })
+
+              }
+            )
+
             // hand over control flow to observer
-            observer.next(FrontRepoSingloton)
+            observer.next(this.frontRepo)
           }
         )
       }
@@ -255,31 +336,31 @@ export class FrontRepoService {
     return new Observable<FrontRepo>(
       (observer) => {
         combineLatest([
-          this.ladybugService.getLadybugs()
+          this.ladybugService.getLadybugs(this.GONG__StackPath)
         ]).subscribe(
           ([ // insertion point sub template 
             ladybugs,
           ]) => {
             // init the array
-            FrontRepoSingloton.Ladybugs_array = ladybugs
+            this.frontRepo.Ladybugs_array = ladybugs
 
             // clear the map that counts Ladybug in the GET
-            FrontRepoSingloton.Ladybugs_batch.clear()
+            this.frontRepo.Ladybugs_batch.clear()
 
             // 
             // First Step: init map of instances
             // insertion point sub template 
             ladybugs.forEach(
               ladybug => {
-                FrontRepoSingloton.Ladybugs.set(ladybug.ID, ladybug)
-                FrontRepoSingloton.Ladybugs_batch.set(ladybug.ID, ladybug)
+                this.frontRepo.Ladybugs.set(ladybug.ID, ladybug)
+                this.frontRepo.Ladybugs_batch.set(ladybug.ID, ladybug)
 
                 // insertion point for redeeming ONE/ZERO-ONE associations
 
                 // insertion point for redeeming ONE-MANY associations
                 // insertion point for slice of pointer field LadybugSimulation.Ladybugs redeeming
                 {
-                  let _ladybugsimulation = FrontRepoSingloton.LadybugSimulations.get(ladybug.LadybugSimulation_LadybugsDBID.Int64)
+                  let _ladybugsimulation = this.frontRepo.LadybugSimulations.get(ladybug.LadybugSimulation_LadybugsDBID.Int64)
                   if (_ladybugsimulation) {
                     if (_ladybugsimulation.Ladybugs == undefined) {
                       _ladybugsimulation.Ladybugs = new Array<LadybugDB>()
@@ -294,10 +375,10 @@ export class FrontRepoService {
             )
 
             // clear ladybugs that are absent from the GET
-            FrontRepoSingloton.Ladybugs.forEach(
+            this.frontRepo.Ladybugs.forEach(
               ladybug => {
-                if (FrontRepoSingloton.Ladybugs_batch.get(ladybug.ID) == undefined) {
-                  FrontRepoSingloton.Ladybugs.delete(ladybug.ID)
+                if (this.frontRepo.Ladybugs_batch.get(ladybug.ID) == undefined) {
+                  this.frontRepo.Ladybugs.delete(ladybug.ID)
                 }
               }
             )
@@ -307,7 +388,7 @@ export class FrontRepoService {
             // insertion point sub template 
 
             // hand over control flow to observer
-            observer.next(FrontRepoSingloton)
+            observer.next(this.frontRepo)
           }
         )
       }
@@ -319,24 +400,24 @@ export class FrontRepoService {
     return new Observable<FrontRepo>(
       (observer) => {
         combineLatest([
-          this.ladybugsimulationService.getLadybugSimulations()
+          this.ladybugsimulationService.getLadybugSimulations(this.GONG__StackPath)
         ]).subscribe(
           ([ // insertion point sub template 
             ladybugsimulations,
           ]) => {
             // init the array
-            FrontRepoSingloton.LadybugSimulations_array = ladybugsimulations
+            this.frontRepo.LadybugSimulations_array = ladybugsimulations
 
             // clear the map that counts LadybugSimulation in the GET
-            FrontRepoSingloton.LadybugSimulations_batch.clear()
+            this.frontRepo.LadybugSimulations_batch.clear()
 
             // 
             // First Step: init map of instances
             // insertion point sub template 
             ladybugsimulations.forEach(
               ladybugsimulation => {
-                FrontRepoSingloton.LadybugSimulations.set(ladybugsimulation.ID, ladybugsimulation)
-                FrontRepoSingloton.LadybugSimulations_batch.set(ladybugsimulation.ID, ladybugsimulation)
+                this.frontRepo.LadybugSimulations.set(ladybugsimulation.ID, ladybugsimulation)
+                this.frontRepo.LadybugSimulations_batch.set(ladybugsimulation.ID, ladybugsimulation)
 
                 // insertion point for redeeming ONE/ZERO-ONE associations
 
@@ -345,10 +426,10 @@ export class FrontRepoService {
             )
 
             // clear ladybugsimulations that are absent from the GET
-            FrontRepoSingloton.LadybugSimulations.forEach(
+            this.frontRepo.LadybugSimulations.forEach(
               ladybugsimulation => {
-                if (FrontRepoSingloton.LadybugSimulations_batch.get(ladybugsimulation.ID) == undefined) {
-                  FrontRepoSingloton.LadybugSimulations.delete(ladybugsimulation.ID)
+                if (this.frontRepo.LadybugSimulations_batch.get(ladybugsimulation.ID) == undefined) {
+                  this.frontRepo.LadybugSimulations.delete(ladybugsimulation.ID)
                 }
               }
             )
@@ -358,7 +439,7 @@ export class FrontRepoService {
             // insertion point sub template 
 
             // hand over control flow to observer
-            observer.next(FrontRepoSingloton)
+            observer.next(this.frontRepo)
           }
         )
       }

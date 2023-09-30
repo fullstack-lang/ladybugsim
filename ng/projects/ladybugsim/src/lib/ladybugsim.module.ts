@@ -26,46 +26,10 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 
 import { AngularSplitModule, SplitComponent } from 'angular-split';
 
-import {
-	NgxMatDatetimePickerModule,
-	NgxMatNativeDateModule,
-	NgxMatTimepickerModule
-} from '@angular-material-components/datetime-picker';
-
 import { AppRoutingModule } from './app-routing.module';
-
-import { SplitterComponent } from './splitter/splitter.component'
-import { SidebarComponent } from './sidebar/sidebar.component';
-import { GongstructSelectionService } from './gongstruct-selection.service'
-
-// insertion point for imports 
-import { LadybugsTableComponent } from './ladybugs-table/ladybugs-table.component'
-import { LadybugSortingComponent } from './ladybug-sorting/ladybug-sorting.component'
-import { LadybugDetailComponent } from './ladybug-detail/ladybug-detail.component'
-import { LadybugPresentationComponent } from './ladybug-presentation/ladybug-presentation.component'
-
-import { LadybugSimulationsTableComponent } from './ladybugsimulations-table/ladybugsimulations-table.component'
-import { LadybugSimulationSortingComponent } from './ladybugsimulation-sorting/ladybugsimulation-sorting.component'
-import { LadybugSimulationDetailComponent } from './ladybugsimulation-detail/ladybugsimulation-detail.component'
-import { LadybugSimulationPresentationComponent } from './ladybugsimulation-presentation/ladybugsimulation-presentation.component'
-
 
 @NgModule({
 	declarations: [
-		// insertion point for declarations 
-		LadybugsTableComponent,
-		LadybugSortingComponent,
-		LadybugDetailComponent,
-		LadybugPresentationComponent,
-
-		LadybugSimulationsTableComponent,
-		LadybugSimulationSortingComponent,
-		LadybugSimulationDetailComponent,
-		LadybugSimulationPresentationComponent,
-
-
-		SplitterComponent,
-		SidebarComponent
 	],
 	imports: [
 		FormsModule,
@@ -94,35 +58,12 @@ import { LadybugSimulationPresentationComponent } from './ladybugsimulation-pres
 		MatTreeModule,
 		DragDropModule,
 
-		NgxMatDatetimePickerModule,
-		NgxMatNativeDateModule,
-		NgxMatTimepickerModule,
-
 		AngularSplitModule,
 	],
 	exports: [
-		// insertion point for declarations 
-		LadybugsTableComponent,
-		LadybugSortingComponent,
-		LadybugDetailComponent,
-		LadybugPresentationComponent,
-
-		LadybugSimulationsTableComponent,
-		LadybugSimulationSortingComponent,
-		LadybugSimulationDetailComponent,
-		LadybugSimulationPresentationComponent,
-
-
-		SplitterComponent,
-		SidebarComponent,
-
 	],
 	providers: [
-		GongstructSelectionService,
-		{
-			provide: MatDialogRef,
-			useValue: {}
-		},
+		{ provide: MatDialogRef, useValue: { close: () => { } } }
 	],
 })
 export class LadybugsimModule { }

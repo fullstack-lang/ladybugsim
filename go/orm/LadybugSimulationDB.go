@@ -153,15 +153,22 @@ var LadybugSimulation_Fields = []string{
 
 type BackRepoLadybugSimulationStruct struct {
 	// stores LadybugSimulationDB according to their gorm ID
-	Map_LadybugSimulationDBID_LadybugSimulationDB *map[uint]*LadybugSimulationDB
+	Map_LadybugSimulationDBID_LadybugSimulationDB map[uint]*LadybugSimulationDB
 
 	// stores LadybugSimulationDB ID according to LadybugSimulation address
-	Map_LadybugSimulationPtr_LadybugSimulationDBID *map[*models.LadybugSimulation]uint
+	Map_LadybugSimulationPtr_LadybugSimulationDBID map[*models.LadybugSimulation]uint
 
 	// stores LadybugSimulation according to their gorm ID
-	Map_LadybugSimulationDBID_LadybugSimulationPtr *map[uint]*models.LadybugSimulation
+	Map_LadybugSimulationDBID_LadybugSimulationPtr map[uint]*models.LadybugSimulation
 
 	db *gorm.DB
+
+	stage *models.StageStruct
+}
+
+func (backRepoLadybugSimulation *BackRepoLadybugSimulationStruct) GetStage() (stage *models.StageStruct) {
+	stage = backRepoLadybugSimulation.stage
+	return
 }
 
 func (backRepoLadybugSimulation *BackRepoLadybugSimulationStruct) GetDB() *gorm.DB {
@@ -170,39 +177,8 @@ func (backRepoLadybugSimulation *BackRepoLadybugSimulationStruct) GetDB() *gorm.
 
 // GetLadybugSimulationDBFromLadybugSimulationPtr is a handy function to access the back repo instance from the stage instance
 func (backRepoLadybugSimulation *BackRepoLadybugSimulationStruct) GetLadybugSimulationDBFromLadybugSimulationPtr(ladybugsimulation *models.LadybugSimulation) (ladybugsimulationDB *LadybugSimulationDB) {
-	id := (*backRepoLadybugSimulation.Map_LadybugSimulationPtr_LadybugSimulationDBID)[ladybugsimulation]
-	ladybugsimulationDB = (*backRepoLadybugSimulation.Map_LadybugSimulationDBID_LadybugSimulationDB)[id]
-	return
-}
-
-// BackRepoLadybugSimulation.Init set up the BackRepo of the LadybugSimulation
-func (backRepoLadybugSimulation *BackRepoLadybugSimulationStruct) Init(db *gorm.DB) (Error error) {
-
-	if backRepoLadybugSimulation.Map_LadybugSimulationDBID_LadybugSimulationPtr != nil {
-		err := errors.New("In Init, backRepoLadybugSimulation.Map_LadybugSimulationDBID_LadybugSimulationPtr should be nil")
-		return err
-	}
-
-	if backRepoLadybugSimulation.Map_LadybugSimulationDBID_LadybugSimulationDB != nil {
-		err := errors.New("In Init, backRepoLadybugSimulation.Map_LadybugSimulationDBID_LadybugSimulationDB should be nil")
-		return err
-	}
-
-	if backRepoLadybugSimulation.Map_LadybugSimulationPtr_LadybugSimulationDBID != nil {
-		err := errors.New("In Init, backRepoLadybugSimulation.Map_LadybugSimulationPtr_LadybugSimulationDBID should be nil")
-		return err
-	}
-
-	tmp := make(map[uint]*models.LadybugSimulation, 0)
-	backRepoLadybugSimulation.Map_LadybugSimulationDBID_LadybugSimulationPtr = &tmp
-
-	tmpDB := make(map[uint]*LadybugSimulationDB, 0)
-	backRepoLadybugSimulation.Map_LadybugSimulationDBID_LadybugSimulationDB = &tmpDB
-
-	tmpID := make(map[*models.LadybugSimulation]uint, 0)
-	backRepoLadybugSimulation.Map_LadybugSimulationPtr_LadybugSimulationDBID = &tmpID
-
-	backRepoLadybugSimulation.db = db
+	id := backRepoLadybugSimulation.Map_LadybugSimulationPtr_LadybugSimulationDBID[ladybugsimulation]
+	ladybugsimulationDB = backRepoLadybugSimulation.Map_LadybugSimulationDBID_LadybugSimulationDB[id]
 	return
 }
 
@@ -216,7 +192,7 @@ func (backRepoLadybugSimulation *BackRepoLadybugSimulationStruct) CommitPhaseOne
 
 	// parse all backRepo instance and checks wether some instance have been unstaged
 	// in this case, remove them from the back repo
-	for id, ladybugsimulation := range *backRepoLadybugSimulation.Map_LadybugSimulationDBID_LadybugSimulationPtr {
+	for id, ladybugsimulation := range backRepoLadybugSimulation.Map_LadybugSimulationDBID_LadybugSimulationPtr {
 		if _, ok := stage.LadybugSimulations[ladybugsimulation]; !ok {
 			backRepoLadybugSimulation.CommitDeleteInstance(id)
 		}
@@ -228,19 +204,19 @@ func (backRepoLadybugSimulation *BackRepoLadybugSimulationStruct) CommitPhaseOne
 // BackRepoLadybugSimulation.CommitDeleteInstance commits deletion of LadybugSimulation to the BackRepo
 func (backRepoLadybugSimulation *BackRepoLadybugSimulationStruct) CommitDeleteInstance(id uint) (Error error) {
 
-	ladybugsimulation := (*backRepoLadybugSimulation.Map_LadybugSimulationDBID_LadybugSimulationPtr)[id]
+	ladybugsimulation := backRepoLadybugSimulation.Map_LadybugSimulationDBID_LadybugSimulationPtr[id]
 
 	// ladybugsimulation is not staged anymore, remove ladybugsimulationDB
-	ladybugsimulationDB := (*backRepoLadybugSimulation.Map_LadybugSimulationDBID_LadybugSimulationDB)[id]
+	ladybugsimulationDB := backRepoLadybugSimulation.Map_LadybugSimulationDBID_LadybugSimulationDB[id]
 	query := backRepoLadybugSimulation.db.Unscoped().Delete(&ladybugsimulationDB)
 	if query.Error != nil {
 		return query.Error
 	}
 
 	// update stores
-	delete((*backRepoLadybugSimulation.Map_LadybugSimulationPtr_LadybugSimulationDBID), ladybugsimulation)
-	delete((*backRepoLadybugSimulation.Map_LadybugSimulationDBID_LadybugSimulationPtr), id)
-	delete((*backRepoLadybugSimulation.Map_LadybugSimulationDBID_LadybugSimulationDB), id)
+	delete(backRepoLadybugSimulation.Map_LadybugSimulationPtr_LadybugSimulationDBID, ladybugsimulation)
+	delete(backRepoLadybugSimulation.Map_LadybugSimulationDBID_LadybugSimulationPtr, id)
+	delete(backRepoLadybugSimulation.Map_LadybugSimulationDBID_LadybugSimulationDB, id)
 
 	return
 }
@@ -250,7 +226,7 @@ func (backRepoLadybugSimulation *BackRepoLadybugSimulationStruct) CommitDeleteIn
 func (backRepoLadybugSimulation *BackRepoLadybugSimulationStruct) CommitPhaseOneInstance(ladybugsimulation *models.LadybugSimulation) (Error error) {
 
 	// check if the ladybugsimulation is not commited yet
-	if _, ok := (*backRepoLadybugSimulation.Map_LadybugSimulationPtr_LadybugSimulationDBID)[ladybugsimulation]; ok {
+	if _, ok := backRepoLadybugSimulation.Map_LadybugSimulationPtr_LadybugSimulationDBID[ladybugsimulation]; ok {
 		return
 	}
 
@@ -264,9 +240,9 @@ func (backRepoLadybugSimulation *BackRepoLadybugSimulationStruct) CommitPhaseOne
 	}
 
 	// update stores
-	(*backRepoLadybugSimulation.Map_LadybugSimulationPtr_LadybugSimulationDBID)[ladybugsimulation] = ladybugsimulationDB.ID
-	(*backRepoLadybugSimulation.Map_LadybugSimulationDBID_LadybugSimulationPtr)[ladybugsimulationDB.ID] = ladybugsimulation
-	(*backRepoLadybugSimulation.Map_LadybugSimulationDBID_LadybugSimulationDB)[ladybugsimulationDB.ID] = &ladybugsimulationDB
+	backRepoLadybugSimulation.Map_LadybugSimulationPtr_LadybugSimulationDBID[ladybugsimulation] = ladybugsimulationDB.ID
+	backRepoLadybugSimulation.Map_LadybugSimulationDBID_LadybugSimulationPtr[ladybugsimulationDB.ID] = ladybugsimulation
+	backRepoLadybugSimulation.Map_LadybugSimulationDBID_LadybugSimulationDB[ladybugsimulationDB.ID] = &ladybugsimulationDB
 
 	return
 }
@@ -275,7 +251,7 @@ func (backRepoLadybugSimulation *BackRepoLadybugSimulationStruct) CommitPhaseOne
 // Phase Two is the update of instance with the field in the database
 func (backRepoLadybugSimulation *BackRepoLadybugSimulationStruct) CommitPhaseTwo(backRepo *BackRepoStruct) (Error error) {
 
-	for idx, ladybugsimulation := range *backRepoLadybugSimulation.Map_LadybugSimulationDBID_LadybugSimulationPtr {
+	for idx, ladybugsimulation := range backRepoLadybugSimulation.Map_LadybugSimulationDBID_LadybugSimulationPtr {
 		backRepoLadybugSimulation.CommitPhaseTwoInstance(backRepo, idx, ladybugsimulation)
 	}
 
@@ -287,7 +263,7 @@ func (backRepoLadybugSimulation *BackRepoLadybugSimulationStruct) CommitPhaseTwo
 func (backRepoLadybugSimulation *BackRepoLadybugSimulationStruct) CommitPhaseTwoInstance(backRepo *BackRepoStruct, idx uint, ladybugsimulation *models.LadybugSimulation) (Error error) {
 
 	// fetch matching ladybugsimulationDB
-	if ladybugsimulationDB, ok := (*backRepoLadybugSimulation.Map_LadybugSimulationDBID_LadybugSimulationDB)[idx]; ok {
+	if ladybugsimulationDB, ok := backRepoLadybugSimulation.Map_LadybugSimulationDBID_LadybugSimulationDB[idx]; ok {
 
 		ladybugsimulationDB.CopyBasicFieldsFromLadybugSimulation(ladybugsimulation)
 
@@ -328,8 +304,7 @@ func (backRepoLadybugSimulation *BackRepoLadybugSimulationStruct) CommitPhaseTwo
 // BackRepoLadybugSimulation.CheckoutPhaseOne Checkouts all BackRepo instances to the Stage
 //
 // Phase One will result in having instances on the stage aligned with the back repo
-// pointers are not initialized yet (this is for pahse two)
-//
+// pointers are not initialized yet (this is for phase two)
 func (backRepoLadybugSimulation *BackRepoLadybugSimulationStruct) CheckoutPhaseOne() (Error error) {
 
 	ladybugsimulationDBArray := make([]LadybugSimulationDB, 0)
@@ -341,7 +316,7 @@ func (backRepoLadybugSimulation *BackRepoLadybugSimulationStruct) CheckoutPhaseO
 	// list of instances to be removed
 	// start from the initial map on the stage and remove instances that have been checked out
 	ladybugsimulationInstancesToBeRemovedFromTheStage := make(map[*models.LadybugSimulation]any)
-	for key, value := range models.Stage.LadybugSimulations {
+	for key, value := range backRepoLadybugSimulation.stage.LadybugSimulations {
 		ladybugsimulationInstancesToBeRemovedFromTheStage[key] = value
 	}
 
@@ -351,7 +326,7 @@ func (backRepoLadybugSimulation *BackRepoLadybugSimulationStruct) CheckoutPhaseO
 
 		// do not remove this instance from the stage, therefore
 		// remove instance from the list of instances to be be removed from the stage
-		ladybugsimulation, ok := (*backRepoLadybugSimulation.Map_LadybugSimulationDBID_LadybugSimulationPtr)[ladybugsimulationDB.ID]
+		ladybugsimulation, ok := backRepoLadybugSimulation.Map_LadybugSimulationDBID_LadybugSimulationPtr[ladybugsimulationDB.ID]
 		if ok {
 			delete(ladybugsimulationInstancesToBeRemovedFromTheStage, ladybugsimulation)
 		}
@@ -359,13 +334,13 @@ func (backRepoLadybugSimulation *BackRepoLadybugSimulationStruct) CheckoutPhaseO
 
 	// remove from stage and back repo's 3 maps all ladybugsimulations that are not in the checkout
 	for ladybugsimulation := range ladybugsimulationInstancesToBeRemovedFromTheStage {
-		ladybugsimulation.Unstage()
+		ladybugsimulation.Unstage(backRepoLadybugSimulation.GetStage())
 
 		// remove instance from the back repo 3 maps
-		ladybugsimulationID := (*backRepoLadybugSimulation.Map_LadybugSimulationPtr_LadybugSimulationDBID)[ladybugsimulation]
-		delete((*backRepoLadybugSimulation.Map_LadybugSimulationPtr_LadybugSimulationDBID), ladybugsimulation)
-		delete((*backRepoLadybugSimulation.Map_LadybugSimulationDBID_LadybugSimulationDB), ladybugsimulationID)
-		delete((*backRepoLadybugSimulation.Map_LadybugSimulationDBID_LadybugSimulationPtr), ladybugsimulationID)
+		ladybugsimulationID := backRepoLadybugSimulation.Map_LadybugSimulationPtr_LadybugSimulationDBID[ladybugsimulation]
+		delete(backRepoLadybugSimulation.Map_LadybugSimulationPtr_LadybugSimulationDBID, ladybugsimulation)
+		delete(backRepoLadybugSimulation.Map_LadybugSimulationDBID_LadybugSimulationDB, ladybugsimulationID)
+		delete(backRepoLadybugSimulation.Map_LadybugSimulationDBID_LadybugSimulationPtr, ladybugsimulationID)
 	}
 
 	return
@@ -375,24 +350,27 @@ func (backRepoLadybugSimulation *BackRepoLadybugSimulationStruct) CheckoutPhaseO
 // models version of the ladybugsimulationDB
 func (backRepoLadybugSimulation *BackRepoLadybugSimulationStruct) CheckoutPhaseOneInstance(ladybugsimulationDB *LadybugSimulationDB) (Error error) {
 
-	ladybugsimulation, ok := (*backRepoLadybugSimulation.Map_LadybugSimulationDBID_LadybugSimulationPtr)[ladybugsimulationDB.ID]
+	ladybugsimulation, ok := backRepoLadybugSimulation.Map_LadybugSimulationDBID_LadybugSimulationPtr[ladybugsimulationDB.ID]
 	if !ok {
 		ladybugsimulation = new(models.LadybugSimulation)
 
-		(*backRepoLadybugSimulation.Map_LadybugSimulationDBID_LadybugSimulationPtr)[ladybugsimulationDB.ID] = ladybugsimulation
-		(*backRepoLadybugSimulation.Map_LadybugSimulationPtr_LadybugSimulationDBID)[ladybugsimulation] = ladybugsimulationDB.ID
+		backRepoLadybugSimulation.Map_LadybugSimulationDBID_LadybugSimulationPtr[ladybugsimulationDB.ID] = ladybugsimulation
+		backRepoLadybugSimulation.Map_LadybugSimulationPtr_LadybugSimulationDBID[ladybugsimulation] = ladybugsimulationDB.ID
 
 		// append model store with the new element
 		ladybugsimulation.Name = ladybugsimulationDB.Name_Data.String
-		ladybugsimulation.Stage()
+		ladybugsimulation.Stage(backRepoLadybugSimulation.GetStage())
 	}
 	ladybugsimulationDB.CopyBasicFieldsToLadybugSimulation(ladybugsimulation)
+
+	// in some cases, the instance might have been unstaged. It is necessary to stage it again
+	ladybugsimulation.Stage(backRepoLadybugSimulation.GetStage())
 
 	// preserve pointer to ladybugsimulationDB. Otherwise, pointer will is recycled and the map of pointers
 	// Map_LadybugSimulationDBID_LadybugSimulationDB)[ladybugsimulationDB hold variable pointers
 	ladybugsimulationDB_Data := *ladybugsimulationDB
 	preservedPtrToLadybugSimulation := &ladybugsimulationDB_Data
-	(*backRepoLadybugSimulation.Map_LadybugSimulationDBID_LadybugSimulationDB)[ladybugsimulationDB.ID] = preservedPtrToLadybugSimulation
+	backRepoLadybugSimulation.Map_LadybugSimulationDBID_LadybugSimulationDB[ladybugsimulationDB.ID] = preservedPtrToLadybugSimulation
 
 	return
 }
@@ -402,7 +380,7 @@ func (backRepoLadybugSimulation *BackRepoLadybugSimulationStruct) CheckoutPhaseO
 func (backRepoLadybugSimulation *BackRepoLadybugSimulationStruct) CheckoutPhaseTwo(backRepo *BackRepoStruct) (Error error) {
 
 	// parse all DB instance and update all pointer fields of the translated models instance
-	for _, ladybugsimulationDB := range *backRepoLadybugSimulation.Map_LadybugSimulationDBID_LadybugSimulationDB {
+	for _, ladybugsimulationDB := range backRepoLadybugSimulation.Map_LadybugSimulationDBID_LadybugSimulationDB {
 		backRepoLadybugSimulation.CheckoutPhaseTwoInstance(backRepo, ladybugsimulationDB)
 	}
 	return
@@ -412,7 +390,7 @@ func (backRepoLadybugSimulation *BackRepoLadybugSimulationStruct) CheckoutPhaseT
 // Phase Two is the update of instance with the field in the database
 func (backRepoLadybugSimulation *BackRepoLadybugSimulationStruct) CheckoutPhaseTwoInstance(backRepo *BackRepoStruct, ladybugsimulationDB *LadybugSimulationDB) (Error error) {
 
-	ladybugsimulation := (*backRepoLadybugSimulation.Map_LadybugSimulationDBID_LadybugSimulationPtr)[ladybugsimulationDB.ID]
+	ladybugsimulation := backRepoLadybugSimulation.Map_LadybugSimulationDBID_LadybugSimulationPtr[ladybugsimulationDB.ID]
 	_ = ladybugsimulation // sometimes, there is no code generated. This lines voids the "unused variable" compilation error
 
 	// insertion point for checkout of pointer encoding
@@ -422,11 +400,11 @@ func (backRepoLadybugSimulation *BackRepoLadybugSimulationStruct) CheckoutPhaseT
 	// 1. reset the slice
 	ladybugsimulation.Ladybugs = ladybugsimulation.Ladybugs[:0]
 	// 2. loop all instances in the type in the association end
-	for _, ladybugDB_AssocEnd := range *backRepo.BackRepoLadybug.Map_LadybugDBID_LadybugDB {
+	for _, ladybugDB_AssocEnd := range backRepo.BackRepoLadybug.Map_LadybugDBID_LadybugDB {
 		// 3. Does the ID encoding at the end and the ID at the start matches ?
 		if ladybugDB_AssocEnd.LadybugSimulation_LadybugsDBID.Int64 == int64(ladybugsimulationDB.ID) {
 			// 4. fetch the associated instance in the stage
-			ladybug_AssocEnd := (*backRepo.BackRepoLadybug.Map_LadybugDBID_LadybugPtr)[ladybugDB_AssocEnd.ID]
+			ladybug_AssocEnd := backRepo.BackRepoLadybug.Map_LadybugDBID_LadybugPtr[ladybugDB_AssocEnd.ID]
 			// 5. append it the association slice
 			ladybugsimulation.Ladybugs = append(ladybugsimulation.Ladybugs, ladybug_AssocEnd)
 		}
@@ -434,11 +412,11 @@ func (backRepoLadybugSimulation *BackRepoLadybugSimulationStruct) CheckoutPhaseT
 
 	// sort the array according to the order
 	sort.Slice(ladybugsimulation.Ladybugs, func(i, j int) bool {
-		ladybugDB_i_ID := (*backRepo.BackRepoLadybug.Map_LadybugPtr_LadybugDBID)[ladybugsimulation.Ladybugs[i]]
-		ladybugDB_j_ID := (*backRepo.BackRepoLadybug.Map_LadybugPtr_LadybugDBID)[ladybugsimulation.Ladybugs[j]]
+		ladybugDB_i_ID := backRepo.BackRepoLadybug.Map_LadybugPtr_LadybugDBID[ladybugsimulation.Ladybugs[i]]
+		ladybugDB_j_ID := backRepo.BackRepoLadybug.Map_LadybugPtr_LadybugDBID[ladybugsimulation.Ladybugs[j]]
 
-		ladybugDB_i := (*backRepo.BackRepoLadybug.Map_LadybugDBID_LadybugDB)[ladybugDB_i_ID]
-		ladybugDB_j := (*backRepo.BackRepoLadybug.Map_LadybugDBID_LadybugDB)[ladybugDB_j_ID]
+		ladybugDB_i := backRepo.BackRepoLadybug.Map_LadybugDBID_LadybugDB[ladybugDB_i_ID]
+		ladybugDB_j := backRepo.BackRepoLadybug.Map_LadybugDBID_LadybugDB[ladybugDB_j_ID]
 
 		return ladybugDB_i.LadybugSimulation_LadybugsDBID_Index.Int64 < ladybugDB_j.LadybugSimulation_LadybugsDBID_Index.Int64
 	})
@@ -449,7 +427,7 @@ func (backRepoLadybugSimulation *BackRepoLadybugSimulationStruct) CheckoutPhaseT
 // CommitLadybugSimulation allows commit of a single ladybugsimulation (if already staged)
 func (backRepo *BackRepoStruct) CommitLadybugSimulation(ladybugsimulation *models.LadybugSimulation) {
 	backRepo.BackRepoLadybugSimulation.CommitPhaseOneInstance(ladybugsimulation)
-	if id, ok := (*backRepo.BackRepoLadybugSimulation.Map_LadybugSimulationPtr_LadybugSimulationDBID)[ladybugsimulation]; ok {
+	if id, ok := backRepo.BackRepoLadybugSimulation.Map_LadybugSimulationPtr_LadybugSimulationDBID[ladybugsimulation]; ok {
 		backRepo.BackRepoLadybugSimulation.CommitPhaseTwoInstance(backRepo, id, ladybugsimulation)
 	}
 	backRepo.CommitFromBackNb = backRepo.CommitFromBackNb + 1
@@ -458,9 +436,9 @@ func (backRepo *BackRepoStruct) CommitLadybugSimulation(ladybugsimulation *model
 // CommitLadybugSimulation allows checkout of a single ladybugsimulation (if already staged and with a BackRepo id)
 func (backRepo *BackRepoStruct) CheckoutLadybugSimulation(ladybugsimulation *models.LadybugSimulation) {
 	// check if the ladybugsimulation is staged
-	if _, ok := (*backRepo.BackRepoLadybugSimulation.Map_LadybugSimulationPtr_LadybugSimulationDBID)[ladybugsimulation]; ok {
+	if _, ok := backRepo.BackRepoLadybugSimulation.Map_LadybugSimulationPtr_LadybugSimulationDBID[ladybugsimulation]; ok {
 
-		if id, ok := (*backRepo.BackRepoLadybugSimulation.Map_LadybugSimulationPtr_LadybugSimulationDBID)[ladybugsimulation]; ok {
+		if id, ok := backRepo.BackRepoLadybugSimulation.Map_LadybugSimulationPtr_LadybugSimulationDBID[ladybugsimulation]; ok {
 			var ladybugsimulationDB LadybugSimulationDB
 			ladybugsimulationDB.ID = id
 
@@ -590,7 +568,7 @@ func (backRepoLadybugSimulation *BackRepoLadybugSimulationStruct) Backup(dirPath
 	// organize the map into an array with increasing IDs, in order to have repoductible
 	// backup file
 	forBackup := make([]*LadybugSimulationDB, 0)
-	for _, ladybugsimulationDB := range *backRepoLadybugSimulation.Map_LadybugSimulationDBID_LadybugSimulationDB {
+	for _, ladybugsimulationDB := range backRepoLadybugSimulation.Map_LadybugSimulationDBID_LadybugSimulationDB {
 		forBackup = append(forBackup, ladybugsimulationDB)
 	}
 
@@ -616,7 +594,7 @@ func (backRepoLadybugSimulation *BackRepoLadybugSimulationStruct) BackupXL(file 
 	// organize the map into an array with increasing IDs, in order to have repoductible
 	// backup file
 	forBackup := make([]*LadybugSimulationDB, 0)
-	for _, ladybugsimulationDB := range *backRepoLadybugSimulation.Map_LadybugSimulationDBID_LadybugSimulationDB {
+	for _, ladybugsimulationDB := range backRepoLadybugSimulation.Map_LadybugSimulationDBID_LadybugSimulationDB {
 		forBackup = append(forBackup, ladybugsimulationDB)
 	}
 
@@ -681,7 +659,7 @@ func (backRepoLadybugSimulation *BackRepoLadybugSimulationStruct) rowVisitorLady
 		if query.Error != nil {
 			log.Panic(query.Error)
 		}
-		(*backRepoLadybugSimulation.Map_LadybugSimulationDBID_LadybugSimulationDB)[ladybugsimulationDB.ID] = ladybugsimulationDB
+		backRepoLadybugSimulation.Map_LadybugSimulationDBID_LadybugSimulationDB[ladybugsimulationDB.ID] = ladybugsimulationDB
 		BackRepoLadybugSimulationid_atBckpTime_newID[ladybugsimulationDB_ID_atBackupTime] = ladybugsimulationDB.ID
 	}
 	return nil
@@ -718,7 +696,7 @@ func (backRepoLadybugSimulation *BackRepoLadybugSimulationStruct) RestorePhaseOn
 		if query.Error != nil {
 			log.Panic(query.Error)
 		}
-		(*backRepoLadybugSimulation.Map_LadybugSimulationDBID_LadybugSimulationDB)[ladybugsimulationDB.ID] = ladybugsimulationDB
+		backRepoLadybugSimulation.Map_LadybugSimulationDBID_LadybugSimulationDB[ladybugsimulationDB.ID] = ladybugsimulationDB
 		BackRepoLadybugSimulationid_atBckpTime_newID[ladybugsimulationDB_ID_atBackupTime] = ladybugsimulationDB.ID
 	}
 
@@ -731,7 +709,7 @@ func (backRepoLadybugSimulation *BackRepoLadybugSimulationStruct) RestorePhaseOn
 // to compute new index
 func (backRepoLadybugSimulation *BackRepoLadybugSimulationStruct) RestorePhaseTwo() {
 
-	for _, ladybugsimulationDB := range *backRepoLadybugSimulation.Map_LadybugSimulationDBID_LadybugSimulationDB {
+	for _, ladybugsimulationDB := range backRepoLadybugSimulation.Map_LadybugSimulationDBID_LadybugSimulationDB {
 
 		// next line of code is to avert unused variable compilation error
 		_ = ladybugsimulationDB
@@ -744,6 +722,30 @@ func (backRepoLadybugSimulation *BackRepoLadybugSimulationStruct) RestorePhaseTw
 		}
 	}
 
+}
+
+// BackRepoLadybugSimulation.ResetReversePointers commits all staged instances of LadybugSimulation to the BackRepo
+// Phase Two is the update of instance with the field in the database
+func (backRepoLadybugSimulation *BackRepoLadybugSimulationStruct) ResetReversePointers(backRepo *BackRepoStruct) (Error error) {
+
+	for idx, ladybugsimulation := range backRepoLadybugSimulation.Map_LadybugSimulationDBID_LadybugSimulationPtr {
+		backRepoLadybugSimulation.ResetReversePointersInstance(backRepo, idx, ladybugsimulation)
+	}
+
+	return
+}
+
+func (backRepoLadybugSimulation *BackRepoLadybugSimulationStruct) ResetReversePointersInstance(backRepo *BackRepoStruct, idx uint, astruct *models.LadybugSimulation) (Error error) {
+
+	// fetch matching ladybugsimulationDB
+	if ladybugsimulationDB, ok := backRepoLadybugSimulation.Map_LadybugSimulationDBID_LadybugSimulationDB[idx]; ok {
+		_ = ladybugsimulationDB // to avoid unused variable error if there are no reverse to reset
+
+		// insertion point for reverse pointers reset
+		// end of insertion point for reverse pointers reset
+	}
+
+	return
 }
 
 // this field is used during the restauration process.

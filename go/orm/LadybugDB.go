@@ -123,15 +123,22 @@ var Ladybug_Fields = []string{
 
 type BackRepoLadybugStruct struct {
 	// stores LadybugDB according to their gorm ID
-	Map_LadybugDBID_LadybugDB *map[uint]*LadybugDB
+	Map_LadybugDBID_LadybugDB map[uint]*LadybugDB
 
 	// stores LadybugDB ID according to Ladybug address
-	Map_LadybugPtr_LadybugDBID *map[*models.Ladybug]uint
+	Map_LadybugPtr_LadybugDBID map[*models.Ladybug]uint
 
 	// stores Ladybug according to their gorm ID
-	Map_LadybugDBID_LadybugPtr *map[uint]*models.Ladybug
+	Map_LadybugDBID_LadybugPtr map[uint]*models.Ladybug
 
 	db *gorm.DB
+
+	stage *models.StageStruct
+}
+
+func (backRepoLadybug *BackRepoLadybugStruct) GetStage() (stage *models.StageStruct) {
+	stage = backRepoLadybug.stage
+	return
 }
 
 func (backRepoLadybug *BackRepoLadybugStruct) GetDB() *gorm.DB {
@@ -140,39 +147,8 @@ func (backRepoLadybug *BackRepoLadybugStruct) GetDB() *gorm.DB {
 
 // GetLadybugDBFromLadybugPtr is a handy function to access the back repo instance from the stage instance
 func (backRepoLadybug *BackRepoLadybugStruct) GetLadybugDBFromLadybugPtr(ladybug *models.Ladybug) (ladybugDB *LadybugDB) {
-	id := (*backRepoLadybug.Map_LadybugPtr_LadybugDBID)[ladybug]
-	ladybugDB = (*backRepoLadybug.Map_LadybugDBID_LadybugDB)[id]
-	return
-}
-
-// BackRepoLadybug.Init set up the BackRepo of the Ladybug
-func (backRepoLadybug *BackRepoLadybugStruct) Init(db *gorm.DB) (Error error) {
-
-	if backRepoLadybug.Map_LadybugDBID_LadybugPtr != nil {
-		err := errors.New("In Init, backRepoLadybug.Map_LadybugDBID_LadybugPtr should be nil")
-		return err
-	}
-
-	if backRepoLadybug.Map_LadybugDBID_LadybugDB != nil {
-		err := errors.New("In Init, backRepoLadybug.Map_LadybugDBID_LadybugDB should be nil")
-		return err
-	}
-
-	if backRepoLadybug.Map_LadybugPtr_LadybugDBID != nil {
-		err := errors.New("In Init, backRepoLadybug.Map_LadybugPtr_LadybugDBID should be nil")
-		return err
-	}
-
-	tmp := make(map[uint]*models.Ladybug, 0)
-	backRepoLadybug.Map_LadybugDBID_LadybugPtr = &tmp
-
-	tmpDB := make(map[uint]*LadybugDB, 0)
-	backRepoLadybug.Map_LadybugDBID_LadybugDB = &tmpDB
-
-	tmpID := make(map[*models.Ladybug]uint, 0)
-	backRepoLadybug.Map_LadybugPtr_LadybugDBID = &tmpID
-
-	backRepoLadybug.db = db
+	id := backRepoLadybug.Map_LadybugPtr_LadybugDBID[ladybug]
+	ladybugDB = backRepoLadybug.Map_LadybugDBID_LadybugDB[id]
 	return
 }
 
@@ -186,7 +162,7 @@ func (backRepoLadybug *BackRepoLadybugStruct) CommitPhaseOne(stage *models.Stage
 
 	// parse all backRepo instance and checks wether some instance have been unstaged
 	// in this case, remove them from the back repo
-	for id, ladybug := range *backRepoLadybug.Map_LadybugDBID_LadybugPtr {
+	for id, ladybug := range backRepoLadybug.Map_LadybugDBID_LadybugPtr {
 		if _, ok := stage.Ladybugs[ladybug]; !ok {
 			backRepoLadybug.CommitDeleteInstance(id)
 		}
@@ -198,19 +174,19 @@ func (backRepoLadybug *BackRepoLadybugStruct) CommitPhaseOne(stage *models.Stage
 // BackRepoLadybug.CommitDeleteInstance commits deletion of Ladybug to the BackRepo
 func (backRepoLadybug *BackRepoLadybugStruct) CommitDeleteInstance(id uint) (Error error) {
 
-	ladybug := (*backRepoLadybug.Map_LadybugDBID_LadybugPtr)[id]
+	ladybug := backRepoLadybug.Map_LadybugDBID_LadybugPtr[id]
 
 	// ladybug is not staged anymore, remove ladybugDB
-	ladybugDB := (*backRepoLadybug.Map_LadybugDBID_LadybugDB)[id]
+	ladybugDB := backRepoLadybug.Map_LadybugDBID_LadybugDB[id]
 	query := backRepoLadybug.db.Unscoped().Delete(&ladybugDB)
 	if query.Error != nil {
 		return query.Error
 	}
 
 	// update stores
-	delete((*backRepoLadybug.Map_LadybugPtr_LadybugDBID), ladybug)
-	delete((*backRepoLadybug.Map_LadybugDBID_LadybugPtr), id)
-	delete((*backRepoLadybug.Map_LadybugDBID_LadybugDB), id)
+	delete(backRepoLadybug.Map_LadybugPtr_LadybugDBID, ladybug)
+	delete(backRepoLadybug.Map_LadybugDBID_LadybugPtr, id)
+	delete(backRepoLadybug.Map_LadybugDBID_LadybugDB, id)
 
 	return
 }
@@ -220,7 +196,7 @@ func (backRepoLadybug *BackRepoLadybugStruct) CommitDeleteInstance(id uint) (Err
 func (backRepoLadybug *BackRepoLadybugStruct) CommitPhaseOneInstance(ladybug *models.Ladybug) (Error error) {
 
 	// check if the ladybug is not commited yet
-	if _, ok := (*backRepoLadybug.Map_LadybugPtr_LadybugDBID)[ladybug]; ok {
+	if _, ok := backRepoLadybug.Map_LadybugPtr_LadybugDBID[ladybug]; ok {
 		return
 	}
 
@@ -234,9 +210,9 @@ func (backRepoLadybug *BackRepoLadybugStruct) CommitPhaseOneInstance(ladybug *mo
 	}
 
 	// update stores
-	(*backRepoLadybug.Map_LadybugPtr_LadybugDBID)[ladybug] = ladybugDB.ID
-	(*backRepoLadybug.Map_LadybugDBID_LadybugPtr)[ladybugDB.ID] = ladybug
-	(*backRepoLadybug.Map_LadybugDBID_LadybugDB)[ladybugDB.ID] = &ladybugDB
+	backRepoLadybug.Map_LadybugPtr_LadybugDBID[ladybug] = ladybugDB.ID
+	backRepoLadybug.Map_LadybugDBID_LadybugPtr[ladybugDB.ID] = ladybug
+	backRepoLadybug.Map_LadybugDBID_LadybugDB[ladybugDB.ID] = &ladybugDB
 
 	return
 }
@@ -245,7 +221,7 @@ func (backRepoLadybug *BackRepoLadybugStruct) CommitPhaseOneInstance(ladybug *mo
 // Phase Two is the update of instance with the field in the database
 func (backRepoLadybug *BackRepoLadybugStruct) CommitPhaseTwo(backRepo *BackRepoStruct) (Error error) {
 
-	for idx, ladybug := range *backRepoLadybug.Map_LadybugDBID_LadybugPtr {
+	for idx, ladybug := range backRepoLadybug.Map_LadybugDBID_LadybugPtr {
 		backRepoLadybug.CommitPhaseTwoInstance(backRepo, idx, ladybug)
 	}
 
@@ -257,7 +233,7 @@ func (backRepoLadybug *BackRepoLadybugStruct) CommitPhaseTwo(backRepo *BackRepoS
 func (backRepoLadybug *BackRepoLadybugStruct) CommitPhaseTwoInstance(backRepo *BackRepoStruct, idx uint, ladybug *models.Ladybug) (Error error) {
 
 	// fetch matching ladybugDB
-	if ladybugDB, ok := (*backRepoLadybug.Map_LadybugDBID_LadybugDB)[idx]; ok {
+	if ladybugDB, ok := backRepoLadybug.Map_LadybugDBID_LadybugDB[idx]; ok {
 
 		ladybugDB.CopyBasicFieldsFromLadybug(ladybug)
 
@@ -279,8 +255,7 @@ func (backRepoLadybug *BackRepoLadybugStruct) CommitPhaseTwoInstance(backRepo *B
 // BackRepoLadybug.CheckoutPhaseOne Checkouts all BackRepo instances to the Stage
 //
 // Phase One will result in having instances on the stage aligned with the back repo
-// pointers are not initialized yet (this is for pahse two)
-//
+// pointers are not initialized yet (this is for phase two)
 func (backRepoLadybug *BackRepoLadybugStruct) CheckoutPhaseOne() (Error error) {
 
 	ladybugDBArray := make([]LadybugDB, 0)
@@ -292,7 +267,7 @@ func (backRepoLadybug *BackRepoLadybugStruct) CheckoutPhaseOne() (Error error) {
 	// list of instances to be removed
 	// start from the initial map on the stage and remove instances that have been checked out
 	ladybugInstancesToBeRemovedFromTheStage := make(map[*models.Ladybug]any)
-	for key, value := range models.Stage.Ladybugs {
+	for key, value := range backRepoLadybug.stage.Ladybugs {
 		ladybugInstancesToBeRemovedFromTheStage[key] = value
 	}
 
@@ -302,7 +277,7 @@ func (backRepoLadybug *BackRepoLadybugStruct) CheckoutPhaseOne() (Error error) {
 
 		// do not remove this instance from the stage, therefore
 		// remove instance from the list of instances to be be removed from the stage
-		ladybug, ok := (*backRepoLadybug.Map_LadybugDBID_LadybugPtr)[ladybugDB.ID]
+		ladybug, ok := backRepoLadybug.Map_LadybugDBID_LadybugPtr[ladybugDB.ID]
 		if ok {
 			delete(ladybugInstancesToBeRemovedFromTheStage, ladybug)
 		}
@@ -310,13 +285,13 @@ func (backRepoLadybug *BackRepoLadybugStruct) CheckoutPhaseOne() (Error error) {
 
 	// remove from stage and back repo's 3 maps all ladybugs that are not in the checkout
 	for ladybug := range ladybugInstancesToBeRemovedFromTheStage {
-		ladybug.Unstage()
+		ladybug.Unstage(backRepoLadybug.GetStage())
 
 		// remove instance from the back repo 3 maps
-		ladybugID := (*backRepoLadybug.Map_LadybugPtr_LadybugDBID)[ladybug]
-		delete((*backRepoLadybug.Map_LadybugPtr_LadybugDBID), ladybug)
-		delete((*backRepoLadybug.Map_LadybugDBID_LadybugDB), ladybugID)
-		delete((*backRepoLadybug.Map_LadybugDBID_LadybugPtr), ladybugID)
+		ladybugID := backRepoLadybug.Map_LadybugPtr_LadybugDBID[ladybug]
+		delete(backRepoLadybug.Map_LadybugPtr_LadybugDBID, ladybug)
+		delete(backRepoLadybug.Map_LadybugDBID_LadybugDB, ladybugID)
+		delete(backRepoLadybug.Map_LadybugDBID_LadybugPtr, ladybugID)
 	}
 
 	return
@@ -326,24 +301,27 @@ func (backRepoLadybug *BackRepoLadybugStruct) CheckoutPhaseOne() (Error error) {
 // models version of the ladybugDB
 func (backRepoLadybug *BackRepoLadybugStruct) CheckoutPhaseOneInstance(ladybugDB *LadybugDB) (Error error) {
 
-	ladybug, ok := (*backRepoLadybug.Map_LadybugDBID_LadybugPtr)[ladybugDB.ID]
+	ladybug, ok := backRepoLadybug.Map_LadybugDBID_LadybugPtr[ladybugDB.ID]
 	if !ok {
 		ladybug = new(models.Ladybug)
 
-		(*backRepoLadybug.Map_LadybugDBID_LadybugPtr)[ladybugDB.ID] = ladybug
-		(*backRepoLadybug.Map_LadybugPtr_LadybugDBID)[ladybug] = ladybugDB.ID
+		backRepoLadybug.Map_LadybugDBID_LadybugPtr[ladybugDB.ID] = ladybug
+		backRepoLadybug.Map_LadybugPtr_LadybugDBID[ladybug] = ladybugDB.ID
 
 		// append model store with the new element
 		ladybug.Name = ladybugDB.Name_Data.String
-		ladybug.Stage()
+		ladybug.Stage(backRepoLadybug.GetStage())
 	}
 	ladybugDB.CopyBasicFieldsToLadybug(ladybug)
+
+	// in some cases, the instance might have been unstaged. It is necessary to stage it again
+	ladybug.Stage(backRepoLadybug.GetStage())
 
 	// preserve pointer to ladybugDB. Otherwise, pointer will is recycled and the map of pointers
 	// Map_LadybugDBID_LadybugDB)[ladybugDB hold variable pointers
 	ladybugDB_Data := *ladybugDB
 	preservedPtrToLadybug := &ladybugDB_Data
-	(*backRepoLadybug.Map_LadybugDBID_LadybugDB)[ladybugDB.ID] = preservedPtrToLadybug
+	backRepoLadybug.Map_LadybugDBID_LadybugDB[ladybugDB.ID] = preservedPtrToLadybug
 
 	return
 }
@@ -353,7 +331,7 @@ func (backRepoLadybug *BackRepoLadybugStruct) CheckoutPhaseOneInstance(ladybugDB
 func (backRepoLadybug *BackRepoLadybugStruct) CheckoutPhaseTwo(backRepo *BackRepoStruct) (Error error) {
 
 	// parse all DB instance and update all pointer fields of the translated models instance
-	for _, ladybugDB := range *backRepoLadybug.Map_LadybugDBID_LadybugDB {
+	for _, ladybugDB := range backRepoLadybug.Map_LadybugDBID_LadybugDB {
 		backRepoLadybug.CheckoutPhaseTwoInstance(backRepo, ladybugDB)
 	}
 	return
@@ -363,7 +341,7 @@ func (backRepoLadybug *BackRepoLadybugStruct) CheckoutPhaseTwo(backRepo *BackRep
 // Phase Two is the update of instance with the field in the database
 func (backRepoLadybug *BackRepoLadybugStruct) CheckoutPhaseTwoInstance(backRepo *BackRepoStruct, ladybugDB *LadybugDB) (Error error) {
 
-	ladybug := (*backRepoLadybug.Map_LadybugDBID_LadybugPtr)[ladybugDB.ID]
+	ladybug := backRepoLadybug.Map_LadybugDBID_LadybugPtr[ladybugDB.ID]
 	_ = ladybug // sometimes, there is no code generated. This lines voids the "unused variable" compilation error
 
 	// insertion point for checkout of pointer encoding
@@ -373,7 +351,7 @@ func (backRepoLadybug *BackRepoLadybugStruct) CheckoutPhaseTwoInstance(backRepo 
 // CommitLadybug allows commit of a single ladybug (if already staged)
 func (backRepo *BackRepoStruct) CommitLadybug(ladybug *models.Ladybug) {
 	backRepo.BackRepoLadybug.CommitPhaseOneInstance(ladybug)
-	if id, ok := (*backRepo.BackRepoLadybug.Map_LadybugPtr_LadybugDBID)[ladybug]; ok {
+	if id, ok := backRepo.BackRepoLadybug.Map_LadybugPtr_LadybugDBID[ladybug]; ok {
 		backRepo.BackRepoLadybug.CommitPhaseTwoInstance(backRepo, id, ladybug)
 	}
 	backRepo.CommitFromBackNb = backRepo.CommitFromBackNb + 1
@@ -382,9 +360,9 @@ func (backRepo *BackRepoStruct) CommitLadybug(ladybug *models.Ladybug) {
 // CommitLadybug allows checkout of a single ladybug (if already staged and with a BackRepo id)
 func (backRepo *BackRepoStruct) CheckoutLadybug(ladybug *models.Ladybug) {
 	// check if the ladybug is staged
-	if _, ok := (*backRepo.BackRepoLadybug.Map_LadybugPtr_LadybugDBID)[ladybug]; ok {
+	if _, ok := backRepo.BackRepoLadybug.Map_LadybugPtr_LadybugDBID[ladybug]; ok {
 
-		if id, ok := (*backRepo.BackRepoLadybug.Map_LadybugPtr_LadybugDBID)[ladybug]; ok {
+		if id, ok := backRepo.BackRepoLadybug.Map_LadybugPtr_LadybugDBID[ladybug]; ok {
 			var ladybugDB LadybugDB
 			ladybugDB.ID = id
 
@@ -466,7 +444,7 @@ func (backRepoLadybug *BackRepoLadybugStruct) Backup(dirPath string) {
 	// organize the map into an array with increasing IDs, in order to have repoductible
 	// backup file
 	forBackup := make([]*LadybugDB, 0)
-	for _, ladybugDB := range *backRepoLadybug.Map_LadybugDBID_LadybugDB {
+	for _, ladybugDB := range backRepoLadybug.Map_LadybugDBID_LadybugDB {
 		forBackup = append(forBackup, ladybugDB)
 	}
 
@@ -492,7 +470,7 @@ func (backRepoLadybug *BackRepoLadybugStruct) BackupXL(file *xlsx.File) {
 	// organize the map into an array with increasing IDs, in order to have repoductible
 	// backup file
 	forBackup := make([]*LadybugDB, 0)
-	for _, ladybugDB := range *backRepoLadybug.Map_LadybugDBID_LadybugDB {
+	for _, ladybugDB := range backRepoLadybug.Map_LadybugDBID_LadybugDB {
 		forBackup = append(forBackup, ladybugDB)
 	}
 
@@ -557,7 +535,7 @@ func (backRepoLadybug *BackRepoLadybugStruct) rowVisitorLadybug(row *xlsx.Row) e
 		if query.Error != nil {
 			log.Panic(query.Error)
 		}
-		(*backRepoLadybug.Map_LadybugDBID_LadybugDB)[ladybugDB.ID] = ladybugDB
+		backRepoLadybug.Map_LadybugDBID_LadybugDB[ladybugDB.ID] = ladybugDB
 		BackRepoLadybugid_atBckpTime_newID[ladybugDB_ID_atBackupTime] = ladybugDB.ID
 	}
 	return nil
@@ -594,7 +572,7 @@ func (backRepoLadybug *BackRepoLadybugStruct) RestorePhaseOne(dirPath string) {
 		if query.Error != nil {
 			log.Panic(query.Error)
 		}
-		(*backRepoLadybug.Map_LadybugDBID_LadybugDB)[ladybugDB.ID] = ladybugDB
+		backRepoLadybug.Map_LadybugDBID_LadybugDB[ladybugDB.ID] = ladybugDB
 		BackRepoLadybugid_atBckpTime_newID[ladybugDB_ID_atBackupTime] = ladybugDB.ID
 	}
 
@@ -607,7 +585,7 @@ func (backRepoLadybug *BackRepoLadybugStruct) RestorePhaseOne(dirPath string) {
 // to compute new index
 func (backRepoLadybug *BackRepoLadybugStruct) RestorePhaseTwo() {
 
-	for _, ladybugDB := range *backRepoLadybug.Map_LadybugDBID_LadybugDB {
+	for _, ladybugDB := range backRepoLadybug.Map_LadybugDBID_LadybugDB {
 
 		// next line of code is to avert unused variable compilation error
 		_ = ladybugDB
@@ -626,6 +604,39 @@ func (backRepoLadybug *BackRepoLadybugStruct) RestorePhaseTwo() {
 		}
 	}
 
+}
+
+// BackRepoLadybug.ResetReversePointers commits all staged instances of Ladybug to the BackRepo
+// Phase Two is the update of instance with the field in the database
+func (backRepoLadybug *BackRepoLadybugStruct) ResetReversePointers(backRepo *BackRepoStruct) (Error error) {
+
+	for idx, ladybug := range backRepoLadybug.Map_LadybugDBID_LadybugPtr {
+		backRepoLadybug.ResetReversePointersInstance(backRepo, idx, ladybug)
+	}
+
+	return
+}
+
+func (backRepoLadybug *BackRepoLadybugStruct) ResetReversePointersInstance(backRepo *BackRepoStruct, idx uint, astruct *models.Ladybug) (Error error) {
+
+	// fetch matching ladybugDB
+	if ladybugDB, ok := backRepoLadybug.Map_LadybugDBID_LadybugDB[idx]; ok {
+		_ = ladybugDB // to avoid unused variable error if there are no reverse to reset
+
+		// insertion point for reverse pointers reset
+		if ladybugDB.LadybugSimulation_LadybugsDBID.Int64 != 0 {
+			ladybugDB.LadybugSimulation_LadybugsDBID.Int64 = 0
+			ladybugDB.LadybugSimulation_LadybugsDBID.Valid = true
+
+			// save the reset
+			if q := backRepoLadybug.db.Save(ladybugDB); q.Error != nil {
+				return q.Error
+			}
+		}
+		// end of insertion point for reverse pointers reset
+	}
+
+	return
 }
 
 // this field is used during the restauration process.

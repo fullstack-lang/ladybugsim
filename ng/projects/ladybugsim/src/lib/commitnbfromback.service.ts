@@ -6,20 +6,21 @@ import { DOCUMENT, Location } from '@angular/common'
 /*
  * Behavior subject
  */
-import { BehaviorSubject, interval } from 'rxjs';
-import { Observable, of } from 'rxjs';
-import { catchError, map, switchMap, tap } from 'rxjs/operators';
+import { BehaviorSubject, interval } from 'rxjs'
+import { Observable, of } from 'rxjs'
+import { catchError, map, switchMap, tap } from 'rxjs/operators'
 
 @Injectable({
     providedIn: 'root'
 })
-export class PushFromFrontNbService {
+export class CommitNbFromBackService {
 
     httpOptions = {
         headers: new HttpHeaders({ 'Content-Type': 'application/json' })
     };
 
-    private pushFromFrontNbURL: string
+    private commitNbFromBackUrl: string
+
     constructor(
         private http: HttpClient,
         private location: Location,
@@ -33,24 +34,15 @@ export class PushFromFrontNbService {
         origin = origin.replace("4200", "8080")
 
         // compute path to the service
-        this.pushFromFrontNbURL = origin + '/api/github.com/fullstack-lang/ladybugsim/go/v1/pushfromfrontnb';
+        this.commitNbFromBackUrl = origin + '/api/github.com/fullstack-lang/ladybugsim/go/v1/commitfrombacknb';
     }
 
-    // observable of the commit nb getter
-    public getPushFromFrontNb(): Observable<number> {
-        return this.http.get<number>(this.pushFromFrontNbURL)
-            .pipe(
-                tap(_ => this.log('fetched commit nb')),
-                catchError(this.handleError<number>('getPushFromFrontNb', -1))
-            );
-    }
-
-    getPushNbFromFront(intervalMs: number, GONG__StackPath: string = ""): Observable<number> {
+    getCommitNbFromBack(intervalMs: number, GONG__StackPath: string = ""): Observable<number> {
 
         let params = new HttpParams().set("GONG__StackPath", GONG__StackPath)
 
         return interval(intervalMs).pipe(
-            switchMap(() => this.http.get<number>(this.pushFromFrontNbURL, { params: params }).pipe(
+            switchMap(() => this.http.get<number>(this.commitNbFromBackUrl, { params: params }).pipe(
                 catchError(error => {
                     // Handle the error here, e.g. log it, show a notification, etc.
                     console.error('Error fetching commit number:', error);
@@ -69,11 +61,11 @@ export class PushFromFrontNbService {
      * @param operation - name of the operation that failed
      * @param result - optional value to return as the observable result
      */
-    private handleError<T>(operation = 'operation', result?: T) {
+    private handleError<T>(operation = 'operation in CommitNbFromBackService', result?: T) {
         return (error: any): Observable<T> => {
 
             // TODO: send the error to remote logging infrastructure
-            console.error(error); // log to console instead
+            console.error("in CommitNbFromBackService" + error); // log to console instead
 
             // TODO: better job of transforming error for user consumption
             this.log('${operation} failed: ${error.message}');
@@ -84,6 +76,6 @@ export class PushFromFrontNbService {
     }
 
     private log(message: string) {
-
+        console.log(message)
     }
 }

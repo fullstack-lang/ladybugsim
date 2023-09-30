@@ -1,3 +1,4 @@
+// generated code - do not edit
 package models
 
 // AfterCreateFromFront is called after a create from front
@@ -13,6 +14,8 @@ func AfterCreateFromFront[Type Gongstruct](stage *StageStruct, instance *Type) {
 		if stage.OnAfterLadybugSimulationCreateCallback != nil {
 			stage.OnAfterLadybugSimulationCreateCallback.OnAfterCreate(stage, target)
 		}
+	default:
+		_ = target
 	}
 }
 
@@ -31,6 +34,8 @@ func AfterUpdateFromFront[Type Gongstruct](stage *StageStruct, old, new *Type) {
 		if stage.OnAfterLadybugSimulationUpdateCallback != nil {
 			stage.OnAfterLadybugSimulationUpdateCallback.OnAfterUpdate(stage, oldTarget, newTarget)
 		}
+	default:
+		_ = oldTarget
 	}
 }
 
@@ -49,6 +54,8 @@ func AfterDeleteFromFront[Type Gongstruct](stage *StageStruct, staged, front *Ty
 			staged := any(staged).(*LadybugSimulation)
 			stage.OnAfterLadybugSimulationDeleteCallback.OnAfterDelete(stage, staged, front)
 		}
+	default:
+		_ = front
 	}
 }
 
@@ -65,6 +72,8 @@ func AfterReadFromFront[Type Gongstruct](stage *StageStruct, instance *Type) {
 		if stage.OnAfterLadybugSimulationReadCallback != nil {
 			stage.OnAfterLadybugSimulationReadCallback.OnAfterRead(stage, target)
 		}
+	default:
+		_ = target
 	}
 }
 

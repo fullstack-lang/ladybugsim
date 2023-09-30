@@ -1,12 +1,12 @@
+// generated code - do not edit
 package controllers
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-
-	"github.com/fullstack-lang/ladybugsim/go/orm"
 )
 
 // genQuery return the name of the column
@@ -39,39 +39,65 @@ type ValidationError struct {
 	} `json:"body"`
 }
 
-// RegisterControllers register controllers
-func RegisterControllers(r *gin.Engine) {
+// registerControllers register controllers
+func registerControllers(r *gin.Engine) {
 	v1 := r.Group("/api/github.com/fullstack-lang/ladybugsim/go")
 	{ // insertion point for registrations
-		v1.GET("/v1/ladybugs", GetLadybugs)
-		v1.GET("/v1/ladybugs/:id", GetLadybug)
-		v1.POST("/v1/ladybugs", PostLadybug)
-		v1.PATCH("/v1/ladybugs/:id", UpdateLadybug)
-		v1.PUT("/v1/ladybugs/:id", UpdateLadybug)
-		v1.DELETE("/v1/ladybugs/:id", DeleteLadybug)
+		v1.GET("/v1/ladybugs", GetController().GetLadybugs)
+		v1.GET("/v1/ladybugs/:id", GetController().GetLadybug)
+		v1.POST("/v1/ladybugs", GetController().PostLadybug)
+		v1.PATCH("/v1/ladybugs/:id", GetController().UpdateLadybug)
+		v1.PUT("/v1/ladybugs/:id", GetController().UpdateLadybug)
+		v1.DELETE("/v1/ladybugs/:id", GetController().DeleteLadybug)
 
-		v1.GET("/v1/ladybugsimulations", GetLadybugSimulations)
-		v1.GET("/v1/ladybugsimulations/:id", GetLadybugSimulation)
-		v1.POST("/v1/ladybugsimulations", PostLadybugSimulation)
-		v1.PATCH("/v1/ladybugsimulations/:id", UpdateLadybugSimulation)
-		v1.PUT("/v1/ladybugsimulations/:id", UpdateLadybugSimulation)
-		v1.DELETE("/v1/ladybugsimulations/:id", DeleteLadybugSimulation)
+		v1.GET("/v1/ladybugsimulations", GetController().GetLadybugSimulations)
+		v1.GET("/v1/ladybugsimulations/:id", GetController().GetLadybugSimulation)
+		v1.POST("/v1/ladybugsimulations", GetController().PostLadybugSimulation)
+		v1.PATCH("/v1/ladybugsimulations/:id", GetController().UpdateLadybugSimulation)
+		v1.PUT("/v1/ladybugsimulations/:id", GetController().UpdateLadybugSimulation)
+		v1.DELETE("/v1/ladybugsimulations/:id", GetController().DeleteLadybugSimulation)
 
-		v1.GET("/commitfrombacknb", GetLastCommitFromBackNb)
-		v1.GET("/pushfromfrontnb", GetLastPushFromFrontNb)
+		v1.GET("/v1/commitfrombacknb", GetController().GetLastCommitFromBackNb)
+		v1.GET("/v1/pushfromfrontnb", GetController().GetLastPushFromFrontNb)
 	}
 }
 
 // swagger:route GET /commitfrombacknb backrepo GetLastCommitFromBackNb
-func GetLastCommitFromBackNb(c *gin.Context) {
-	res := orm.GetLastCommitFromBackNb()
+func (controller *Controller) GetLastCommitFromBackNb(c *gin.Context) {
+	values := c.Request.URL.Query()
+	stackPath := ""
+	if len(values) == 1 {
+		value := values["GONG__StackPath"]
+		if len(value) == 1 {
+			stackPath = value[0]
+			// log.Println("GetLastCommitFromBackNb", "GONG__StackPath", stackPath)
+		}
+	}
+	backRepo := controller.Map_BackRepos[stackPath]
+	if backRepo == nil {
+		log.Panic("Stack github.com/fullstack-lang/ladybugsim/go/models, Unkown stack", stackPath)
+	}
+	res := backRepo.GetLastCommitFromBackNb()
 
 	c.JSON(http.StatusOK, res)
 }
 
 // swagger:route GET /pushfromfrontnb backrepo GetLastPushFromFrontNb
-func GetLastPushFromFrontNb(c *gin.Context) {
-	res := orm.GetLastPushFromFrontNb()
+func (controller *Controller) GetLastPushFromFrontNb(c *gin.Context) {
+	values := c.Request.URL.Query()
+	stackPath := ""
+	if len(values) == 1 {
+		value := values["GONG__StackPath"]
+		if len(value) == 1 {
+			stackPath = value[0]
+			// log.Println("GetLastPushFromFrontNb", "GONG__StackPath", stackPath)
+		}
+	}
+	backRepo := controller.Map_BackRepos[stackPath]
+	if backRepo == nil {
+		log.Panic("Stack github.com/fullstack-lang/ladybugsim/go/models, Unkown stack", stackPath)
+	}
+	res := backRepo.GetLastPushFromFrontNb()
 
 	c.JSON(http.StatusOK, res)
 }
